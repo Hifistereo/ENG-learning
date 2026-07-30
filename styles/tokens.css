@@ -1,0 +1,113 @@
+/* Design tokens.
+   One place for colour, spacing, type and motion so the kid screens and the
+   parent screens stay visually related without sharing components. */
+
+:root {
+  /* --- Palette -------------------------------------------------------- */
+  /* Warm and high-contrast. Every foreground/background pair used for text
+     clears WCAG AA at the sizes we render them. */
+  --c-sun:        #ffb703;
+  --c-sun-deep:   #fb8500;
+  --c-sky:        #219ebc;
+  --c-sky-deep:   #126782;
+  --c-sky-pale:   #8ecae6;
+  --c-leaf:       #2a9d5c;
+  --c-leaf-pale:  #b7e4c7;
+  --c-berry:      #d1495b;
+  --c-grape:      #7048a8;
+
+  --c-ink:        #1d2733;
+  --c-ink-soft:   #4a5a6a;
+  --c-ink-faint:  #8697a8;
+  --c-paper:      #fffdf7;
+  --c-paper-2:    #fff6e2;
+  --c-line:       #e6dcc8;
+
+  /* Semantic aliases. Prefer these in components. */
+  --bg:           var(--c-paper);
+  --bg-raised:    #ffffff;
+  --fg:           var(--c-ink);
+  --fg-soft:      var(--c-ink-soft);
+  --border:       var(--c-line);
+  --accent:       var(--c-sun-deep);
+  --good:         var(--c-leaf);
+
+  /* Card tiers for achievements. */
+  --tier-bronze:  #b5713b;
+  --tier-silver:  #8d9bab;
+  --tier-gold:    #e0a01a;
+  --tier-rainbow: #7048a8;
+
+  /* --- Spacing (8px base) --------------------------------------------- */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+
+  /* --- Radii & shadow -------------------------------------------------- */
+  --r-sm: 0.5rem;
+  --r-md: 1rem;
+  --r-lg: 1.5rem;
+  --r-xl: 2rem;
+  --r-pill: 999px;
+
+  --shadow-1: 0 2px 6px rgba(29, 39, 51, 0.08);
+  --shadow-2: 0 6px 18px rgba(29, 39, 51, 0.12);
+  --shadow-3: 0 14px 34px rgba(29, 39, 51, 0.18);
+  /* Chunky bottom edge that makes buttons look pressable to a small child. */
+  --edge: 0 6px 0 rgba(0, 0, 0, 0.14);
+
+  /* --- Type ------------------------------------------------------------ */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --t-xs:  0.8125rem;
+  --t-sm:  0.9375rem;
+  --t-md:  1.0625rem;
+  --t-lg:  clamp(1.25rem, 3.2vw, 1.75rem);
+  --t-xl:  clamp(1.75rem, 5vw, 2.75rem);
+  --t-2xl: clamp(2.25rem, 8vw, 4rem);
+
+  /* --- Motion ---------------------------------------------------------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur: 280ms;
+  --dur-slow: 600ms;
+
+  /* --- Age scaling ------------------------------------------------------
+     Set on <body> as data-age="2" | "5". Toddlers get bigger everything and
+     a higher floor on tap targets; the same components read these vars so we
+     never fork a component per age. */
+  --tap-min: 88px;
+  --pic-size: clamp(7rem, 26vw, 12rem);
+  --choice-gap: var(--s-4);
+}
+
+body[data-age="2"] {
+  --tap-min: 112px;
+  --pic-size: clamp(9rem, 38vw, 17rem);
+  --choice-gap: var(--s-5);
+}
+
+body[data-age="5"] {
+  --tap-min: 88px;
+  --pic-size: clamp(6.5rem, 22vw, 10rem);
+  --choice-gap: var(--s-4);
+}
+
+/* Respect the OS dark preference on the parent side only. The kid screens
+   stay bright on purpose: dark UI reads as "night" and we want the app to
+   feel like daytime play. */
+@media (prefers-color-scheme: dark) {
+  body[data-surface="parent"] {
+    --bg: #161c23;
+    --bg-raised: #1f2830;
+    --fg: #eef3f8;
+    --fg-soft: #a8b8c7;
+    --border: #33404d;
+    --c-paper-2: #1a222a;
+  }
+}

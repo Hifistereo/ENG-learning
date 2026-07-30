@@ -1,0 +1,263 @@
+/* The parent area. A denser, more grown-up surface than the kid screens —
+   this one is allowed to have tables, small text and scrolling. */
+
+.screen--parent {
+  width: min(60rem, 100%);
+  margin-inline: auto;
+  padding: var(--s-4);
+  gap: var(--s-4);
+}
+
+.parent__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.parent__title { font-size: var(--t-lg); font-weight: 800; }
+.parent__body { display: flex; flex-direction: column; gap: var(--s-4); }
+.parent__empty { color: var(--fg-soft); }
+
+.parent__footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-top: var(--s-4);
+  margin-top: var(--s-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--t-xs);
+  color: var(--c-ink-faint);
+}
+.parent__footer .warn { color: var(--c-berry); font-weight: 600; }
+
+/* --- Gate --------------------------------------------------------------- */
+
+.gate {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-6);
+  width: min(22rem, 100%);
+  text-align: center;
+}
+.gate__title { font-size: var(--t-lg); font-weight: 800; }
+.gate__hint { color: var(--fg-soft); font-size: var(--t-sm); }
+.gate__sum { font-size: var(--t-xl); font-weight: 800; letter-spacing: 0.05em; }
+.gate__error { color: var(--c-berry); font-size: var(--t-sm); min-height: 1.2em; }
+.gate input {
+  font: inherit;
+  font-size: var(--t-lg);
+  text-align: center;
+  width: 7rem;
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  border: 2px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--fg);
+}
+
+/* --- Tabs and chips ----------------------------------------------------- */
+
+.tabs, .chips {
+  display: flex;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+.tabs { border-bottom: 2px solid var(--border); padding-bottom: var(--s-2); }
+
+.tab, .chip {
+  min-height: 40px;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  border: 2px solid transparent;
+  background: var(--c-paper-2);
+  font-weight: 600;
+  font-size: var(--t-sm);
+  color: var(--fg-soft);
+}
+.tab.is-active, .chip.is-active {
+  background: var(--c-sun);
+  border-color: var(--c-sun-deep);
+  color: var(--c-ink);
+}
+
+/* --- Panels ------------------------------------------------------------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+}
+.panel__title { font-size: var(--t-md); font-weight: 800; }
+.muted { color: var(--fg-soft); font-size: var(--t-sm); }
+
+/* --- Stat tiles --------------------------------------------------------- */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--s-3);
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+}
+.stat__value { font-size: var(--t-xl); font-weight: 800; line-height: 1.1; }
+.stat__label { font-size: var(--t-xs); color: var(--fg-soft); font-weight: 600; }
+.stat__sub { font-size: var(--t-xs); color: var(--c-ink-faint); }
+
+/* --- Charts ------------------------------------------------------------- */
+
+.chart { width: 100%; display: flex; flex-direction: column; gap: var(--s-2); }
+.chart svg {
+  width: 100%;
+  height: clamp(80px, 18vw, 120px);
+  display: block;
+  border-bottom: 1px solid var(--border);
+}
+.chart__empty { color: var(--fg-soft); font-size: var(--t-sm); }
+
+/* Labels live in HTML, not SVG: the viewBox is stretched to the container
+   width, which would smear any text inside it. */
+.chart__axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--t-xs);
+  color: var(--c-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar { fill: var(--c-line); }
+.bar--on { fill: var(--c-sky); }
+.axisline { stroke: var(--border); stroke-width: 1; }
+.axisline--dashed { stroke-dasharray: 3 3; }
+.spark { fill: none; stroke: var(--c-leaf); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* --- Unit bars ---------------------------------------------------------- */
+
+.unitbars { display: flex; flex-direction: column; gap: var(--s-2); }
+.unitbar {
+  display: grid;
+  grid-template-columns: minmax(7rem, 10rem) 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-sm);
+}
+.unitbar__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.unitbar__track {
+  position: relative;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-line);
+  overflow: hidden;
+}
+.unitbar__fill, .unitbar__learning {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  border-radius: var(--r-pill);
+}
+.unitbar__learning { background: var(--c-sky-pale); }
+.unitbar__count { font-variant-numeric: tabular-nums; color: var(--fg-soft); font-size: var(--t-xs); }
+
+/* --- Weak words --------------------------------------------------------- */
+
+.weak { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-2); }
+.weak__item {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--c-paper-2);
+  font-size: var(--t-sm);
+}
+.weak__emoji { font-size: 1.35rem; }
+.weak__en { font-weight: 700; }
+.weak__lv { color: var(--fg-soft); }
+.weak__acc { font-variant-numeric: tabular-nums; color: var(--c-berry); font-weight: 700; }
+
+/* --- Table -------------------------------------------------------------- */
+
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.table th, .table td {
+  text-align: left;
+  padding: var(--s-2) var(--s-3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.table th { font-size: var(--t-xs); color: var(--fg-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.wordcell { display: inline-flex; align-items: center; gap: var(--s-2); }
+
+.boxbar {
+  width: 64px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-line);
+  overflow: hidden;
+}
+.boxbar__fill { height: 100%; background: var(--c-leaf); border-radius: var(--r-pill); }
+
+@media (max-width: 560px) {
+  .hide-sm { display: none; }
+}
+
+/* --- Forms -------------------------------------------------------------- */
+
+.pfield { display: flex; flex-direction: column; gap: var(--s-1); }
+.pfield__label { font-size: var(--t-xs); font-weight: 700; color: var(--fg-soft); }
+.pfield input[type="text"],
+.pfield input[type="range"],
+.pfield select {
+  font: inherit;
+  font-size: var(--t-sm);
+  padding: var(--s-2) var(--s-3);
+  border-radius: var(--r-md);
+  border: 2px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--fg);
+  width: 100%;
+  max-width: 24rem;
+}
+.pfield input[type="range"] { padding: var(--s-2) 0; border: none; }
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-3);
+  padding: var(--s-2) 0;
+  cursor: pointer;
+}
+.toggle input { width: 22px; height: 22px; margin-top: 2px; flex: 0 0 auto; accent-color: var(--c-sun-deep); }
+.toggle__body { display: flex; flex-direction: column; gap: 2px; }
+.toggle__label { font-weight: 600; font-size: var(--t-sm); }
+.toggle__hint { font-size: var(--t-xs); color: var(--fg-soft); line-height: 1.35; }
+
+.unitrow { font-size: var(--t-sm); padding: var(--s-1) 0; }
+.badge {
+  padding: 2px var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--c-leaf-pale);
+  color: var(--c-leaf);
+  font-size: var(--t-xs);
+  font-weight: 700;
+}
+.btn--small { min-height: 36px; padding: var(--s-1) var(--s-3); font-size: var(--t-xs); }
+.btn--danger { border-color: var(--c-berry); color: var(--c-berry); }
+
+.tips { display: flex; flex-direction: column; gap: var(--s-3); padding-left: var(--s-5); }
+.tips li { font-size: var(--t-sm); line-height: 1.5; }

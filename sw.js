@@ -1,0 +1,138 @@
+// Service worker: makes the app work with no connection at all.
+//
+// The cache name carries the app version, so bumping APP_VERSION in
+// src/version.js is all it takes to retire the old cache and ship an update.
+// Keep the version here in step with src/version.js — a service worker cannot
+// import an ES module, so this is the one place the number is duplicated.
+
+const VERSION = '0.1.0';
+const CACHE = `engl-v${VERSION}`;
+
+// Everything needed for a full session offline. All paths are relative: the
+// app is served from a repository subpath on GitHub Pages.
+const ASSETS = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './favicon.svg',
+
+  './styles/tokens.css',
+  './styles/base.css',
+  './styles/kid.css',
+  './styles/pet.css',
+  './styles/cards.css',
+  './styles/parent.css',
+
+  './src/main.js',
+  './src/router.js',
+  './src/version.js',
+
+  './src/data/words.js',
+  './src/data/units.js',
+  './src/data/phrases.js',
+  './src/data/pets.js',
+  './src/data/achievements.js',
+
+  './src/core/srs.js',
+  './src/core/selector.js',
+  './src/core/session.js',
+  './src/core/stats.js',
+  './src/core/achievements.js',
+
+  './src/state/storage.js',
+  './src/state/profiles.js',
+  './src/state/progress.js',
+
+  './src/media/speech.js',
+  './src/media/picture.js',
+  './src/media/sfx.js',
+  './src/media/mic.js',
+  './src/media/manifest.js',
+
+  './src/pet/pet.js',
+
+  './src/ui/dom.js',
+  './src/ui/components.js',
+  './src/ui/achievementCard.js',
+  './src/ui/screens/home.js',
+  './src/ui/screens/onboarding.js',
+  './src/ui/screens/play.js',
+  './src/ui/screens/trophies.js',
+  './src/ui/screens/parent.js',
+  './src/ui/screens/charts.js',
+
+  './src/activities/index.js',
+  './src/activities/base.js',
+  './src/activities/listenTap.js',
+  './src/activities/intro.js',
+  './src/activities/chant.js',
+  './src/activities/tpr.js',
+  './src/activities/phonics.js',
+  './src/activities/sentence.js',
+  './src/activities/memory.js',
+  './src/activities/sayIt.js',
+
+  './src/i18n/lv.js',
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    // addAll is all-or-nothing; cache entries individually so one missing
+    // optional file cannot leave the app without a cache at all.
+    await Promise.all(ASSETS.map((url) =>
+      cache.add(new Request(url, { cache: 'reload' })).catch((err) => {
+        console.warn('[sw] could not cache', url, err);
+      })));
+    self.skipWaiting();
+  })());
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const names = await caches.keys();
+    await Promise.all(names
+      .filter((name) => name.startsWith('engl-v') && name !== CACHE)
+      .map((name) => caches.delete(name)));
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;      // we make no cross-origin requests
+
+  event.respondWith((async () => {
+    const cached = await caches.match(request, { ignoreSearch: true });
+
+    // Cache-first: this app has no server-side state, so a cached asset is
+    // always as correct as a fetched one, and offline must be the fast path.
+    if (cached) {
+      // Refresh in the background so the next load picks up any change.
+      event.waitUntil((async () => {
+        try {
+          const fresh = await fetch(request);
+          if (fresh.ok) (await caches.open(CACHE)).put(request, fresh.clone());
+        } catch { /* offline: the cached copy stands */ }
+      })());
+      return cached;
+    }
+
+    try {
+      const response = await fetch(request);
+      if (response.ok) (await caches.open(CACHE)).put(request, response.clone());
+      return response;
+    } catch {
+      // A navigation that missed the cache still gets the app shell, so a
+      // deep link opened offline lands somewhere useful instead of erroring.
+      if (request.mode === 'navigate') {
+        const shell = await caches.match('./index.html');
+        if (shell) return shell;
+      }
+      return new Response('', { status: 503, statusText: 'Offline' });
+    }
+  })());
+});

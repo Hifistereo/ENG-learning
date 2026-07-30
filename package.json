@@ -1,0 +1,14 @@
+{
+  "name": "eng-learning",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Angļu valodas mācību spēle latviešu bērniem (2-7 g.)",
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'tests/*.test.js'",
+    "serve": "python3 -m http.server 8000"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

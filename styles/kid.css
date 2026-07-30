@@ -1,0 +1,523 @@
+/* Kid-facing screens: home, play, trophies, onboarding.
+   Sizes come from tokens.css so a toddler automatically gets bigger targets
+   than a five-year-old without any component knowing about ages. */
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.screen--kid {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--c-paper-2), transparent 70%),
+    var(--bg);
+}
+
+/* --- Top bar + progress ------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  flex: 0 0 auto;
+}
+
+.progress {
+  flex: 1;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: var(--c-line);
+  overflow: hidden;
+}
+.progress__fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--c-sun), var(--c-leaf));
+  transition: width var(--dur-slow) var(--ease-out);
+}
+
+.iconbtn {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 48px;
+  border-radius: var(--r-pill);
+  font-size: 1.25rem;
+  color: var(--fg-soft);
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+}
+.iconbtn:active { transform: scale(0.94); }
+.iconbtn--round { font-size: 1.5rem; }
+
+/* --- Stage -------------------------------------------------------------- */
+
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4) var(--s-6);
+  min-height: 0;
+}
+
+/* The trophy screen is the one kid surface allowed to scroll — a growing
+   collection is the whole point of it. Activities never scroll. */
+.stage--scroll {
+  justify-content: flex-start;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+/* Reserve the strip the pet occupies during chant and TPR. Because the stage
+   centres its content, top padding shifts that centre down and keeps the pet
+   clear of the cards — which matters most in landscape, where vertical space
+   is tight. */
+.stage--petabove { padding-top: clamp(7rem, 17vh, 10rem); }
+
+.stage__footer { margin-top: var(--s-2); }
+.stage__hint {
+  color: var(--fg-soft);
+  font-size: var(--t-sm);
+  text-align: center;
+}
+
+.prompt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  text-align: center;
+}
+.prompt__text {
+  font-size: var(--t-lg);
+  font-weight: 700;
+}
+.prompt__text--new { color: var(--c-sun-deep); }
+
+/* --- Choice grid -------------------------------------------------------- */
+
+.choices {
+  display: grid;
+  gap: var(--choice-gap);
+  width: 100%;
+  max-width: 46rem;
+  place-content: center;
+}
+.choices[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
+.choices[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
+.choices[data-count="4"] { grid-template-columns: repeat(2, 1fr); }
+
+@media (min-width: 720px) and (orientation: landscape) {
+  .choices[data-count="4"] { grid-template-columns: repeat(4, 1fr); }
+}
+
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--tap-min);
+  padding: var(--s-4);
+  border-radius: var(--r-xl);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-1), var(--edge);
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast), border-color var(--dur-fast), opacity var(--dur);
+}
+.choice:active { transform: translateY(4px) scale(0.97); box-shadow: var(--shadow-1); }
+
+.choice__word {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Right: green, a lift, and a pop. */
+.choice.is-correct {
+  border-color: var(--c-leaf);
+  background: var(--c-leaf-pale);
+  animation: choice-pop 0.5s var(--ease-bounce);
+}
+/* Wrong: the card shrinks back and fades. No red, no cross, no shake that
+   reads as anger — it simply steps aside and the question stays open. */
+.choice.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
+.choice.is-out { opacity: 0.32; transform: scale(0.94); }
+.choice.is-dimmed { opacity: 0.45; }
+.choice.is-hinted { animation: choice-hint 1.2s var(--ease-out) infinite; border-color: var(--c-sun); }
+
+@keyframes choice-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.09); }
+  100% { transform: scale(1); }
+}
+@keyframes choice-nudge {
+  0%, 100% { transform: translateX(0); }
+  30%      { transform: translateX(-7px) rotate(-1.5deg); }
+  65%      { transform: translateX(5px) rotate(1deg); }
+}
+@keyframes choice-hint {
+  0%, 100% { box-shadow: var(--shadow-1), var(--edge); }
+  50%      { box-shadow: 0 0 0 8px rgba(255, 183, 3, 0.35), var(--edge); }
+}
+
+/* --- Big single card (intro, say-it) ------------------------------------ */
+
+.bigcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-5) var(--s-6);
+  border-radius: var(--r-xl);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-2);
+}
+.bigcard__word {
+  font-size: var(--t-xl);
+  font-weight: 800;
+}
+.bigcard--intro { border-color: var(--c-sun); }
+.bigcard.is-pulsing { animation: bigcard-pulse 0.85s var(--ease-out); }
+
+@keyframes bigcard-pulse {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.06); }
+}
+
+/* --- Latvian hint ------------------------------------------------------- */
+
+.hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 48px;
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  border: 2px dashed var(--border);
+  color: var(--fg-soft);
+  font-size: var(--t-sm);
+}
+.hint__value { font-weight: 700; color: var(--fg); }
+
+/* --- Chant -------------------------------------------------------------- */
+
+.chant {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-3);
+}
+.chantcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-3);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  opacity: 0.55;
+  transition: transform var(--dur) var(--ease-bounce), opacity var(--dur);
+}
+.chantcard.is-active {
+  opacity: 1;
+  transform: scale(1.14) translateY(-6px);
+  border-color: var(--c-sun);
+  box-shadow: var(--shadow-2);
+}
+.chantcard__word { font-weight: 700; font-size: var(--t-sm); }
+
+/* --- TPR ---------------------------------------------------------------- */
+
+.tpr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+}
+.tpr__pic { animation: tpr-bob 0.9s var(--ease-out) infinite; }
+.tpr__word { font-size: var(--t-xl); font-weight: 800; }
+.tpr__lv { color: var(--fg-soft); font-size: var(--t-md); }
+
+@keyframes tpr-bob {
+  0%, 100% { transform: translateY(0) rotate(-4deg); }
+  50%      { transform: translateY(-14px) rotate(4deg); }
+}
+
+/* --- Phonics ------------------------------------------------------------ */
+
+.letter {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: var(--s-2) var(--s-6);
+  border-radius: var(--r-xl);
+  background: var(--c-sky-pale);
+  border: 3px solid var(--c-sky);
+}
+.letter__big   { font-size: var(--t-2xl); font-weight: 800; line-height: 1; color: var(--c-sky-deep); }
+.letter__small { font-size: var(--t-xl); font-weight: 700; color: var(--c-sky-deep); opacity: 0.75; }
+
+/* --- Sentence ----------------------------------------------------------- */
+
+.sentence {
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  text-align: center;
+}
+.sentence__text {
+  font-size: var(--t-lg);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.sentence.is-complete {
+  border-color: var(--c-leaf);
+  background: var(--c-leaf-pale);
+  animation: choice-pop 0.5s var(--ease-bounce);
+}
+
+/* --- Memory ------------------------------------------------------------- */
+
+.memory {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-3);
+  width: 100%;
+  max-width: 34rem;
+}
+.memory[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.memcard {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  min-height: 84px;
+  border-radius: var(--r-lg);
+  background: var(--c-sky);
+  border: 3px solid var(--c-sky-deep);
+  box-shadow: var(--edge);
+  overflow: hidden;
+}
+.memcard__back,
+.memcard__front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: var(--s-2);
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+.memcard__back { font-size: 1.75rem; color: #fff; }
+.memcard__front {
+  opacity: 0;
+  transform: rotateY(90deg);
+  background: var(--bg-raised);
+}
+.memcard__word { font-size: var(--t-md); font-weight: 800; text-align: center; word-break: break-word; }
+
+.memcard.is-open .memcard__back { opacity: 0; }
+.memcard.is-open .memcard__front { opacity: 1; transform: rotateY(0); }
+.memcard.is-done { border-color: var(--c-leaf); opacity: 0.7; }
+.memcard.is-done .memcard__front { background: var(--c-leaf-pale); }
+
+/* --- Say it ------------------------------------------------------------- */
+
+.sayit__controls { display: flex; gap: var(--s-3); flex-wrap: wrap; justify-content: center; }
+
+.recbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 52px;
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-pill);
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+  font-weight: 600;
+}
+.recbtn:disabled { opacity: 0.45; }
+.recbtn__dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--c-berry);
+}
+.recbtn.is-recording { border-color: var(--c-berry); }
+.recbtn.is-recording .recbtn__dot { animation: rec-pulse 1s ease-in-out infinite; }
+
+@keyframes rec-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.35); opacity: 0.5; }
+}
+
+/* --- Home --------------------------------------------------------------- */
+
+.home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-5);
+  padding: var(--s-5) var(--s-4) var(--s-8);
+  text-align: center;
+}
+/* A soft disc behind the pet. Without it a pale character (the dragon, the
+   penguin) all but vanishes against the cream background. */
+.home__pet {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(11rem, 42vw, 15rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 45%, var(--bg-raised) 0%, var(--c-paper-2) 62%, transparent 72%);
+  box-shadow: inset 0 0 0 3px rgba(255, 183, 3, 0.25);
+}
+.home__zzz {
+  position: absolute;
+  top: 14%;
+  right: 16%;
+  font-size: 1.5rem;
+  animation: pet-zzz 2.6s ease-in-out infinite;
+}
+
+.home__actions { display: flex; flex-direction: column; gap: var(--s-3); width: min(22rem, 100%); }
+.home__actions .btn { width: 100%; }
+.home__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--c-paper-2);
+  font-weight: 600;
+  color: var(--fg-soft);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  font-size: var(--t-xl);
+  font-weight: 800;
+}
+.title__emoji { font-size: 1.1em; }
+
+.footer-version {
+  padding: var(--s-3);
+  text-align: center;
+  font-size: var(--t-xs);
+  color: var(--c-ink-faint);
+}
+
+/* --- Profile / pet pickers (onboarding) --------------------------------- */
+
+.picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: var(--s-3);
+  width: min(34rem, 100%);
+}
+.picker__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  padding: var(--s-3);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast);
+}
+.picker__item.is-selected {
+  border-color: var(--c-sun-deep);
+  background: var(--c-paper-2);
+  transform: scale(1.04);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  width: min(22rem, 100%);
+  text-align: left;
+}
+.field__label { font-weight: 700; font-size: var(--t-sm); color: var(--fg-soft); }
+.field input[type="text"] {
+  font: inherit;
+  font-size: var(--t-lg);
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-md);
+  border: 2px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--fg);
+}
+
+.agecard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  text-align: left;
+}
+.agecard.is-selected { border-color: var(--c-sun-deep); background: var(--c-paper-2); }
+.agecard__title { font-size: var(--t-lg); font-weight: 800; }
+.agecard__hint { font-size: var(--t-sm); color: var(--fg-soft); }
+
+/* --- Celebration -------------------------------------------------------- */
+
+.celebrate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  text-align: center;
+}
+.celebrate__cards {
+  align-items: center;
+  width: 100%;
+  gap: var(--s-3);
+}
+.celebrate__sticker {
+  font-size: clamp(3.5rem, 15vw, 6rem);
+  animation: sticker-in 0.7s var(--ease-bounce);
+}
+@keyframes sticker-in {
+  0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+  70%  { transform: scale(1.15) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); }
+}
+
+.confetti {
+  position: absolute;
+  top: -8vh;
+  animation: confetti-fall linear forwards;
+  will-change: transform;
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(115vh) rotate(540deg); opacity: 0.15; }
+}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Mācāmies angliski">
+  <rect width="64" height="64" rx="14" fill="#ffb703"/>
+  <path d="M32 51c-9 0-15-4-15-4V16s6-4 15-4 15 4 15 4v31s-6 4-15 4z" fill="#fffdf7"/>
+  <path d="M32 12v39" stroke="#fb8500" stroke-width="3" stroke-linecap="round"/>
+  <path d="M22 24h6M22 31h6M36 24h6M36 31h6" stroke="#219ebc" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="32" cy="41" r="5" fill="#2a9d5c"/>
+</svg>

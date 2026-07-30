@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Mācāmies angliski!</title>
+<meta name="description" content="Angļu valodas mācību spēle latviešu bērniem no 2 līdz 6 gadiem.">
+<meta name="theme-color" content="#ffb703">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+<link rel="stylesheet" href="./styles/tokens.css">
+<link rel="stylesheet" href="./styles/base.css">
+<link rel="stylesheet" href="./styles/kid.css">
+<link rel="stylesheet" href="./styles/pet.css">
+<link rel="stylesheet" href="./styles/cards.css">
+<link rel="stylesheet" href="./styles/parent.css">
+</head>
+<body>
+<noscript>
+  <div class="noscript">Lai spēlētu, lūdzu, ieslēdz JavaScript pārlūkprogrammā.</div>
+</noscript>
+
+<!-- Every screen renders into here. The router owns this node. -->
+<main id="app" class="app" aria-live="polite"></main>
+
+<!-- The pet lives outside #app so it survives screen changes without remounting. -->
+<div id="pet-layer" class="pet-layer" aria-hidden="true"></div>
+
+<!-- Confetti / celebration effects draw here, above everything, never interactive. -->
+<div id="fx-layer" class="fx-layer" aria-hidden="true"></div>
+
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
