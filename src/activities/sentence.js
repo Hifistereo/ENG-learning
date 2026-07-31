@@ -75,12 +75,14 @@ export function run(ctx) {
       petReact.correct();
 
       // Reveal the completed sentence and say it once more — the child sees
-      // the whole thing they just built.
+      // the whole thing they just built. Awaited, or the next round cuts the
+      // sentence off part-way through.
       scene.say(sentence, profile.settings.lvHints ? renderFrame(frame, word, 'lv') : '');
       petSay(sentence, 2600);
-      ctx.sayText(sentence);
 
-      await grid.markCorrect(word.id);
+      const shown = grid.markCorrect(word.id);
+      await ctx.sayText(sentence);
+      await shown;
       ctx.result(word.id, attempts === 1, Math.round(performance.now() - askedAt));
       resolve();
     }

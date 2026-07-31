@@ -15,6 +15,69 @@ Iecerēts nākamajām versijām:
 - Izdrukājamas kartītes vecākiem
 - Progresa sinhronizācija starp ierīcēm
 
+## [0.3.2] – 2026-07-31
+
+“Lēnāk”. Runa bija par ātru un par blīvu.
+
+### Mainīts — cik ātri lietotne runā
+
+- **Noklusētais runas ātrums: 0,85 → 0,70** (lielākajiem) un **0,75 → 0,60**
+  (mazajiem). Pieaugušie savā starpā runā ap 4–5 zilbēm sekundē, ar mazu bērnu
+  — ap 1,5–2; pētījumi par jaunākajiem angļu valodas apguvējiem lēnāko runu
+  mēra ap 95–125 vārdiem minūtē. `Web Speech` ātrums ir relatīvs pret balsi,
+  kas parasti runā 150–180 v/min, tāpēc šī josla ir aptuveni 0,6–0,7. Zem 0,4
+  vairums balsu vairs nepalēninās vai sāk skanēt salauzti — tur ir slīdņa
+  apakšējā robeža (agrāk 0,5).
+- **Vecāku sadaļā ir paskaidrojums un poga “Atjaunot ieteikto”.** Jau
+  izveidotiem profiliem iestatījums paliek tāds, kāds bija, tāpēc bez šīs
+  pogas abi bērni uz šīs ierīces jauno ātrumu nekad nesagaidītu.
+
+### Mainīts — cik daudz lietotne runā
+
+Ātrums bija tikai puse no problēmas. v0.3.0 **aptuveni četrkāršoja runāto
+tekstu vienā kārtā** un atstāja pauzes tādas, kādas tās bija: kārta “kur ir…”
+agrāk pateica divus vārdus, tagad deviņus, tikpat ātri, ar 200 ms starp kārtām.
+
+- **Pauze starp kārtām: 200 ms → 700 ms** (lielākajiem) un **1000 ms**
+  (mazajiem). Bērnam vajag manāmi vairāk laika nekā pieaugušajam, lai saprastu
+  dzirdēto.
+- **Pēc katras teikuma tagad ir klusuma brīdis** (`SETTLE_MS`), lai nākamais
+  nekad nesāktos uz iepriekšējā vārda papēža.
+- **Apskate sesijas sākumā** bija ļaunākā vieta — 18 vārdi ar 160–260 ms
+  atstarpēm, un tā ir pati pirmā lieta, ko bērns dzird. Tagad pilnais teikums
+  (“Look! A cat.”) skan tikai pie pirmās lietas, pēc tam — vārds; atstarpes
+  paplašinātas, un starp abiem apļiem ir elpa.
+- **Īsākas varoņu frāzes.** “Yes! That one!” → “Yes!”; “Yes! Thank you!” →
+  “Thank you!”. Uzdevums tāpat pieliek klāt mācāmo vārdu, tāpēc iepriekš
+  sanāca “Yes! That one! A cat.” — trīs uzslavas ap vienu vārdu, kas ir
+  jāiemācās.
+
+### Labots
+
+- **Runa tika nogriezta pusvārdā.** `say()` sākumā aptur to, kas skan, un
+  vairākas rindas tika palaistas **bez `await`** — tātad nākamā kārta pārtrauca
+  iepriekšējo atbildi, un pazuda tieši beigas, kur atrodas vārds. Skarti:
+  `listenTap`, `transfer`, `doAction`, `sentence`, `phonics`, `teach`.
+- **“No! Look again.” nekad nebija dzirdams.** Uzdevumā ar citplanētieti abas
+  rindas tika palaistas reizē, un otrā atcēla pirmo. Tagad tās skan pēc kārtas.
+- Dubults pieskāriens pogai “Nepareizi!” vairs nesāk to pašu soli divreiz.
+- Aizsargtaimeris (gadījumam, ja pārlūks klusi nomet izrunu) tagad rēķinās ar
+  runas ātrumu; agrāk tas pieņēma nemainīgu tempu, un lēnākā runā garš stāsta
+  teikums varēja tikt pārtraukts.
+
+### Tehniski
+
+- 156 automātiskie testi (iepriekš 150). Jaunie sargā tieši šīs kļūdas: ātrums
+  jāpaliek pētījumu joslā, mazajam nekad ne ātrāk par lielāko, neviens uzdevums
+  nedrīkst palaist runu, ko negaida, un varoņu frāzes nedrīkst kļūt garākas par
+  četriem vārdiem.
+
+### Piezīme
+
+Godīgākais risinājums ir **ieraksti** — īsts cilvēks, kas runā īstā bērnam
+piemērotā tempā; to nekāds sintēzes ātrums neatdarina. `assets/audio/en/` jau
+ir sagatavots, un `say()` vienmēr dod priekšroku ierakstam, ja tāds ir.
+
 ## [0.3.1] – 2026-07-31
 
 ### Labots
@@ -227,7 +290,8 @@ Pirmā versija. "Pirmais solis".
 - Dati glabājas tikai `localStorage`. Lietotne neveic nevienu tīkla pieprasījumu
   pēc ielādes.
 
-[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.2
 [0.3.1]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.2.0

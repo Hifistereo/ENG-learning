@@ -9,7 +9,7 @@ import { kidScreen, primaryButton, confetti, title } from '../components.js';
 import { createSceneStage } from '../sceneStage.js';
 import { revealCard } from '../achievementCard.js';
 import { activityFor, SCENE_ROUNDS } from '../../activities/index.js';
-import { createSession } from '../../core/session.js';
+import { createSession, BETWEEN_ROUNDS_MS } from '../../core/session.js';
 import { availableWords } from '../../core/selector.js';
 import { newlyEarned, rewardsFor } from '../../core/achievements.js';
 import { getActiveProfile, grantAccessory, getProfile } from '../../state/profiles.js';
@@ -151,9 +151,11 @@ export function render(root) {
       }
       if (abandoned) return;
       session.advance();
-      // A short beat between rounds, not a transition: the scene is already
-      // showing the next thing by the time this resolves.
-      await wait(200);
+      // A beat between rounds, not a transition — the scene is already showing
+      // the next thing. Long enough that one question does not arrive on the
+      // heel of the last answer: children need noticeably more time than
+      // adults to process what they just heard, and the toddler needs most.
+      await wait(BETWEEN_ROUNDS_MS[profile.ageBand] ?? BETWEEN_ROUNDS_MS[5]);
     }
     if (!abandoned) await finish();
   }

@@ -205,6 +205,8 @@ export const LV = {
   'par.setVoice': 'Balss',
   'par.setVoiceAuto': 'Automātiska (en-US)',
   'par.setRate': 'Runas ātrums',
+  'par.setRateHint': 'Pieaugušie savā starpā runā ap 4–5 zilbēm sekundē, ar mazu bērnu — ap 1,5–2. Tieši šajā lēnākajā runā bērns valodu arī apgūst. Lietotne pēc noklusējuma runā aptuveni uz pusi lēnāk nekā parasta saruna; ja jūsu ierīces balss joprojām skan par ātru, pavelciet pa kreisi.',
+  'par.setRateReset': 'Atjaunot ieteikto ({n})',
   'par.setLvHints': 'Rādīt latviskās norādes',
   'par.setLvHintsHint': 'Poga “Latviski” spēles laikā. Iesakām atstāt ieslēgtu tikai sākumā.',
   'par.setMic': 'Atļaut ierakstīt balsi',

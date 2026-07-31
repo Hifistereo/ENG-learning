@@ -17,6 +17,7 @@ import { knowledgeProgress } from '../../core/knowledge.js';
 import {
   listProfiles, getProfile, updateProfile, updateSettings, deleteProfile,
   setActiveProfileId, getActiveProfile, SESSION_LENGTHS,
+  RECOMMENDED_RATE, RATE_RANGE,
 } from '../../state/profiles.js';
 import { getProgress, resetProgress, invalidateCache, unlockUnit } from '../../state/progress.js';
 import { exportAll, importAll, isPersistent } from '../../state/storage.js';
@@ -474,12 +475,33 @@ function settingsView(profile, refresh, root) {
 }
 
 function voiceSettings(profile, set) {
+  const recommended = RECOMMENDED_RATE[profile.ageBand] ?? RECOMMENDED_RATE[5];
+  const slider = el('input', {
+    type: 'range',
+    min: String(RATE_RANGE.min),
+    max: String(RATE_RANGE.max),
+    step: String(RATE_RANGE.step),
+    value: String(profile.settings.rate),
+    on: { change: (e) => set({ rate: Number(e.target.value) }) },
+  });
+
+  // A profile created before the recommendation changed keeps whatever it was
+  // given, so without this button the children already on this tablet would
+  // never get the slower speech. One tap, and it says what it will set.
+  const reset = el('button.btn.btn--ghost', {
+    type: 'button',
+    on: {
+      click: () => {
+        slider.value = String(recommended);
+        set({ rate: recommended });
+      },
+    },
+  }, t('par.setRateReset', { n: recommended.toFixed(2) }));
+
   const wrap = el('div.stack', {}, [
-    field(t('par.setRate'), el('input', {
-      type: 'range', min: '0.5', max: '1.2', step: '0.05',
-      value: String(profile.settings.rate),
-      on: { change: (e) => set({ rate: Number(e.target.value) }) },
-    })),
+    field(t('par.setRate'), slider),
+    el('p.muted', { text: t('par.setRateHint') }),
+    reset,
   ]);
 
   // Voices arrive asynchronously; fill the picker in when they do.

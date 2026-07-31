@@ -17,6 +17,7 @@
 import { el } from '../ui/dom.js';
 import { lvHintButton } from '../ui/components.js';
 import { buildQuestion } from '../core/selector.js';
+import { withArticle } from '../data/words.js';
 import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { t } from '../i18n/lv.js';
@@ -89,15 +90,19 @@ export function run(ctx) {
 
       // The pet agrees out loud. This is where "yes" is learned — attached to
       // the moment of being right, not chosen from two pictures.
+      //
+      // The card animates while the line is spoken, but the line is awaited:
+      // the next round's question calls stopSpeaking(), so anything left
+      // running here would be cut off mid-word — usually on the noun.
       const yes = chatter('yes', { mood: scene.mood });
+      const line = yes ? `${yes.en} ${capitalise(withArticle(word))}.` : word.en;
       if (yes) {
         petSay(yes.en, 1600);
-        scene.say(`${yes.en} The ${word.en}.`, yes.lv);
-        ctx.sayText(`${yes.en} The ${word.en}.`);
-      } else {
-        ctx.say(word);
+        scene.say(line, yes.lv);
       }
-      await props.markCorrect(word.id);
+      const shown = props.markCorrect(word.id);
+      await (yes ? ctx.sayText(line) : ctx.say(word));
+      await shown;
 
       const clean = attempts === 1 && !aided;
       ctx.result(word.id, clean, Math.round(performance.now() - askedAt), {
@@ -119,3 +124,5 @@ export function run(ctx) {
     ask();
   });
 }
+
+const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);

@@ -147,24 +147,46 @@ function speakWithSynth(text, { rate, pitch, voice }) {
     synth.speak(utterance);
 
     // Guard: some browsers silently drop an utterance and never fire `end`.
-    // Roughly 90wpm of reading time plus a floor, then move on regardless.
-    setTimeout(done, 1500 + text.length * 120);
+    //
+    // Scaled by rate. It used to assume a fixed reading speed, so at the slower
+    // rates this version ships with, a long story line could still be speaking
+    // when the guard gave up and let the next thing start. The constants keep
+    // roughly a 2x margin over how long the line actually takes — comfortably
+    // clear of real speech, without leaving a child staring at silence for
+    // half a minute on the rare browser where synthesis is simply broken.
+    setTimeout(done, (1200 + text.length * 110) / Math.max(0.3, rate));
   });
 }
 
 /**
- * Speak English. Resolves when the audio has finished, so activities can
- * sequence prompts without guessing at durations.
+ * Silence held after every line, before the caller is allowed to continue.
+ *
+ * Small children need noticeably longer than adults to process what they just
+ * heard, and back-to-back speech is a large part of what made this app feel
+ * hurried: an answer was still being said when the next question cancelled it,
+ * and the word that got chopped was usually the one that mattered. A beat of
+ * quiet after each line is the cheapest fix for that and the closest the app
+ * gets to how an adult actually talks to a two-year-old.
+ */
+export const SETTLE_MS = 420;
+
+/**
+ * Speak English. Resolves once the audio has finished AND a short silence has
+ * passed, so activities can sequence prompts without guessing at durations and
+ * without ever landing on the heel of the previous word.
  *
  * @param {string} text - what to say
  * @param {object} [opts]
  * @param {string} [opts.id] - word id; enables the recorded-audio path
- * @param {number} [opts.rate=0.85]
+ * @param {number} [opts.rate=0.7] - see RECOMMENDED_RATE in state/profiles.js
  * @param {number} [opts.pitch=1.05] - slightly up reads as friendlier
  * @param {string} [opts.voiceURI]
+ * @param {number} [opts.settle] - override the trailing silence
  */
 export async function say(text, opts = {}) {
-  const { id = null, rate = 0.85, pitch = 1.05, voiceURI = null } = opts;
+  const {
+    id = null, rate = 0.7, pitch = 1.05, voiceURI = null, settle = SETTLE_MS,
+  } = opts;
   if (!text) return;
   unlockAudio();
   stopSpeaking();
@@ -173,13 +195,16 @@ export async function say(text, opts = {}) {
     const available = await loadManifest(AUDIO_MANIFEST);
     if (available.has(id)) {
       const ok = await playRecording(id);
-      if (ok) return;                    // fall through to synthesis on failure
+      if (ok) return pause(settle);      // fall through to synthesis on failure
     }
   }
 
   const voice = await pickVoice(voiceURI);
   await speakWithSynth(text, { rate, pitch, voice });
+  await pause(settle);
 }
+
+const pause = (ms) => new Promise((r) => setTimeout(r, Math.max(0, ms)));
 
 /** Speak a list in order, with a gap between items. Used by the chant. */
 export async function sayAll(items, opts = {}, gapMs = 350) {

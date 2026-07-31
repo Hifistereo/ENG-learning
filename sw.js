@@ -5,7 +5,7 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.3.1';
+const VERSION = '0.3.2';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the

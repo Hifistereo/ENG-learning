@@ -88,6 +88,15 @@ measure willingness, not learning.
 - **Errorless, and then it teaches.** After two misses the app stops testing:
   it names the word, shows what it means, and hands the child an easy success.
   No buzzer, no red X, no timer, no losing screen.
+- **Talk to a child the way an adult does.** Adults talking to each other run
+  about 4–5 syllables a second; adults talking to a small child run about half
+  that, with longer pauses and shorter sentences, and that is the register a
+  language is learned in. So the app speaks at 0.6–0.7 of its voice's normal
+  rate (`RECOMMENDED_RATE` in `src/state/profiles.js`), holds a beat of quiet
+  after every line, and leaves 0.7–1.0 s between rounds. Speech is always
+  awaited — `say()` cancels whatever is talking, so a line fired and forgotten
+  gets chopped off by the next one, and the part that gets lost is the end,
+  which is where the word is.
 - **Gains only.** Streaks count up and stop when a day is missed. Nothing is
   ever taken away, and no reward is allowed to be more interesting than the
   adventure.

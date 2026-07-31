@@ -16,6 +16,31 @@ export const SESSION_LENGTHS = {
   long:   { 2: 16, 5: 26 },
 };
 
+/**
+ * How fast the English is spoken, as a multiple of the voice's own normal
+ * rate. This is the setting a parent is most likely to want to change, and the
+ * one most likely to be wrong by default, so the reasoning is here.
+ *
+ * Adults talking to each other run about 4–5 syllables a second. Adults
+ * talking to a small child run about 1.5–2 — roughly half — with longer pauses
+ * and shorter sentences, and that is the register a child learns a language in.
+ * Research on young learners of English tested 116 words per minute as an
+ * ordinary rate against 98 and 58; slower helped beginners process what they
+ * heard, but very slow speech stops sounding like language at all.
+ *
+ * Web Speech rate is relative, not absolute: 1.0 is whatever the chosen voice
+ * calls normal, typically 150–180 wpm for an en-US voice. So the ~95–125 wpm
+ * band those studies point at is a rate of roughly 0.6–0.7. Below about 0.4
+ * most engines either stop slowing down or start to sound broken, which is
+ * where the parent slider bottoms out.
+ *
+ * The toddler gets the slower end: fewer words, more time on each one.
+ */
+export const RECOMMENDED_RATE = { 2: 0.6, 5: 0.7 };
+
+/** What the parent slider allows either side of the recommendation. */
+export const RATE_RANGE = { min: 0.4, max: 1.2, step: 0.05 };
+
 export function defaultSettings(ageBand) {
   return {
     sessionLength: ageBand === 2 ? 'short' : 'normal',
@@ -24,7 +49,7 @@ export function defaultSettings(ageBand) {
     petHints: true,
     sound: true,
     voiceURI: null,       // null = pick the best en-US voice automatically
-    rate: ageBand === 2 ? 0.75 : 0.85,
+    rate: RECOMMENDED_RATE[ageBand] ?? RECOMMENDED_RATE[5],
     unlockedUnits: [],    // parent overrides on top of earned unlocks
     // On by default for the toddler track. Under about three, learning from a
     // screen transfers to real life much more weakly than learning from a

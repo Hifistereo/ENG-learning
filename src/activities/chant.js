@@ -23,6 +23,15 @@ import { t } from '../i18n/lv.js';
 /** Times through the list of words. */
 const ROUNDS = 2;
 
+/**
+ * Silence between one thing being pointed at and the next.
+ *
+ * `say()` already holds a beat after every line, so this is the gap on top of
+ * that. It used to be 160–260 ms, which at four words times two passes made
+ * the opening of every session sound like a list being read out.
+ */
+const BEAT_MS = 450;
+
 export async function run(ctx) {
   const { scene, profile } = ctx;
   const words = ctx.round.words || [];
@@ -48,15 +57,20 @@ export async function run(ctx) {
       const holder = holders[i];
       holder.classList.add('is-active');
       play('beat');
-      // First time round the pet names it in a sentence; the second pass is
-      // just the word, which is what makes it feel like a chant rather than a
-      // lecture.
-      const line = pass === 0 ? `Look! ${capitalise(withArticle(word))}.` : word.en;
-      scene.say(line, pass === 0 ? t('say.thisIs', { word: word.lv }) : word.lv);
+
+      // The frame is worth hearing, but not four times in a row. Only the
+      // first thing pointed at gets "Look! A cat." — after that the pattern is
+      // established and the child needs the noun, not the sentence around it.
+      // This round is the very first thing in a session, and saying the whole
+      // frame every time made the app open with a wall of speech.
+      const named = pass === 0 && i === 0;
+      const line = named ? `Look! ${capitalise(withArticle(word))}.` : word.en;
+      scene.say(line, named ? t('say.thisIs', { word: word.lv }) : word.lv);
       await ctx.sayText(line);
-      await wait(pass === 0 ? 260 : 160);   // speed up slightly on the second pass
+      await wait(pass === 0 ? BEAT_MS : BEAT_MS * 0.6);  // a touch quicker second time
       holder.classList.remove('is-active');
     }
+    if (pass === 0) await wait(BEAT_MS);      // a breath between the two passes
   }
 
   if (profile.ageBand === 2 && profile.settings.coPlay !== false) {

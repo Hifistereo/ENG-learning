@@ -34,6 +34,17 @@ export const SCORED = new Set([
 const MAX_REQUEUE = 4;
 
 /**
+ * Quiet between one round ending and the next beginning, by age band.
+ *
+ * Part of the session's shape rather than the play screen's: a small child
+ * needs noticeably longer than an adult to process what they just heard, and
+ * a question arriving on the heel of the last answer is what made the app feel
+ * relentless. The toddler gets the most room. See media/speech.js SETTLE_MS,
+ * which holds a beat after every individual line on top of this.
+ */
+export const BETWEEN_ROUNDS_MS = { 2: 1000, 5: 700 };
+
+/**
  * Build the round list for a session.
  * @returns {{rounds: object[], newWords: object[], chantWords: object[],
  *            targetWords: object[], mood: string}}

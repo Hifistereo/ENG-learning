@@ -53,17 +53,22 @@ export const CHATTER = {
   ],
 
   // The moment the child hands something over. This is the one that teaches
-  // "thank you", and no flashcard ever will.
+  // "thank you", and no flashcard ever will. Two words, said hundreds of
+  // times, always at the same moment — that is the whole mechanism, and
+  // padding it out would only bury the phrase.
   thank: [
     { id: 'thankyou', en: 'Thank you!', lv: 'Paldies!', art: 'thankyou' },
-    { id: 'thankyou', en: 'Yes! Thank you!', lv: 'Jā! Paldies!', art: 'thankyou' },
   ],
 
   // Agreeing with the child. Note there is no matching "wrong" cue: the app
   // never tells a child no, so "no" only appears where it is genuinely useful.
+  //
+  // Kept to one word. The activity appends the word the child just found, so
+  // "Yes! That one!" became "Yes! That one! A cat." — three pieces of praise
+  // wrapped round the one thing worth repeating. The noun is the lesson; the
+  // agreement is only there to mark the moment.
   yes: [
     { id: 'yes', en: 'Yes!', lv: 'Jā!' },
-    { id: 'yes', en: 'Yes! That one!', lv: 'Jā! Tieši tas!' },
   ],
 
   // Contradicting the alien, who is confidently wrong about a picture. This is

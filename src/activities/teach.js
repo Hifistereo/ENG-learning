@@ -125,17 +125,26 @@ export function run(ctx) {
       petReact.asking();
       scene.say(claim, `Šis ir ${wrong.lv}!`);
       scene.setExtra(el('div.home__actions', {}, [noBtn, yesBtn]));
-      ctx.sayText(claim);
       petSay('❓', 1600);
+      // `void` on purpose, and the only one in the app: the round now waits on
+      // a button, so nothing the app does can cut this line off — only the
+      // child tapping, which is theirs to do. Everywhere else, speech that is
+      // not awaited gets cancelled by whatever runs next.
+      void ctx.sayText(claim);
     }
 
     // --- Step 2: tell the alien the right word ---
-    function step2() {
+    let correcting = false;
+    async function step2() {
+      // An impatient double tap used to start this twice, and the second run
+      // cancelled the first line mid-word.
+      if (correcting || finished) return;
+      correcting = true;
+
       // The pet says "no" on the child's behalf, out loud, in the one place
       // where contradicting someone is the correct and useful thing to do.
       const no = chatter('no', { mood: scene.mood });
       scene.say(no ? no.en : 'What is it?', no ? no.lv : 'Kas tas ir?');
-      ctx.sayText(no ? `${no.en} What is it?` : 'What is it?');
 
       const sayBtn = primaryButton(t('act.teachSaid'), () => settle(true), { emoji: '🗣️' });
 
@@ -166,8 +175,13 @@ export function run(ctx) {
         ]),
       );
 
+      // Two lines, one after the other. Firing both at once meant the second
+      // cancelled the first, so "No! Look again." was never actually heard —
+      // the child got the model word and nothing else.
+      await ctx.sayText(no ? `${no.en} What is it?` : 'What is it?');
+      if (finished) return;
       // Model it once so the child has something to copy.
-      ctx.say(word);
+      await ctx.say(word);
     }
 
     function recordButton() {

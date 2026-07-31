@@ -96,9 +96,12 @@ export function run(ctx) {
       grid.lock();
       play('correct');
       petReact.correct();
-      ctx.say(word);            // now that it is solved, name it
+      // Now that it is solved, name it — awaited, so the word survives into
+      // the next round instead of being cancelled halfway.
       scene.say(`${capitalise(word.en)}!`, word.lv);
-      await grid.markCorrect(word.id);
+      const shown = grid.markCorrect(word.id);
+      await ctx.say(word);
+      await shown;
       ctx.result(word.id, attempts === 1, Math.round(performance.now() - askedAt));
       scene.clearCast();
       resolve();

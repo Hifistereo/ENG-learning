@@ -170,15 +170,16 @@ function choosePhase(ctx, word) {
       play('correct');
       petReact.correct();
 
+      // Awaited: the next round cancels whatever is still speaking.
       const yes = chatter('yes', { mood: scene.mood });
+      const line = yes ? `${yes.en} ${capitalise(gerund(word.en))}!` : word.en;
       if (yes) {
         petSay(yes.en, 1600);
-        scene.say(`${yes.en} ${capitalise(gerund(word.en))}!`, yes.lv);
-        ctx.sayText(`${yes.en} ${capitalise(gerund(word.en))}!`);
-      } else {
-        ctx.say(word);
+        scene.say(line, yes.lv);
       }
-      await props.markCorrect(word.id);
+      const shown = props.markCorrect(word.id);
+      await (yes ? ctx.sayText(line) : ctx.say(word));
+      await shown;
 
       const clean = attempts === 1 && !aided;
       ctx.result(word.id, clean, Math.round(performance.now() - askedAt), {

@@ -13,7 +13,7 @@
 // knowledge.readyForTransfer): showing an unfamiliar picture of a word the
 // child has not yet pinned down teaches confusion, not transfer.
 
-import { pictureOf } from '../data/words.js';
+import { pictureOf, withArticle } from '../data/words.js';
 import { pickDistractors, CHOICE_COUNT } from '../core/selector.js';
 import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
@@ -86,15 +86,17 @@ export function run(ctx) {
       play('correct');
       petReact.correct();
 
+      // Awaited, so the next round's stopSpeaking() cannot chop the noun off
+      // the end of the line. Same reasoning as listenTap.
       const yes = chatter('yes', { mood: scene.mood });
+      const line = yes ? `${yes.en} ${capitalise(withArticle(word))}.` : word.en;
       if (yes) {
         petSay(yes.en, 1600);
-        scene.say(`${yes.en} The ${word.en}.`, yes.lv);
-        ctx.sayText(`${yes.en} The ${word.en}.`);
-      } else {
-        ctx.say(word);
+        scene.say(line, yes.lv);
       }
-      await props.markCorrect(answerId);
+      const shown = props.markCorrect(answerId);
+      await (yes ? ctx.sayText(line) : ctx.say(word));
+      await shown;
 
       // Only a first-time, unaided success counts as transfer. Everything else
       // is ordinary recognition practice, and is recorded as such.
@@ -110,3 +112,5 @@ export function run(ctx) {
     ask();
   });
 }
+
+const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
