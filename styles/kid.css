@@ -688,3 +688,10 @@
 .storyprop.is-out { opacity: 0.32; }
 .storyprop.is-dimmed { opacity: 0.45; }
 .storyprop.is-hinted { border-color: var(--c-sun); animation: choice-hint 1.2s var(--ease-out) infinite; }
+
+/* Drawn alien artwork, sized to match the emoji it replaces. */
+.alien--art {
+  width: clamp(2.5rem, 11vw, 4rem);
+  height: clamp(2.5rem, 11vw, 4rem);
+  object-fit: contain;
+}

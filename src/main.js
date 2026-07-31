@@ -3,7 +3,7 @@
 import { route, setNotFound, startRouter, navigate } from './router.js';
 import { getActiveProfile, listProfiles } from './state/profiles.js';
 import { mountPet, showPet } from './pet/pet.js';
-import { preloadPictures, } from './media/picture.js';
+import { preloadArt } from './media/art.js';
 import { unlockAudio } from './media/speech.js';
 import { unlockSfx } from './media/sfx.js';
 import { APP_VERSION } from './version.js';
@@ -43,7 +43,7 @@ function boot() {
   console.info(`Mācāmies angliski v${APP_VERSION}`);
 
   mountPet(document.getElementById('pet-layer'), getActiveProfile());
-  preloadPictures();
+  preloadArt();
   primeAudioOnFirstGesture();
   registerServiceWorker();
 

@@ -7,6 +7,16 @@ Versiju numurs atrodas `src/version.js` un `sw.js` — abiem jāsakrīt.
 
 ## [Unreleased]
 
+### Pievienots
+
+- **Attēlu vietas visiem varoņiem.** Draugam (mājdzīvniekam) un citplanētietim
+  agrāk nebija vietas, kur ielikt zīmētu attēlu — tie bija tikai emoji.
+  Tagad ir. Turklāt ainu un varoņu attēli nekad netika ielādēti, jo manifests
+  tika nolasīts divās vietās un startā izsaukta tikai viena; tagad ir viens
+  reģistrs (`src/media/art.js`).
+- `assets/BRIEF.md` pārrakstīts kā pilns saraksts: **243 attēli**, katram
+  faila nosaukums, izmērs un apraksts, ko tieši attēlā jābūt.
+
 Iecerēts nākamajām versijām:
 
 - Ierunāti vārdi un ilustrācijas (skat. `assets/BRIEF.md`)

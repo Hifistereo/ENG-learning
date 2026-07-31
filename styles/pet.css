@@ -199,3 +199,15 @@
   .pet-preview--sleeping .pet-preview__body { opacity: 0.7; }
   .pet-preview--partying .pet-preview__body { transform: scale(1.2); }
 }
+
+/* Drawn pet artwork. A background image so every keyframe animation above
+   keeps transforming the same element, whether it is showing an emoji or a
+   picture. */
+.pet__body.pet--art,
+.pet-preview__body.pet--art {
+  width: 1em;
+  height: 1em;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}

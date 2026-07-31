@@ -58,6 +58,7 @@ const ASSETS = [
   './src/data/words.js',
   './src/i18n/lv.js',
   './src/main.js',
+  './src/media/art.js',
   './src/media/enact.js',
   './src/media/manifest.js',
   './src/media/mic.js',

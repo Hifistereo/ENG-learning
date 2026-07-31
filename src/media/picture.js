@@ -1,29 +1,20 @@
-// Pictures for words and pets.
+// Pictures for words.
 //
 // Emoji do the job today: they are colourful, instantly readable by a
 // pre-literate child, need no files, no licensing, and work offline. The one
 // weakness is abstract words, which is why the curriculum front-loads
 // concrete nouns.
 //
-// If real illustrations are ever added, drop them in assets/img/, list the
-// ids in assets/img/manifest.json, and every screen picks them up — this is
-// the only module that knows where a picture comes from.
+// Drop `assets/img/cat.webp` in and list "cat" in the manifest and every
+// screen shows it instead — this is the only module that decides where a
+// word's picture comes from. See media/art.js and assets/BRIEF.md.
 
-import { loadManifest } from './manifest.js';
+import { hasArt, artUrl, preloadArt } from './art.js';
 import { el } from '../ui/dom.js';
 
-const IMG_DIR = './assets/img/';
-const IMG_MANIFEST = `${IMG_DIR}manifest.json`;
+export { preloadArt as preloadPictures };
 
-let available = new Set();
-
-/** Warm the manifest once at startup so renders stay synchronous. */
-export async function preloadPictures() {
-  available = await loadManifest(IMG_MANIFEST);
-  return available;
-}
-
-export const hasImage = (id) => available.has(id);
+export const hasImage = (id) => hasArt(id);
 
 /**
  * A picture element for a word (or anything with `id` + `emoji`).
@@ -33,10 +24,10 @@ export const hasImage = (id) => available.has(id);
 export function pictureEl(item, opts = {}) {
   const { size = 'var(--pic-size)', className = '' } = opts;
 
-  if (hasImage(item.id)) {
+  if (hasArt(item.id)) {
     return el('img', {
       class: `picture picture--img ${className}`,
-      src: `${IMG_DIR}${encodeURIComponent(item.id)}.webp`,
+      src: artUrl(item.id),
       alt: '',
       loading: 'eager',
       decoding: 'async',

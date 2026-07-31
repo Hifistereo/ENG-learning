@@ -11,6 +11,7 @@
 
 import { el, clear, prefersReducedMotion } from '../ui/dom.js';
 import { getPet, getAccessory, MOOD, petLevel } from '../data/pets.js';
+import { hasArt, artUrl } from '../media/art.js';
 
 /** How long each transient state shows before falling back to idle. */
 const HOLD_MS = {
@@ -56,7 +57,7 @@ export function setProfile(next) {
 function render() {
   if (!body) return;
   const def = getPet(profile?.pet?.id);
-  body.textContent = def.emoji;
+  paintPet(body, def);
   body.title = profile?.pet?.name || def.defaultName;
 
   clear(accessoryEl);
@@ -150,12 +151,33 @@ export function currentPetLevel(masteredCount) {
   return petLevel(masteredCount);
 }
 
+/**
+ * Paint a pet onto an element: drawn artwork if it has been added, the emoji
+ * otherwise.
+ *
+ * A background image rather than an <img> child, so every CSS animation in
+ * pet.css keeps transforming the same single element and none of them need to
+ * know which of the two they are moving.
+ */
+function paintPet(node, def) {
+  const id = `pet:${def.id}`;
+  if (hasArt(id)) {
+    node.textContent = '';
+    node.classList.add('pet--art');
+    node.style.backgroundImage = `url("${artUrl(id)}")`;
+  } else {
+    node.classList.remove('pet--art');
+    node.style.backgroundImage = '';
+    node.textContent = def.emoji;
+  }
+}
+
 /** A standalone pet sprite for the onboarding picker and trophy screen. */
 export function petPreviewEl(petId, { size = '4rem', accessories = [] } = {}) {
   const def = getPet(petId);
-  const wrap = el('span.pet-preview', { style: { fontSize: size } }, [
-    el('span.pet-preview__body', { text: def.emoji }),
-  ]);
+  const sprite = el('span.pet-preview__body');
+  paintPet(sprite, def);
+  const wrap = el('span.pet-preview', { style: { fontSize: size } }, [sprite]);
   for (const id of accessories) {
     const acc = getAccessory(id);
     if (acc) wrap.append(el('span', { class: `pet__acc pet__acc--${acc.slot}`, text: acc.emoji }));

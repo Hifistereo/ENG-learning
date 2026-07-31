@@ -1,29 +1,19 @@
-// Story scene backgrounds.
+// Story scene backgrounds and characters.
 //
-// Same swappable pattern as word pictures: the app draws a gradient-and-emoji
-// scene by default, and uses real artwork the moment a file exists at the
-// expected path. Nothing in the story code knows which it got.
+// Same drop-in pattern as word pictures, reading from the shared registry in
+// media/art.js: the app draws a gradient-and-emoji scene by default and uses
+// real artwork the moment a file exists. Nothing in the story code knows which
+// it got.
 //
-//   assets/img/scenes/<mood>.webp      a full scene background
-//   assets/img/heroes/<heroId>.webp    the story character
-//
-// List whatever is added in assets/img/manifest.json (ids prefixed
-// "scene:" and "hero:"). assets/BRIEF.md describes each one.
+//   assets/img/scenes/<mood>.webp    manifest id "scene:<mood>"
+//   assets/img/heroes/<heroId>.webp  manifest id "hero:<heroId>"
 
 import { el } from '../ui/dom.js';
-import { loadManifest } from './manifest.js';
+import { hasArt, artUrl } from './art.js';
 import { MOODS } from '../data/stories.js';
 
-const IMG_DIR = './assets/img/';
-let available = new Set();
-
-export async function preloadScenes() {
-  available = await loadManifest(`${IMG_DIR}manifest.json`);
-  return available;
-}
-
-export const hasScene = (mood) => available.has(`scene:${mood}`);
-export const hasHero = (heroId) => available.has(`hero:${heroId}`);
+export const hasScene = (mood) => hasArt(`scene:${mood}`);
+export const hasHero = (heroId) => hasArt(`hero:${heroId}`);
 
 /**
  * The backdrop for a scene.
@@ -35,13 +25,14 @@ export function sceneEl(mood) {
   if (hasScene(mood)) {
     return el('div', {
       class: `scene scene--${mood} scene--art`,
-      style: { backgroundImage: `url("${IMG_DIR}scenes/${encodeURIComponent(mood)}.webp")` },
+      style: { backgroundImage: `url("${artUrl(`scene:${mood}`)}")` },
       'aria-hidden': 'true',
     });
   }
 
-  // Drawn scene: a sky gradient plus a single large motif. Deliberately plain
-  // — a busy background competes with the thing the child is meant to look at.
+  // Drawn scene: a sky gradient plus a single large motif, kept low and to one
+  // side. Deliberately plain — a busy background competes with the thing the
+  // child is meant to look at.
   return el('div', {
     class: `scene scene--${mood}`,
     style: { background: `linear-gradient(180deg, ${treatment.sky[0]}, ${treatment.sky[1]})` },
@@ -56,8 +47,9 @@ export function heroEl(hero, { size = 'clamp(3.5rem, 15vw, 6rem)' } = {}) {
   if (hasHero(hero.id)) {
     return el('img', {
       class: 'hero hero--art',
-      src: `${IMG_DIR}heroes/${encodeURIComponent(hero.id)}.webp`,
+      src: artUrl(`hero:${hero.id}`),
       alt: '',
+      decoding: 'async',
       style: { width: size, height: size },
     });
   }

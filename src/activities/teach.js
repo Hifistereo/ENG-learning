@@ -25,9 +25,20 @@ import { play } from '../media/sfx.js';
 import { enact, canEnact } from '../media/enact.js';
 import { t } from '../i18n/lv.js';
 import * as mic from '../media/mic.js';
+import { hasArt, artUrl } from '../media/art.js';
 import { stageWith } from './base.js';
 
 const ALIEN = '👽';
+
+/** The alien: drawn artwork if installed (manifest id "char:alien"), else emoji. */
+function alienEl() {
+  if (hasArt('char:alien')) {
+    return el('img.alien.alien--art', {
+      src: artUrl('char:alien'), alt: '', decoding: 'async',
+    });
+  }
+  return el('span.alien', { 'aria-hidden': 'true', text: ALIEN });
+}
 
 export function run(ctx) {
   const { round, profile, pool, progress } = ctx;
@@ -50,7 +61,7 @@ export function run(ctx) {
     let recording = false;
 
     const picture = pictureEl(word, { size: 'clamp(6rem, 26vw, 11rem)' });
-    const alien = el('span.alien', { 'aria-hidden': 'true', text: ALIEN });
+    const alien = alienEl();
     const speech = el('div.alien__says', { text: claim });
     const controls = el('div.sayit__controls');
 
