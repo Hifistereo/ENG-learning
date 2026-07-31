@@ -202,11 +202,19 @@
 
 /* Drawn pet artwork. A background image so every keyframe animation above
    keeps transforming the same element, whether it is showing an emoji or a
-   picture. */
+   picture.
+
+   Sized at 1.35em rather than 1em, pulled back by a negative margin so the
+   visual centre does not move. Drawn characters carry 13-28% transparent
+   padding of their own, so at 1em they render noticeably smaller than the
+   emoji they replace. Scaling the *element* rather than the background keeps
+   `contain` honest — the tightest artwork has only 1% headroom at the top, so
+   cropping to fill would shave the top off a head. */
 .pet__body.pet--art,
 .pet-preview__body.pet--art {
-  width: 1em;
-  height: 1em;
+  width: 1.35em;
+  height: 1.35em;
+  margin: -0.175em;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;

@@ -83,12 +83,53 @@ const ASSETS = [
   './src/version.js',
 ];
 
+/**
+ * Artwork listed in assets/img/manifest.json, resolved to file paths.
+ *
+ * Read at install time rather than hard-coded, so adding pictures never means
+ * editing this file. Without it, images would only be cached the first time a
+ * child happened to see them online — and an installed app opened offline on
+ * day one would show emoji for artwork that is sitting right there on disk.
+ */
+async function artAssets() {
+  const folders = { scene: 'scenes', hero: 'heroes', pet: 'pets', char: 'characters' };
+  try {
+    const res = await fetch('./assets/img/manifest.json', { cache: 'reload' });
+    if (!res.ok) return [];
+    const ids = await res.json();
+    return (Array.isArray(ids) ? ids : []).map((id) => {
+      const [prefix, rest] = id.includes(':') ? id.split(':') : [null, id];
+      const folder = folders[prefix];
+      return folder
+        ? `./assets/img/${folder}/${encodeURIComponent(rest)}.webp`
+        : `./assets/img/${encodeURIComponent(rest)}.webp`;
+    });
+  } catch {
+    return [];
+  }
+}
+
+/** Recorded audio, same idea. */
+async function audioAssets() {
+  try {
+    const res = await fetch('./assets/audio/en/manifest.json', { cache: 'reload' });
+    if (!res.ok) return [];
+    const ids = await res.json();
+    return (Array.isArray(ids) ? ids : [])
+      .map((id) => `./assets/audio/en/${encodeURIComponent(id)}.mp3`);
+  } catch {
+    return [];
+  }
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
+    const media = [...(await artAssets()), ...(await audioAssets())];
+
     // addAll is all-or-nothing; cache entries individually so one missing
     // optional file cannot leave the app without a cache at all.
-    await Promise.all(ASSETS.map((url) =>
+    await Promise.all([...ASSETS, ...media].map((url) =>
       cache.add(new Request(url, { cache: 'reload' })).catch((err) => {
         console.warn('[sw] could not cache', url, err);
       })));

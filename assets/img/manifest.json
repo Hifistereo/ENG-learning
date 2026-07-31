@@ -1,1 +1,22 @@
-[]
+[
+  "scene:home",
+  "scene:night",
+  "scene:road",
+  "scene:rain",
+  "scene:forest",
+  "scene:snow",
+  "scene:water",
+  "hero:cat",
+  "hero:dog",
+  "hero:bear",
+  "hero:duck",
+  "pet:cat",
+  "pet:dog",
+  "pet:dragon",
+  "pet:bunny",
+  "pet:owl",
+  "pet:monkey",
+  "pet:unicorn",
+  "pet:penguin",
+  "char:alien"
+]

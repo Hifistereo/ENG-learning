@@ -1,22 +1,39 @@
 # Asset brief — every picture the app can use
 
-**243 image files in total.** Every one is optional: the app ships working,
-using emoji. Each file replaces its emoji the moment it exists, with no code
-change and no rebuild.
+**243 image files in total. 20 are done and installed.** Every one is optional:
+the app ships working, using emoji. Each file replaces its emoji the moment it
+exists, with no code change and no rebuild.
 
-| # | What | Files | Size | Priority |
+| # | What | Files | Size | Status |
 |---|---|---|---|---|
-| 1 | Story scene backgrounds | **7** | 1200 × 675 | ★★★ do first |
-| 2 | Story heroes | **4** | 512 × 512 | ★★★ |
-| 3 | Pet companions | **8** | 512 × 512 | ★★★ |
-| 4 | The alien | **1** | 512 × 512 | ★★ |
-| 5 | Word pictures | **144** | 512 × 512 | ★★ do by unit |
+| 1 | Story scene backgrounds | **7** | 1200 × 675 | ✅ **done** |
+| 2 | Story heroes | **4** | 512 × 512 | ✅ **done** |
+| 3 | Pet companions | **8** | 512 × 512 | ✅ **done** |
+| 4 | The alien | **1** | 512 × 512 | ✅ **done** |
+| 5 | Word pictures | **144** | 512 × 512 | ★★ next — do by unit |
 | 6 | Second pictures (transfer) | **76** | 512 × 512 | ★★ |
 | 7 | App icons | **3** | 192 / 512 / 512 | ★ |
 
-Items 1–4 are **20 files** and cover every character and background in the app.
-That is the set worth doing first — it changes how the whole thing looks. Items
-5–6 are a long tail you can chip away at one unit at a time, in any order.
+**Remaining: 223 files**, all of them word pictures. Those are a long tail you
+can chip away at one unit at a time, in any order — the app keeps using emoji
+for whatever is not there yet.
+
+### Notes from installing the first 20
+
+The set that arrived was technically perfect and needed no rework: correct
+sizes, real transparency, no opaque corners, calm centres with detail at the
+edges. Two things were adjusted **in the app, not the artwork**:
+
+- Captions now sit on their own soft panel at the foot of each scene. On flat
+  placeholder gradients dark text was fine; on a real illustrated room it
+  landed on a sofa. Contrast is now 11:1 or better on all seven scenes.
+- Characters render at 1.35× their box. Drawn artwork carries 13–28% of its own
+  transparent padding, so at face value it came out smaller than the emoji it
+  replaced. Scaling the element rather than the image keeps `contain` honest —
+  the tightest file has only 1% headroom at the top.
+
+Keep the same conventions for the word pictures and nothing further will need
+adjusting.
 
 ---
 

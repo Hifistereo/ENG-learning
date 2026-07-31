@@ -9,6 +9,18 @@ Versiju numurs atrodas `src/version.js` un `sw.js` — abiem jāsakrīt.
 
 ### Pievienots
 
+- **Zīmētie attēli — pirmie 20 faili.** Septiņas stāstu ainas, četri stāstu
+  varoņi, astoņi draugi (mājdzīvnieki) un citplanētietis. Emoji vairs netiek
+  lietoti nekur, kur ir zīmēts attēls.
+- Stāsta ainas tagad ir **16:9 kadrs ar teksta paneli apakšā**. Uz zīmētas
+  ainas tumšs teksts iepriekš nokļuva uz dīvāna vai nakts debesīm; tagad
+  kontrasts ir vismaz 11:1 visās septiņās ainās, un varonis stāv uz zemes,
+  nevis peld gaisā.
+- Servisa darbinieks **saglabā arī attēlus un ierakstus**, nolasot manifestus
+  instalācijas brīdī. Agrāk attēli nonāca kešatmiņā tikai tad, kad bērns tos
+  bija redzējis tiešsaistē — pirmā bezsaistes sesija būtu rādījusi emoji.
+  Bezsaistē tagad ir 85 faili (agrāk 64).
+
 - **Attēlu vietas visiem varoņiem.** Draugam (mājdzīvniekam) un citplanētietim
   agrāk nebija vietas, kur ielikt zīmētu attēlu — tie bija tikai emoji.
   Tagad ir. Turklāt ainu un varoņu attēli nekad netika ielādēti, jo manifests

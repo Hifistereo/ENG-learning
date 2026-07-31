@@ -611,6 +611,203 @@
 
 .storycard, .storyscene {
   position: relative;
+  width: min(40rem, 100%);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+.scene {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background-size: cover;
+  background-position: center;
+}
+/* The drawn fallback only: real artwork has its own motif. */
+.scene:not(.scene--art) .scene__motif {
+  position: absolute;
+  right: 6%;
+  bottom: 4%;
+  font-size: clamp(3rem, 16vw, 6rem);
+  opacity: 0.22;
+}
+.scene--art .scene__motif { display: none; }
+
+/* The character stands ON the ground of the scene, not floating in the middle
+   of it. Every backdrop puts its horizon at roughly 70% height, which is also
+   where the caption begins — so aligning the character's feet to the bottom of
+   this box lands them on the ground in all seven scenes. */
+.storycard__body, .storyscene__body {
+  position: absolute;
+  inset: 0 0 30% 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-4);
+}
+.hero {
+  line-height: 1;
+  filter: drop-shadow(0 6px 12px rgba(29, 39, 51, 0.3));
+  animation: pet-breathe 3.2s var(--ease-out) infinite;
+}
+
+/* The caption panel.
+   Illustrated scenes are busy by design, and the sentence is the thing the
+   child has to understand — so it gets its own readable surface rather than
+   sitting on whatever happens to be behind it. Without this, dark text lands
+   on a sofa in one scene and on a night sky in the next. */
+.storycard__caption, .storyscene__caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--s-3) var(--s-4) var(--s-3);
+  background: linear-gradient(180deg,
+    rgba(255, 253, 247, 0) 0%,
+    rgba(255, 253, 247, 0.86) 22%,
+    rgba(255, 253, 247, 0.96) 100%);
+  text-align: center;
+}
+.storycard__title {
+  font-size: var(--t-lg);
+  font-weight: 800;
+  color: var(--c-ink);
+}
+.storycard__lv, .storyscene__lv {
+  font-size: var(--t-sm);
+  color: var(--c-ink-soft);
+}
+.storyscene__says {
+  font-size: var(--t-md);
+  font-weight: 800;
+  color: var(--c-ink);
+  min-height: 1.4em;
+}
+
+.storyscene__options {
+  display: flex;
+  justify-content: center;
+  gap: var(--choice-gap);
+  flex-wrap: wrap;
+  width: 100%;
+}
+.storyprop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  padding: var(--s-3);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--border);
+  box-shadow: var(--shadow-1), var(--edge);
+  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur);
+}
+.storyprop:active { transform: translateY(3px) scale(0.97); }
+.storyprop__word { font-size: var(--t-sm); font-weight: 700; }
+.storyprop.is-correct { border-color: var(--c-leaf); background: var(--c-leaf-pale); }
+.storyprop.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
+.storyprop.is-out { opacity: 0.32; }
+.storyprop.is-dimmed { opacity: 0.45; }
+.storyprop.is-hinted { border-color: var(--c-sun); animation: choice-hint 1.2s var(--ease-out) infinite; }
+
+/* --- Co-play card (age 2) ----------------------------------------------- */
+
+.coplay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  max-width: 30rem;
+  text-align: center;
+}
+.coplay__lead { font-size: var(--t-md); color: var(--fg-soft); line-height: 1.5; }
+.coplay__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+  padding-left: var(--s-5);
+  text-align: left;
+  font-size: var(--t-sm);
+  color: var(--fg-soft);
+}
+
+/* An in-activity nudge to the grown-up. Quiet: it is for the adult reading
+   over the child's shoulder, not for the child. */
+.coplay-nudge {
+  padding: var(--s-2) var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--c-paper-2);
+  border: 1px dashed var(--border);
+  font-size: var(--t-xs);
+  color: var(--fg-soft);
+  text-align: center;
+}
+
+/* --- Order fulfilment --------------------------------------------------- */
+
+.request {
+  padding: var(--s-2) var(--s-5);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 3px solid var(--c-sun);
+}
+.request__text { font-size: var(--t-lg); font-weight: 700; }
+
+.basket {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 4rem;
+  font-size: clamp(2.5rem, 10vw, 4rem);
+}
+.basket__item {
+  position: absolute;
+  font-size: 0.75em;
+  animation: basket-in 0.4s var(--ease-bounce);
+}
+@keyframes basket-in {
+  from { transform: translateY(60px) scale(0.4); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* --- Teach the alien ---------------------------------------------------- */
+
+.alienrow {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  max-width: 32rem;
+}
+.alien {
+  font-size: clamp(2.5rem, 11vw, 4rem);
+  line-height: 1;
+  animation: pet-breathe 3s var(--ease-out) infinite;
+}
+.alien.is-corrected { animation: pet-cheer 0.6s var(--ease-bounce) 2; }
+.alien__says {
+  flex: 1;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+  font-size: var(--t-md);
+  font-weight: 700;
+}
+
+/* --- Story -------------------------------------------------------------- */
+
+.storycard, .storyscene {
+  position: relative;
   width: min(34rem, 100%);
   border-radius: var(--r-xl);
   overflow: hidden;
@@ -689,9 +886,14 @@
 .storyprop.is-dimmed { opacity: 0.45; }
 .storyprop.is-hinted { border-color: var(--c-sun); animation: choice-hint 1.2s var(--ease-out) infinite; }
 
-/* Drawn alien artwork, sized to match the emoji it replaces. */
+/* Drawn alien artwork. Larger than the emoji's box for the same reason as the
+   pets: the character sits inside its own transparent padding. */
 .alien--art {
-  width: clamp(2.5rem, 11vw, 4rem);
-  height: clamp(2.5rem, 11vw, 4rem);
+  width: clamp(3.5rem, 15vw, 5.5rem);
+  height: clamp(3.5rem, 15vw, 5.5rem);
   object-fit: contain;
+  flex: 0 0 auto;
 }
+
+/* Drawn hero artwork in a story scene — same padding compensation. */
+.hero--art { object-fit: contain; transform: scale(1.3); }

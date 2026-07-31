@@ -53,10 +53,12 @@ async function titleCard(ctx, story) {
       sceneEl(story.mood),
       el('div.storycard__body', {}, [
         heroEl(story.hero, { size: 'clamp(4.5rem, 20vw, 8rem)' }),
+      ]),
+      // The caption gets its own surface. Illustrated scenes are busy by
+      // design, and the sentence is the thing the child has to understand.
+      el('div.storycard__caption', {}, [
         el('h2.storycard__title', { text: story.lv }),
-        profile.settings.lvHints
-          ? el('p.storycard__lv', { text: story.introLv })
-          : null,
+        profile.settings.lvHints ? el('p.storycard__lv', { text: story.introLv }) : null,
       ]),
     ]),
   );
@@ -160,8 +162,8 @@ function playScene(ctx, story, scene) {
       ctx,
       el('div.storyscene', {}, [
         sceneEl(scene.mood || story.mood),
-        el('div.storyscene__body', {}, [
-          heroEl(story.hero),
+        el('div.storyscene__body', {}, [heroEl(story.hero)]),
+        el('div.storyscene__caption', {}, [
           say,
           profile.settings.lvHints ? el('p.storyscene__lv', { text: scene.lv }) : null,
         ]),
@@ -181,6 +183,8 @@ async function endCard(ctx, story) {
       sceneEl(story.mood),
       el('div.storycard__body', {}, [
         heroEl(story.hero, { size: 'clamp(5rem, 22vw, 9rem)' }),
+      ]),
+      el('div.storycard__caption', {}, [
         el('h2.storycard__title', { text: story.outroLv }),
       ]),
     ]),
