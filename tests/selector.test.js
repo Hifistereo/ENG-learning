@@ -59,11 +59,11 @@ test('a parent can force a later unit open without touching the ones before it',
 test('unit mastery is measured against age-appropriate words only', () => {
   const progress = emptyProgress();
   const p2 = profile(2);
-  const toddlerWords = wordsInUnit('greetings').filter((w) => w.level <= 2);
+  const toddlerWords = wordsInUnit('animals').filter((w) => w.level <= 2);
   toddlerWords.forEach((w) => master(progress, w.id, 2));
-  assert.equal(unitMastery('greetings', p2, progress), 1,
+  assert.equal(unitMastery('animals', p2, progress), 1,
     'a toddler is not held back by words flagged for age 5');
-  assert.ok(unitMastery('greetings', profile(5), progress) < 1);
+  assert.ok(unitMastery('animals', profile(5), progress) < 1);
 });
 
 // --- Pools ---------------------------------------------------------------
@@ -207,14 +207,14 @@ test('toddler distractors avoid pictures that look alike', () => {
   progress.unlockedUnits = [...UNIT_IDS];
   const pool = availableWords(profile(2), progress);
 
-  // hello 🙋, bye 👋 and hand ✋ are all "a waving person or hand" — for a
+  // happy 😄, sad 😢 and head 🙂 are all "a round yellow face" — for a
   // pre-literate child, choosing between them is a picture puzzle, not a
   // vocabulary question.
-  const hello = getWord('hello');
-  assert.equal(hello.look, 'wave', 'the fixture depends on this tag');
+  const happy = getWord('happy');
+  assert.equal(happy.look, 'face', 'the fixture depends on this tag');
   for (let i = 0; i < 40; i += 1) {
-    const picks = pickDistractors(hello, pool, 1, { ageBand: 2 });
-    assert.notEqual(picks[0].look, 'wave', `got look-alike "${picks[0].en}"`);
+    const picks = pickDistractors(happy, pool, 1, { ageBand: 2 });
+    assert.notEqual(picks[0].look, 'face', `got look-alike "${picks[0].en}"`);
   }
 });
 

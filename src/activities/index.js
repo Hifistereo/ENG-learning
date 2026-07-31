@@ -17,6 +17,7 @@ import * as transfer from './transfer.js';
 import * as teach from './teach.js';
 import * as story from './story.js';
 import * as coplay from './coplay.js';
+import * as farewell from './farewell.js';
 
 export const ACTIVITIES = {
   // Meeting a word
@@ -36,7 +37,21 @@ export const ACTIVITIES = {
   sentence,
   // Framing
   coplay,
+  farewell,
 };
+
+/**
+ * Rounds that happen inside the visit's scene.
+ *
+ * The two that do not are the co-play card, which is addressed to the adult
+ * before the visit starts, and the farewell, which needs the scene but is
+ * listed here because it renders into it like everything else. Anything not in
+ * this set gets the plain stage.
+ */
+export const SCENE_ROUNDS = new Set([
+  'intro', 'chant', 'listenTap', 'order', 'story', 'doAction',
+  'transfer', 'teach', 'phonics', 'sentence', 'farewell',
+]);
 
 /** @returns {(ctx: object) => Promise<void>} */
 export function activityFor(type) {

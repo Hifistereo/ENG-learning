@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 
 import { buildPlan, createSession, SCORED, insertRound } from '../src/core/session.js';
 import { buildStoryRound, STORY_CHOICES } from '../src/core/storyBuilder.js';
-import { STORIES } from '../src/data/stories.js';
+import { STORIES, MOODS } from '../src/data/stories.js';
 import { UNIT_IDS, ORDERABLE_UNITS, canOrder } from '../src/data/units.js';
 import { WORDS, getWord } from '../src/data/words.js';
 import { availableWords } from '../src/core/selector.js';
@@ -98,7 +98,7 @@ test('every orderable unit really does contain handable objects', () => {
   for (const unit of ORDERABLE_UNITS) {
     assert.ok(UNIT_IDS.includes(unit), `unknown unit "${unit}"`);
   }
-  for (const unit of ['greetings', 'colors', 'actions', 'feelings', 'numbers', 'body', 'family', 'nature']) {
+  for (const unit of ['colors', 'actions', 'feelings', 'numbers', 'body', 'family', 'nature']) {
     assert.equal(ORDERABLE_UNITS.has(unit), false, `"${unit}" must not be orderable`);
   }
 });
@@ -115,7 +115,7 @@ test('the memory board is gone', () => {
 
 test('toddlers meet only receptive tasks — never phonics, sentences or speaking', () => {
   const allowed = new Set(['coplay', 'chant', 'intro', 'listenTap', 'order', 'doAction',
-    'transfer', 'story', 'celebrate']);
+    'transfer', 'story', 'farewell', 'celebrate']);
   for (let seed = 1; seed <= 20; seed += 1) {
     const { rounds } = buildPlan(profile(2), experiencedProgress(2), { now: T0, rng: seeded(seed) });
     for (const round of rounds) {
@@ -382,16 +382,48 @@ test('a session walks its rounds and then finishes', () => {
   assert.equal(session.current(), null);
 });
 
-test('progress fraction rises from 0 towards 1', () => {
+test('the session exposes no progress fraction', () => {
+  // Deliberately gone in v0.3.0. A bar creeping across the top of the screen
+  // reads to a small child as a timer running out, and it frames the visit as
+  // a quantity to get through. The child learns the session is over when the
+  // pet waves goodbye — see activities/farewell.js.
   const session = createSession(profile(2), experiencedProgress(2), { now: T0, rng: seeded(4) });
-  assert.equal(session.fraction, 0);
-  let last = 0;
-  while (!session.isFinished()) {
-    assert.ok(session.fraction >= last);
-    last = session.fraction;
-    session.advance();
+  assert.equal(session.fraction, undefined);
+});
+
+test('every visit ends by leaving the place, then celebrating', () => {
+  for (let seed = 1; seed <= 20; seed += 1) {
+    for (const age of [2, 5]) {
+      const { rounds } = buildPlan(profile(age), experiencedProgress(age), { now: T0, rng: seeded(seed) });
+      const types = rounds.map((r) => r.type);
+      assert.deepEqual(types.slice(-2), ['farewell', 'celebrate'],
+        `seed ${seed} age ${age}: the visit must end with a goodbye`);
+    }
   }
-  assert.equal(session.fraction, 1);
+});
+
+test('a visit happens in one named place', () => {
+  for (let seed = 1; seed <= 20; seed += 1) {
+    for (const age of [2, 5]) {
+      const plan = buildPlan(profile(age), experiencedProgress(age), { now: T0, rng: seeded(seed) });
+      assert.ok(MOODS[plan.mood], `seed ${seed} age ${age}: "${plan.mood}" is not a real scene`);
+    }
+  }
+});
+
+test('the story is woven into the visit rather than tacked on the end', () => {
+  // It used to be round ~15 of 18, so the best part of the app arrived only
+  // after the drill was over. It now lands with rounds still to come.
+  let checked = 0;
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const { rounds } = buildPlan(profile(5), experiencedProgress(5), { now: T0, size: 16, rng: seeded(seed) });
+    const at = rounds.findIndex((r) => r.type === 'story');
+    if (at === -1) continue;
+    checked += 1;
+    assert.ok(at < rounds.length - 3,
+      `seed ${seed}: story at ${at} of ${rounds.length} is still the last thing that happens`);
+  }
+  assert.ok(checked >= 5, 'expected the story to appear in most sessions');
 });
 
 test('a wrong answer earns another chance at that word later in the session', () => {

@@ -5,11 +5,15 @@
 // the session themselves.
 //
 // ctx = {
-//   stage,      element to render into (already cleared)
+//   scene,      the visit's scene stage — see ui/sceneStage.js. Persistent for
+//               the whole session: an activity changes what is said and what
+//               is on the shelf, and never tears anything down.
+//   stage,      the raw stage element, for the two rounds outside the visit
 //   round,      the round descriptor from core/session.js
 //   profile, progress, pool,
 //   say(word) / sayText(text),
 //   result(wordId, ok, ms),   record a scored answer
+//   aborted(),  true once the child has left
 //   quit(),
 // }
 
@@ -31,15 +35,16 @@ export function idleHint(profile, onHint) {
   return { cancel: () => clearTimeout(timer) };
 }
 
-/** Render helper: wipe the stage and drop in the activity's nodes. */
+/**
+ * Render helper: wipe the stage and drop in the activity's nodes.
+ *
+ * Only for the two rounds that happen outside the visit — the co-play card,
+ * which is addressed to the adult before the session starts. Everything inside
+ * the visit renders through ctx.scene and never clears anything.
+ */
 export function stageWith(ctx, ...nodes) {
   clear(ctx.stage).append(...nodes.filter(Boolean));
   return ctx.stage;
-}
-
-/** Put the pet back to a neutral state between rounds. */
-export function restPet() {
-  petReact.idle();
 }
 
 /**
@@ -53,15 +58,15 @@ export function restPet() {
  *
  * @param {object} ctx
  * @param {object} word
- * @param {object} grid - the choiceGrid handle
+ * @param {object} props - the shelf handle from sceneStage.setProps
  * @param {string} [answerId] - defaults to the word's id
  */
-export async function teachAnswer(ctx, word, grid, answerId = word.id) {
-  petReact.hint(grid.directionOf(answerId));
-  grid.hint(answerId);
+export async function teachAnswer(ctx, word, props, answerId = word.id) {
+  petReact.hint(props.directionOf(answerId));
+  props.hint(answerId);
   await ctx.say(word);
 
-  const node = grid.root.querySelector(`[data-id="${CSS.escape(answerId)}"] .picture`);
+  const node = props.pictureOf(answerId);
   if (node && canEnact(word.id)) await enact(node, word);
   else await wait(500);
 

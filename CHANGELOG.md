@@ -7,35 +7,84 @@ Versiju numurs atrodas `src/version.js` un `sw.js` — abiem jāsakrīt.
 
 ## [Unreleased]
 
-### Pievienots
-
-- **Zīmētie attēli — pirmie 20 faili.** Septiņas stāstu ainas, četri stāstu
-  varoņi, astoņi draugi (mājdzīvnieki) un citplanētietis. Emoji vairs netiek
-  lietoti nekur, kur ir zīmēts attēls.
-- Stāsta ainas tagad ir **16:9 kadrs ar teksta paneli apakšā**. Uz zīmētas
-  ainas tumšs teksts iepriekš nokļuva uz dīvāna vai nakts debesīm; tagad
-  kontrasts ir vismaz 11:1 visās septiņās ainās, un varonis stāv uz zemes,
-  nevis peld gaisā.
-- Servisa darbinieks **saglabā arī attēlus un ierakstus**, nolasot manifestus
-  instalācijas brīdī. Agrāk attēli nonāca kešatmiņā tikai tad, kad bērns tos
-  bija redzējis tiešsaistē — pirmā bezsaistes sesija būtu rādījusi emoji.
-  Bezsaistē tagad ir 85 faili (agrāk 64).
-
-- **Attēlu vietas visiem varoņiem.** Draugam (mājdzīvniekam) un citplanētietim
-  agrāk nebija vietas, kur ielikt zīmētu attēlu — tie bija tikai emoji.
-  Tagad ir. Turklāt ainu un varoņu attēli nekad netika ielādēti, jo manifests
-  tika nolasīts divās vietās un startā izsaukta tikai viena; tagad ir viens
-  reģistrs (`src/media/art.js`).
-- `assets/BRIEF.md` pārrakstīts kā pilns saraksts: **243 attēli**, katram
-  faila nosaukums, izmērs un apraksts, ko tieši attēlā jābūt.
-
 Iecerēts nākamajām versijām:
 
-- Ierunāti vārdi un ilustrācijas (skat. `assets/BRIEF.md`)
-- Vairāk stāstu un stāstu ainu
+- Ierunāti vārdi un atlikušie attēli (skat. `assets/BRIEF.md`)
+- Vairāk stāstu un stāstu ainu (`kitchen`, `bedroom`, `garden`, `shop`)
 - “Give me two small red apples” — skaitļi un vairāki īpašības vārdi vienā lūgumā
 - Izdrukājamas kartītes vecākiem
 - Progresa sinhronizācija starp ierīcēm
+
+## [0.3.0] – 2026-07-31
+
+“Viena vieta”. Pārstrādāta spēles sajūta. Mācību pieeja nemainās ne par
+milimetru — mainās viss, kas ap to.
+
+Iemesls: lietotne mācīja labi, bet sesijas sākums nejutās kā spēle. Pirmās
+minūtes pirms stāsta radīja **satraukumu, nevis prieku**. Četri cēloņi vienā
+vietā: pirmā tēma bija “Sasveicināšanās” — vienīgā, kuru nav iespējams uzzīmēt;
+katrs uzdevums sākās ar pavēli latviski; ekrāns izskatījās pēc kontroldarba
+lapas; un stāsts — labākā daļa — bija 15. no 18 kārtām.
+
+### Mainīts — sesija tagad notiek vienā vietā
+
+- **Visa sesija norisinās vienā ilustrētā ainā**, un draugs stāv tajā iekšā.
+  Aina un draugs saglabājas visu apciemojumu — mainās tikai tas, kas tiek
+  teikts, un tas, kas atrodas plauktā. **Starp kārtām ekrāns vairs netiek
+  nodzēsts.** Iepriekš tas notika 18 reizes vienā sesijā.
+- **Angļu teikums pats ir uzdevums.** Bērnam vairs netiek rādīta neviena
+  pavēle latviski. “Klausies un pieskaries!”, “Atkārtojam!”, “Saki līdzi!” —
+  visas dzēstas. Tagad varonis kaut ko pasaka angliski (“Where is the cat?”),
+  un latviskais tulkojums, ja tas ir ieslēgts, atrodas zem tā mazākiem burtiem.
+- **Progresa josla noņemta.** Josla, kas lien pāri ekrāna augšai, mazam bērnam
+  nozīmē, ka kaut kas beidzas, un pārvērš spēli par daudzumu, kas jāizcieš.
+  Bērns uzzina, ka sesija beigusies, kad draugs atvadās.
+- **Stāsts vairs nav pielikts beigās** — tas notiek aptuveni divās trešdaļās,
+  un aina mainās līdzi tam, kā stāsts virzās (ar pārplūdumu, nevis lēcienu).
+
+### Mainīts — ko un kādā secībā māca
+
+- **Tēmu secība sākas ar dzīvniekiem**: dzīvnieki → ēdiens → mājas → daba →
+  rotaļlietas → apģērbs → transports → ķermenis → ģimene → darbības → krāsas →
+  sajūtas → skaitļi. Secību nosaka tas, cik labi lietu var uzzīmēt un parādīt
+  ar pirkstu. Skaitļi ir pēdējie, jo “trīs” attēls ir vienošanās, kas pašam
+  vēl jāiemāca.
+- **Sasveicināšanās vairs nav tēma.** `hello`, `bye`, `please`, `thank you`,
+  `yes`, `no`, `sorry`, `good night` ir izņemti no vārdu saraksta. Tos nevar
+  attēlot bildē (🙋, 👋 un 🙏 ir trīs dzeltenas rokas; ✅ un ❌ ir saskarnes
+  simboli), un neviens tos nemācās no kartītes. Tagad **varoņi tos vienkārši
+  saka** — katru reizi, kad tiem ir nozīme: sasveicinoties, kaut ko lūdzot un
+  saņemot, izlabojot citplanētieti, atvadoties. Netiek pārbaudīti, netiek
+  vērtēti, ir dzirdami daudz biežāk nekā agrāk. Vecāku sadaļā par to ir
+  paskaidrojums, lai to trūkums tabulā nešķistu zudis progress.
+
+### Pievienots — zīmētie attēli
+
+- **Vēl desmit zīmēti attēli** (kopā 30): `head`, `hair`, `table`, `hungry`,
+  `jump`, `wind`, `love`, kā arī `please`, `thankyou` un `sorry`. Pēdējie trīs
+  vairs nav atbildes variantiem — tie parādās blakus varoņa teiktajam.
+- `assets/BRIEF.md` atjaunots: **236 faili**, 30 pabeigti, **206 atlikuši**.
+  Septiņus vairs nevajag zīmēt vispār.
+
+### Labots
+
+- `styles/kid.css` saturēja stāsta noformējumu **divreiz**, un vēlākais,
+  vecākais bloks klusi pārrakstīja 16:9 kadru, ko pievienoja v0.2.0. Miruši
+  noteikumi izņemti; fails saruka par trešdaļu.
+- Balvu skaitītājs vairs neieskaita kartītes, kas vēlākā versijā izņemtas
+  (agrāk būtu rādījis “28 no 27”).
+
+### Tehniski
+
+- Jauns `src/ui/sceneStage.js` — viena ainas komponente, ko lieto visi
+  uzdevumi. Atbilžu plaukts atgriež to pašu saskarni, ko agrāk atbilžu režģis,
+  tāpēc uzdevumu loģika nemainījās.
+- Draugs tiek **pārvietots** ainā, nevis pārzīmēts (`pet.dockPet`) — visas
+  reakcijas, runas burbulis un aksesuāri turpina strādāt bez izmaiņām.
+- Noņemts nelietotais kods: atbilžu režģis, uzdevumu virsraksta rinda, lielā
+  kartīte, `heroEl`, `setPetPlacement`.
+- 146 automātiskie testi (iepriekš 141). Bez datu shēmas izmaiņām un bez
+  migrācijas — progress saglabājas pilnībā.
 
 ## [0.2.0] – 2026-07-31
 
@@ -163,6 +212,7 @@ Pirmā versija. "Pirmais solis".
 - Dati glabājas tikai `localStorage`. Lietotne neveic nevienu tīkla pieprasījumu
   pēc ielādes.
 
-[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.1.0

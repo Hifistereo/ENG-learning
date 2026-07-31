@@ -73,12 +73,26 @@ export function showPet(visible) {
 }
 
 /**
- * Move the pet to a corner appropriate for the screen.
- * 'corner' keeps it out of the way during choices; 'stage' centres it for the
- * chant, TPR and celebration, where the pet *is* the activity.
+ * Put the pet inside a scene, standing in the picture rather than floating
+ * over the interface.
+ *
+ * This moves the one real pet element instead of drawing a copy, so the whole
+ * state machine — every reaction, the speech bubble, the accessories — keeps
+ * working unchanged inside the scene. A second sprite would have meant a
+ * second set of states to keep in step, and they would have drifted.
+ *
+ * @param {Element|null} container - where the pet should stand, or null to
+ *   send it back to the floating layer.
  */
-export function setPetPlacement(place) {
-  if (root) root.dataset.place = place;
+export function dockPet(container) {
+  if (!root) return;
+  const home = container || document.getElementById('pet-layer');
+  if (!home || root.parentElement === home) {
+    if (root.parentElement === home) root.dataset.place = container ? 'scene' : 'corner';
+    return;
+  }
+  home.append(root);
+  root.dataset.place = container ? 'scene' : 'corner';
 }
 
 /**

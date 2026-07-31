@@ -29,19 +29,13 @@
 //          visual puzzle. Colours and digits are deliberately NOT grouped:
 //          there the picture difference IS the thing being taught.
 
-const W = [
-  // --- greetings ---------------------------------------------------------
-  { id: 'hello',     en: 'hello',     lv: 'sveiki',        emoji: '🙋', unit: 'greetings', level: 2, syl: 2, art: null, look: 'wave' },
-  { id: 'bye',       en: 'bye',       lv: 'atā',           emoji: '👋', unit: 'greetings', level: 2, syl: 1, art: null, look: 'wave' },
-  { id: 'please',    en: 'please',    lv: 'lūdzu',         emoji: '🙏', unit: 'greetings', level: 2, syl: 1, art: null },
-  { id: 'thankyou',  en: 'thank you', lv: 'paldies',       emoji: '🤗', unit: 'greetings', level: 2, syl: 2, art: null },
-  { id: 'yes',       en: 'yes',       lv: 'jā',            emoji: '✅', unit: 'greetings', level: 2, syl: 1, art: null, alt: '👍' },
-  { id: 'no',        en: 'no',        lv: 'nē',            emoji: '❌', unit: 'greetings', level: 2, syl: 1, art: null, alt: '👎' },
-  { id: 'sorry',     en: 'sorry',     lv: 'piedod',        emoji: '😔', unit: 'greetings', level: 5, syl: 2, art: null },
-  // 🌛 rather than 🌙, which belongs to "moon" — two words sharing one picture
-  // would make either of them unanswerable.
-  { id: 'goodnight', en: 'good night', lv: 'ar labu nakti', emoji: '🌛', unit: 'greetings', level: 5, syl: 2, art: null },
+// Greetings — hello, bye, please, thank you, yes, no, sorry, good night — are
+// deliberately NOT in this list. They are not things you can point at, and a
+// child does not learn "thank you" by choosing it from two pictures; they learn
+// it from hearing it every time something changes hands. The characters say
+// them constantly instead. See data/chatter.js.
 
+const W = [
   // --- animals -----------------------------------------------------------
   { id: 'cat',      en: 'cat',      lv: 'kaķis',      emoji: '🐱', unit: 'animals', level: 2, syl: 1, art: 'a', alt: '🐈' },
   { id: 'dog',      en: 'dog',      lv: 'suns',       emoji: '🐶', unit: 'animals', level: 2, syl: 1, art: 'a', alt: '🐕' },
@@ -92,7 +86,9 @@ const W = [
   { id: 'nose',   en: 'nose',   lv: 'deguns',  emoji: '👃', unit: 'body', level: 2, syl: 1, art: 'a' },
   { id: 'mouth',  en: 'mouth',  lv: 'mute',    emoji: '👄', unit: 'body', level: 2, syl: 1, art: 'a' },
   { id: 'ear',    en: 'ear',    lv: 'auss',    emoji: '👂', unit: 'body', level: 2, syl: 1, art: 'an', alt: '🦻' },
-  { id: 'hand',   en: 'hand',   lv: 'roka',    emoji: '✋', unit: 'body', level: 2, syl: 1, art: 'a', look: 'wave', alt: '🤚' },
+  // "hand" used to share a look group with hello 🙋 and bye 👋. Those are no
+  // longer words, so it is the only waving hand left and needs no group.
+  { id: 'hand',   en: 'hand',   lv: 'roka',    emoji: '✋', unit: 'body', level: 2, syl: 1, art: 'a', alt: '🤚' },
   { id: 'head',   en: 'head',   lv: 'galva',   emoji: '🙂', unit: 'body', level: 2, syl: 1, art: 'a', look: 'face' },
   { id: 'hair',   en: 'hair',   lv: 'mati',    emoji: '💇', unit: 'body', level: 5, syl: 1, art: null },
   { id: 'foot',   en: 'foot',   lv: 'pēda',    emoji: '🦶', unit: 'body', level: 5, syl: 1, art: 'a' },

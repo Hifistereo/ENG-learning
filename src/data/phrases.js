@@ -70,8 +70,16 @@ export function framesForWords(words) {
   return FRAMES.filter((f) => f.units.some((u) => units.has(u)));
 }
 
-/** Build the spoken/written sentence for a frame + word. */
-export function renderFrame(frame, word) {
+/**
+ * Build the sentence for a frame + word.
+ *
+ * @param {object} frame
+ * @param {object} word
+ * @param {'en'|'lv'} [lang] - 'lv' gives the Latvian translation shown under
+ *   the English line when a parent has hints on. Latvian takes no article.
+ */
+export function renderFrame(frame, word, lang = 'en') {
+  if (lang === 'lv') return frame.lv.replace('___', word.lv);
   const slot = frame.article && word.art ? `${word.art} ${word.en}` : word.en;
   return frame.pattern.replace('___', slot);
 }

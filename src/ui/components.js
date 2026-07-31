@@ -4,13 +4,20 @@
 //   - a tap target is never smaller than --tap-min (112px for toddlers)
 //   - nothing is ever marked wrong in red; the pet delivers feedback instead
 
-import { el, clear, wait, prefersReducedMotion } from './dom.js';
-import { pictureEl } from '../media/picture.js';
+import { el, clear, prefersReducedMotion } from './dom.js';
 import { play } from '../media/sfx.js';
 import { t } from '../i18n/lv.js';
 
-/** Standard kid screen: a slim top bar, then the activity stage. */
-export function kidScreen({ onQuit = null, fraction = null } = {}) {
+/**
+ * Standard kid screen: a way out, then the activity stage.
+ *
+ * There is deliberately no progress bar. A bar that creeps across the top of
+ * the screen is read by a small child as a timer — something is running out —
+ * and it frames the session as a quantity to get through rather than a place
+ * to be. It also made the top of every screen look like a form. The session
+ * ends when it ends; the child finds out by the pet waving goodbye.
+ */
+export function kidScreen({ onQuit = null } = {}) {
   const bar = el('div.topbar');
 
   if (onQuit) {
@@ -21,126 +28,17 @@ export function kidScreen({ onQuit = null, fraction = null } = {}) {
     }, '✕'));
   }
 
-  const track = el('div.progress');
-  const fill = el('div.progress__fill');
-  track.append(fill);
-  bar.append(track);
-
   const stage = el('div.stage');
   const root = el('div.screen.screen--kid', {}, [bar, stage]);
 
-  if (fraction !== null) fill.style.width = `${Math.round(fraction * 100)}%`;
-
-  return {
-    root,
-    stage,
-    setProgress(f) { fill.style.width = `${Math.round(Math.max(0, Math.min(1, f)) * 100)}%`; },
-  };
+  return { root, stage };
 }
 
-/** The instruction line at the top of an activity. */
-export function prompt(text, { onReplay = null } = {}) {
-  const row = el('div.prompt', {}, [el('span.prompt__text', { text })]);
-  if (onReplay) {
-    row.append(el('button.iconbtn.iconbtn--round', {
-      type: 'button',
-      'aria-label': t('act.listenAgain'),
-      on: { click: onReplay },
-    }, '🔊'));
-  }
-  return row;
-}
-
-/**
- * The answer grid.
- *
- * Returns handles rather than raw DOM so activities can express feedback as
- * intent ("that one was right") instead of poking at classes.
- *
- * @param {object[]} options - word objects
- * @param {object} cfg
- * @param {number} cfg.ageBand
- * @param {boolean} [cfg.showText] - print the English word under the picture (age 5)
- * @param {(word: object, index: number) => void} cfg.onPick
- */
-export function choiceGrid(options, { ageBand = 5, showText = false, onPick }) {
-  const grid = el('div.choices', { dataset: { count: String(options.length) } });
-  const buttons = [];
-  let locked = false;
-
-  options.forEach((word, index) => {
-    const button = el('button.choice', {
-      type: 'button',
-      'aria-label': word.en,
-      dataset: { id: word.id },
-      on: {
-        click: () => {
-          if (locked) return;
-          play('tap');
-          onPick(word, index);
-        },
-      },
-    }, [
-      pictureEl(word, { className: 'choice__pic' }),
-      showText ? el('span.choice__word', { text: word.en }) : null,
-    ]);
-    buttons.push(button);
-    grid.append(button);
-  });
-
-  return {
-    root: grid,
-    lock() { locked = true; },
-    unlock() { locked = false; },
-
-    /** Celebrate the right answer. */
-    async markCorrect(wordId) {
-      const button = buttons.find((b) => b.dataset.id === wordId);
-      if (!button) return;
-      button.classList.add('is-correct');
-      buttons.filter((b) => b !== button).forEach((b) => b.classList.add('is-dimmed'));
-      await wait(prefersReducedMotion() ? 300 : 900);
-    },
-
-    /**
-     * Wrong tap: the option fades back rather than being crossed out, and the
-     * correct answer stays available. Nothing is lost, so there is nothing to
-     * be upset about.
-     */
-    async markWrong(wordId) {
-      const button = buttons.find((b) => b.dataset.id === wordId);
-      if (!button) return;
-      button.classList.add('is-wrong');
-      await wait(prefersReducedMotion() ? 200 : 650);
-      button.classList.remove('is-wrong');
-      button.classList.add('is-out');
-    },
-
-    /** Nudge the correct answer after repeated misses. */
-    hint(wordId) {
-      buttons.find((b) => b.dataset.id === wordId)?.classList.add('is-hinted');
-    },
-
-    /** Which side of the screen the answer is on, for the pet's pointing hint. */
-    directionOf(wordId) {
-      const index = buttons.findIndex((b) => b.dataset.id === wordId);
-      if (index === -1) return null;
-      return index % 2 === 0 ? 'left' : 'right';
-    },
-  };
-}
-
-/** A single large picture, used for introductions and say-it. */
-export function bigCard(word, { showText = true, onTap = null } = {}) {
-  const card = el(onTap ? 'button.bigcard' : 'div.bigcard', {
-    type: onTap ? 'button' : null,
-    on: onTap ? { click: onTap } : {},
-  }, [
-    pictureEl(word, { size: 'clamp(8rem, 34vw, 15rem)', className: 'bigcard__pic' }),
-    showText ? el('span.bigcard__word', { text: word.en }) : null,
-  ]);
-  return card;
-}
+// The answer grid, the instruction line and the big single card used to live
+// here. They are gone: every round now renders into the persistent scene, and
+// the shelf in ui/sceneStage.js returns the same handle shape the grid did.
+// Keeping a second, unused way to draw a question was how the two would have
+// drifted apart.
 
 /** The Latvian translation hint. Opt-in per tap — never shown automatically. */
 export function lvHintButton(word) {

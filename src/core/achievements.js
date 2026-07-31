@@ -70,6 +70,13 @@ export function collection(progress) {
   }));
 }
 
+/**
+ * Cards held that still exist in the catalogue.
+ *
+ * Filtered rather than counted raw: a card retired in a later version leaves
+ * its id behind in saved progress, and counting it would show "28 of 27" on
+ * the trophy screen.
+ */
 export function unlockedCount(progress) {
-  return Object.keys(progress.achievements || {}).length;
+  return Object.keys(progress.achievements || {}).filter((id) => !!getCard(id)).length;
 }

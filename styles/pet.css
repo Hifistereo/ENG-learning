@@ -20,21 +20,15 @@
 .pet--hidden { opacity: 0; pointer-events: none; }
 
 /* Placement.
-   `corner` tucks the pet out of the way while the child is choosing.
-   `stage` is for chant and TPR, where the pet leads the activity. It sits
-   above the content rather than in the middle of it — a fixed-position pet
-   centred on the stage lands directly on top of the cards in landscape, where
-   there is much less vertical room. The matching `.stage--petabove` padding
-   in kid.css reserves the space it occupies. */
+   `corner` floats the pet over the interface, out of the way — used on home
+   and wherever there is no scene to stand in.
+   `scene` is the one that matters during a session: the pet is moved into the
+   illustrated scene and stands in it. That rule lives in kid.css next to the
+   rest of the visit layout, since it is the scene that decides where the
+   ground is. */
 .pet[data-place="corner"] {
   left: max(var(--s-4), env(safe-area-inset-left));
   bottom: max(var(--s-4), env(safe-area-inset-bottom));
-}
-.pet[data-place="stage"] {
-  left: 50%;
-  top: calc(env(safe-area-inset-top) + 4.5rem);
-  bottom: auto;
-  transform: translateX(-50%);
 }
 
 .pet__body {

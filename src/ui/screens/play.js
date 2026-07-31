@@ -6,8 +6,9 @@
 
 import { el, mount, wait } from '../dom.js';
 import { kidScreen, primaryButton, confetti, title } from '../components.js';
+import { createSceneStage } from '../sceneStage.js';
 import { revealCard } from '../achievementCard.js';
-import { activityFor } from '../../activities/index.js';
+import { activityFor, SCENE_ROUNDS } from '../../activities/index.js';
 import { createSession } from '../../core/session.js';
 import { availableWords } from '../../core/selector.js';
 import { newlyEarned, rewardsFor } from '../../core/achievements.js';
@@ -28,9 +29,6 @@ import {
 import { t } from '../../i18n/lv.js';
 import { navigate } from '../../router.js';
 
-/** Rounds where the pet leads from the middle of the screen. */
-const PET_ON_STAGE = new Set(['chant', 'tpr']);
-
 export function render(root) {
   const profile = getActiveProfile();
   if (!profile) return navigate('/welcome', { replace: true });
@@ -45,7 +43,7 @@ export function render(root) {
   const pool = availableWords(profile, progress);
   const session = createSession(profile, progress, { size: sessionSize(profile) });
 
-  const screen = kidScreen({ onQuit: quit, fraction: 0 });
+  const screen = kidScreen({ onQuit: quit });
   mount(root, screen.root);
 
   setPetProfile(profile);
@@ -54,16 +52,34 @@ export function render(root) {
 
   let abandoned = false;
 
+  /**
+   * The visit's scene, built once and kept for the whole session.
+   *
+   * Lazily, because the co-play card comes first and is addressed to the adult
+   * rather than to the child — it is not part of the visit, and building the
+   * scene behind it would only mean the card wipes it.
+   */
+  let scene = null;
+  function ensureScene() {
+    if (!scene) {
+      scene = createSceneStage(screen.stage, { mood: session.mood, profile });
+      ctx.scene = scene;
+    }
+    return scene;
+  }
+
   // Voice settings are per-child, so wrap them once here rather than
   // threading settings through every activity.
   const voiceOpts = { rate: profile.settings.rate, voiceURI: profile.settings.voiceURI };
 
   const ctx = {
     stage: screen.stage,
+    scene: null,              // set by ensureScene() before the first visit round
     profile,
     progress,
     pool,
     round: null,
+    aborted: () => abandoned,
     say: (word) => sayWord(word, voiceOpts),
     sayText: (text) => say(text, voiceOpts),
     /**
@@ -85,6 +101,14 @@ export function render(root) {
     quit,
   };
 
+  /** Move the pet out of the scene before anything destroys the scene. */
+  function releaseScene() {
+    if (!scene) return;
+    scene.release();
+    scene = null;
+    ctx.scene = null;
+  }
+
   function quit() {
     if (abandoned) return;
     // A half-finished session is still practice: everything answered so far is
@@ -92,6 +116,7 @@ export function render(root) {
     abandoned = true;
     stopSpeaking();
     mic.release();
+    releaseScene();
     navigate('/');
   }
 
@@ -99,8 +124,6 @@ export function render(root) {
     while (!abandoned && !session.isFinished()) {
       const round = session.current();
       if (!round) break;
-
-      screen.setProgress(session.fraction);
 
       if (round.type === 'celebrate') {
         await finish();
@@ -115,10 +138,12 @@ export function render(root) {
 
       ctx.round = round;
       clearBubble();          // never carry a word's bubble into the next round
-      // Chant and TPR put the pet on the stage; everything else keeps it in a
-      // corner. Reserving the space here rather than inside each activity
-      // keeps the two in step.
-      screen.stage.classList.toggle('stage--petabove', PET_ON_STAGE.has(round.type));
+
+      // Everything that happens during the visit happens in the same scene.
+      // Nothing is torn down between rounds — that hard cut, eighteen times a
+      // session, was most of why the old flow felt choppy.
+      if (SCENE_ROUNDS.has(round.type)) ensureScene();
+
       try {
         await run(ctx);
       } catch (err) {
@@ -126,7 +151,9 @@ export function render(root) {
       }
       if (abandoned) return;
       session.advance();
-      await wait(250);
+      // A short beat between rounds, not a transition: the scene is already
+      // showing the next thing by the time this resolves.
+      await wait(200);
     }
     if (!abandoned) await finish();
   }
@@ -135,7 +162,11 @@ export function render(root) {
   async function finish() {
     stopSpeaking();
     mic.release();
-    screen.setProgress(1);
+    // Hand the pet back to the floating layer BEFORE the celebration replaces
+    // the stage. The pet is one real element that was moved into the scene, so
+    // tearing the scene down around it would remove it from the document
+    // entirely and every later showPet() would work on a detached node.
+    releaseScene();
 
     const summary = session.summary();
     commitSession(profile.id, summary);
@@ -221,6 +252,7 @@ export function render(root) {
     abandoned = true;
     stopSpeaking();
     mic.release();
+    releaseScene();
     showPet(false);
   };
 }

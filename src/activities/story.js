@@ -1,79 +1,73 @@
 // The story adventure.
 //
-// A character has a problem, stated in English. Three pictures; understanding
-// the sentence is what moves the story on. Getting it right does not score a
-// point — it changes what happens, which is the only reward the child sees.
+// A character has a problem, stated in English. Understanding the sentence is
+// what moves the story on. Getting it right does not score a point — it changes
+// what happens, which is the only reward the child sees.
 //
-// Two rules the scene layout enforces, both from the research notes:
+// This used to be a separate segment near the end of the session, with its own
+// layout, which meant the best part of the app arrived at round fifteen of
+// eighteen and everything before it was the price of admission. It now runs on
+// the same scene the whole visit has taken place in: the hero walks into the
+// place the child is already standing in, and the backdrop shifts as the story
+// moves. Its layout became the shared one — this screen was always the part
+// that felt like somewhere rather than something.
+//
+// Two rules the scene enforces, both from the research notes:
 //   - nothing is clickable except the answers, so there is no reward for
 //     poking around hunting for animations
 //   - the scene stays plain; a busy background competes with the thing the
 //     child is supposed to be looking at
 //
-// The whole story runs as ONE round. Splitting it into three would put a
-// progress bar and a round transition through the middle of a narrative, which
-// is exactly how you turn a story back into a quiz.
+// The whole story runs as ONE round: splitting it into three would put a round
+// transition through the middle of a narrative, which is exactly how you turn a
+// story back into a quiz.
 
-import { el, wait } from '../ui/dom.js';
-import { pictureEl } from '../media/picture.js';
-import { sceneEl, heroEl } from '../media/scene.js';
-import { primaryButton } from '../ui/components.js';
-import { petReact, showPet } from '../pet/pet.js';
+import { wait } from '../ui/dom.js';
+import { castEl } from '../ui/sceneStage.js';
+import { petReact } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { enact, canEnact } from '../media/enact.js';
-import { t } from '../i18n/lv.js';
-import { stageWith, idleHint, TEACH_AFTER_MISSES } from './base.js';
+import { idleHint, TEACH_AFTER_MISSES } from './base.js';
 
 export async function run(ctx) {
-  const { round, profile } = ctx;
+  const { round, scene } = ctx;
   const { story, scenes } = round;
   if (!story || !scenes?.length) return;
 
-  // The pet steps aside: this story has its own character, and two companions
-  // on screen is one too many.
-  showPet(false);
+  const hero = castEl(story.hero, { kind: 'hero' });
+  scene.clearProps();
+  scene.clearExtra();
+  scene.setCast(hero);
 
   await titleCard(ctx, story);
-  for (const scene of scenes) {
+  for (const sceneStep of scenes) {
     if (ctx.aborted?.()) break;
-    await playScene(ctx, story, scene);
+    await playScene(ctx, story, sceneStep, hero);
   }
   await endCard(ctx, story);
 
-  showPet(true);
+  scene.clearCast();
   petReact.idle();
 }
 
-/** Opening card: who this is about and what the problem is. */
+/** Opening: who this is about and what the problem is. */
 async function titleCard(ctx, story) {
-  const { profile } = ctx;
-  stageWith(
-    ctx,
-    el('div.storycard', {}, [
-      sceneEl(story.mood),
-      el('div.storycard__body', {}, [
-        heroEl(story.hero, { size: 'clamp(4.5rem, 20vw, 8rem)' }),
-      ]),
-      // The caption gets its own surface. Illustrated scenes are busy by
-      // design, and the sentence is the thing the child has to understand.
-      el('div.storycard__caption', {}, [
-        el('h2.storycard__title', { text: story.lv }),
-        profile.settings.lvHints ? el('p.storycard__lv', { text: story.introLv }) : null,
-      ]),
-    ]),
-  );
+  const { scene } = ctx;
+  await scene.setMood(story.mood);
+  scene.say(story.intro, story.introLv);
   play('pop');
+  petReact.asking();
   await ctx.sayText(story.intro);
-  await wait(500);
+  await wait(600);
 }
 
 /** One scene: hear the problem, pick the thing that solves it. */
-function playScene(ctx, story, scene) {
-  const { profile } = ctx;
-  const word = scene.word;
+function playScene(ctx, story, step, hero) {
+  const { scene } = ctx;
+  const word = step.word;
   // The template carries its own determiner ("Find the ___"), so the slot
   // takes the bare word — otherwise it reads "Find the a cat".
-  const sentence = scene.ask.replace('___', word.en);
+  const sentence = step.ask.replace('___', word.en);
 
   return new Promise((resolve) => {
     let attempts = 0;
@@ -82,31 +76,18 @@ function playScene(ctx, story, scene) {
     let hint = { cancel() {} };
     let done = false;
 
-    const say = el('p.storyscene__says', { text: profile.ageBand === 5 ? sentence : '' });
-    const options = el('div.storyscene__options');
-    const buttons = new Map();
-
-    for (const option of scene.options) {
-      const button = el('button.storyprop', {
-        type: 'button',
-        'aria-label': option.en,
-        dataset: { id: option.id },
-        on: { click: () => pick(option) },
-      }, [
-        pictureEl(option, { size: 'clamp(3rem, 13vw, 5rem)' }),
-        profile.ageBand === 5 ? el('span.storyprop__word', { text: option.en }) : null,
-      ]);
-      buttons.set(option.id, button);
-      options.append(button);
-    }
+    const props = scene.setProps(step.options, {
+      showText: ctx.profile.ageBand === 5,
+      onPick: (option) => pick(option),
+    });
 
     const ask = async () => {
       hint.cancel();
       await ctx.sayText(sentence);
       askedAt = performance.now();
-      hint = idleHint(profile, () => {
+      hint = idleHint(ctx.profile, () => {
         aided = true;
-        buttons.get(word.id)?.classList.add('is-hinted');
+        props.hint(word.id);
       });
     };
 
@@ -117,20 +98,15 @@ function playScene(ctx, story, scene) {
 
       if (option.id !== word.id) {
         play('wrong');
-        const button = buttons.get(option.id);
-        button.classList.add('is-wrong');
-        await wait(500);
-        button.classList.remove('is-wrong');
-        button.classList.add('is-out');
+        await props.markWrong(option.id);
 
         if (attempts >= TEACH_AFTER_MISSES) {
           // Stop testing, start teaching: name it, show what it means, and
           // let the child move the story on.
           aided = true;
-          const target = buttons.get(word.id);
-          target.classList.add('is-hinted');
+          props.hint(word.id);
           await ctx.say(word);
-          const pic = target.querySelector('.picture');
+          const pic = props.pictureOf(word.id);
           if (pic && canEnact(word.id)) await enact(pic, word);
         } else {
           await ask();
@@ -140,15 +116,15 @@ function playScene(ctx, story, scene) {
 
       done = true;
       play('correct');
-      const button = buttons.get(word.id);
-      button.classList.add('is-correct');
-      buttons.forEach((b) => { if (b !== button) b.classList.add('is-dimmed'); });
+      await props.markCorrect(word.id);
 
       // The story reacts. This is the payoff — not a score, an outcome.
-      const pic = button.querySelector('.picture');
+      const pic = props.pictureOf(word.id);
       if (pic && canEnact(word.id)) await enact(pic, word);
-      say.textContent = scene.win;
-      await ctx.sayText(scene.win);
+      hero.classList.add('is-pleased');
+      scene.say(step.win, step.lv);
+      await ctx.sayText(step.win);
+      hero.classList.remove('is-pleased');
 
       ctx.result(word.id, attempts === 1 && !aided, Math.round(performance.now() - askedAt), {
         activity: 'story',
@@ -158,38 +134,22 @@ function playScene(ctx, story, scene) {
       resolve();
     }
 
-    stageWith(
-      ctx,
-      el('div.storyscene', {}, [
-        sceneEl(scene.mood || story.mood),
-        el('div.storyscene__body', {}, [heroEl(story.hero)]),
-        el('div.storyscene__caption', {}, [
-          say,
-          profile.settings.lvHints ? el('p.storyscene__lv', { text: scene.lv }) : null,
-        ]),
-      ]),
-      options,
-    );
-
-    ask();
+    (async () => {
+      await scene.setMood(step.mood || story.mood);
+      scene.say(sentence, step.lv);
+      await ask();
+    })();
   });
 }
 
-/** Closing card. */
+/** Closing. */
 async function endCard(ctx, story) {
-  stageWith(
-    ctx,
-    el('div.storycard.storycard--end', {}, [
-      sceneEl(story.mood),
-      el('div.storycard__body', {}, [
-        heroEl(story.hero, { size: 'clamp(5rem, 22vw, 9rem)' }),
-      ]),
-      el('div.storycard__caption', {}, [
-        el('h2.storycard__title', { text: story.outroLv }),
-      ]),
-    ]),
-  );
+  const { scene } = ctx;
+  scene.clearProps();
+  await scene.setMood(story.mood);
+  scene.say(story.outro, story.outroLv);
   play('celebrate');
+  petReact.celebrate();
   await ctx.sayText(story.outro);
   await wait(900);
 }

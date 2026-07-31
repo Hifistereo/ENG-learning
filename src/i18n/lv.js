@@ -49,49 +49,47 @@ export const LV = {
   'home.todayDone': 'Šodien jau nospēlēts! Var spēlēt vēl.',
 
   // --- session / activities ---
-  'act.listen': 'Klausies un pieskaries!',
+  //
+  // Nothing here is an instruction to the child any more. The old strings were
+  // a teacher's voice — "Klausies un pieskaries!" (Listen and touch!),
+  // "Atkārtojam!" (Let's repeat!), "Saki līdzi!" (Say along!) — imperatives
+  // aimed at a two-year-old, printed above every single round. What a child
+  // meets now is a character saying something in English, and the Latvian, if
+  // it appears at all, is a translation underneath rather than an order.
+  //
+  // So the keys that survive are of three kinds: labels on buttons, notes
+  // addressed to the grown-up, and Latvian translations of what was just said.
+
   'act.listenAgain': 'Klausīties vēlreiz',
-  'act.whichIs': 'Kur ir?',
-  'act.chant': 'Atkārtojam!',
-  'act.chantHint': 'Saki līdzi!',
-  'act.tprTitle': 'Kustību pauze!',
-  'act.tprDo': 'Dari līdzi!',
   'act.tprDone': 'Es izdarīju!',
-  'act.phonicsTitle': 'Ar kādu burtu sākas?',
-  'act.phonicsPick': 'Kurš vārds sākas ar {letter}?',
-  'act.sentenceTitle': 'Pabeidz teikumu!',
   'act.sayItRecord': 'Ierakstīt sevi',
   'act.sayItStop': 'Apturēt',
   'act.sayItPlayback': 'Noklausīties',
 
-  // Order fulfilment
-  'act.orderTitle': 'Ko viņš lūdz?',
+  // Latvian translations of the lines the characters say. These are the
+  // subtitle, not the prompt — shown only when a parent leaves hints on.
+  'say.look': 'Paskaties!',
+  'say.whereIs': 'Kur ir {word}?',
+  'say.thisIs': 'Šis ir {word}.',
+  'say.newFriend': 'Kas tas ir?',
+  'say.doIt': 'Dari līdzi!',
+  'say.whoIsDoing': 'Kurš to dara?',
+  'say.startsWith': 'Kurš sākas ar skaņu {letter}?',
+  'say.finish': 'Pabeidz teikumu!',
 
-  // Movement, now with a retrieval
-  'act.actionWhich': 'Kura bilde to dara?',
+  // Notes to the adult sitting alongside. Deliberately still in Latvian and
+  // deliberately still imperative — these ARE instructions, just not to the child.
   'act.grownupDo': 'Pieaugušais: izdari to kopā ar bērnu!',
   'act.grownupSay': 'Pieaugušais: pasaki “{word}” skaļi!',
 
-  // Transfer check
-  'act.transferHint': 'Cita bilde — tas pats vārds!',
-
   // Teach the alien
-  'act.teachTitle': 'Iemāci citplanētietim!',
   'act.teachNo': 'Nepareizi!',
   'act.teachYes': 'Pareizi!',
   'act.teachReally': 'Tiešām? Paskatīsimies vēlreiz…',
-  'act.teachWhat': 'Ups! Kas tas ir?',
   'act.teachSaid': 'Es pateicu!',
   'act.teachGrownupConfirm': 'Bērns to pateica',
-  'act.teachThanks': 'Paldies! Tas ir',
 
-  // Story
-  'act.storyNext': 'Tālāk',
   'act.hintLv': 'Latviski',
-  'act.newWord': 'Jauns vārds!',
-  'act.great': 'Lieliski!',
-  'act.tryAgain': 'Gandrīz! Pamēģini vēlreiz.',
-  'act.wellDone': 'Malacis!',
 
   // --- co-play (age 2) ---
   'coplay.title': 'Spēlēsim kopā!',
@@ -189,6 +187,8 @@ export const LV = {
   'par.filterMastered': 'Apgūti',
   'par.filterLearning': 'Mācās',
   'par.filterNew': 'Nesākti',
+  'par.chatterNote': 'sarunvalodas frāzes (hello, bye, please, thank you, yes, no, sorry, good night) šajā tabulā nav. Tās nevar attēlot bildē, un bērns tās neapgūst, izvēloties no diviem attēliem — tāpēc varoņi tās vienkārši saka katru reizi, kad tām ir nozīme: sasveicinoties, kaut ko saņemot, atvadoties. Tās netiek pārbaudītas un netiek vērtētas.',
+
   'par.weakTitle': 'Vārdi, kam pievērst uzmanību',
   'par.weakHint': 'Šie vārdi vēl neveicas vai sanāk tikai ar palīdzību. Lietojiet tos ikdienā — brokastīs, vannā, pastaigā. Tieši tur vārdi nostiprinās, un tur lietotne netiek.',
   'par.weakNone': 'Nav vārdu, kas sagādā grūtības. Lieliski!',

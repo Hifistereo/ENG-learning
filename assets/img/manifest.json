@@ -18,5 +18,15 @@
   "pet:monkey",
   "pet:unicorn",
   "pet:penguin",
-  "char:alien"
+  "char:alien",
+  "head",
+  "hair",
+  "table",
+  "hungry",
+  "thankyou",
+  "please",
+  "sorry",
+  "jump",
+  "wind",
+  "love"
 ]

@@ -1,4 +1,4 @@
-// "Do it like the animal" — movement, then retrieval.
+// "Jump with me!" — movement, then retrieval.
 //
 // The old TPR round was a break: the pet said a verb, the child copied it,
 // tapped "done", and nothing was learned that we could measure. Linking a word
@@ -14,17 +14,22 @@
 //
 // Phase 2 is what makes the movement count. The child moves, then has to
 // retrieve — which is the combination the research points at.
+//
+// Both phases now happen in the scene rather than on a cleared screen with the
+// pet parked in a corner: the pet does the thing where it stands, and the
+// answers are the other characters doing things around it.
 
 import { el, wait } from '../ui/dom.js';
-import { prompt, choiceGrid, primaryButton } from '../ui/components.js';
+import { primaryButton } from '../ui/components.js';
 import { pictureEl } from '../media/picture.js';
 import { tprWords } from '../data/words.js';
 import { pickDistractors, CHOICE_COUNT } from '../core/selector.js';
-import { petReact, petSay, setPetPlacement } from '../pet/pet.js';
+import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { enact, canEnact } from '../media/enact.js';
+import { chatter } from '../data/chatter.js';
 import { t } from '../i18n/lv.js';
-import { stageWith, idleHint, teachAnswer, TEACH_AFTER_MISSES } from './base.js';
+import { idleHint, teachAnswer, TEACH_AFTER_MISSES } from './base.js';
 
 /** How many times the pet calls the command before handing over. */
 const CALLS = 2;
@@ -40,6 +45,8 @@ export async function run(ctx) {
 
 /** Phase 1: the pet commands and demonstrates; the child copies. */
 function doPhase(ctx, word) {
+  const { scene, profile } = ctx;
+
   return new Promise((resolve) => {
     let finished = false;
     const done = () => {
@@ -50,29 +57,31 @@ function doPhase(ctx, word) {
       resolve();
     };
 
-    setPetPlacement('stage');
-    petReact.dancing();
+    // "Jump! Jump with me!" — an invitation from a character, which is a
+    // different thing from an instruction printed above a picture.
+    const sentence = `${capitalise(word.en)}! ${capitalise(word.en)} with me!`;
 
-    const picture = pictureEl(word, { size: 'clamp(5rem, 22vw, 9rem)', className: 'tpr__pic' });
+    const picture = pictureEl(word, {
+      size: 'clamp(4.5rem, 20vw, 7.5rem)',
+      className: 'cast cast--action',
+    });
 
-    stageWith(
-      ctx,
-      el('div.prompt', {}, [el('span.prompt__text', { text: t('act.tprTitle') })]),
-      el('div.tpr', {}, [
-        picture,
-        el('span.tpr__word', { text: word.en }),
-        ctx.profile.settings.lvHints ? el('span.tpr__lv', { text: word.lv }) : null,
-      ]),
-      ctx.profile.ageBand === 2 && ctx.profile.settings.coPlay !== false
+    scene.clearProps();
+    scene.setCast(picture);
+    scene.say(sentence, t('say.doIt'));
+    scene.setExtra(
+      profile.ageBand === 2 && profile.settings.coPlay !== false
         ? el('p.coplay-nudge', { text: t('act.grownupDo') })
         : null,
-      el('div.stage__footer', {}, [primaryButton(t('act.tprDone'), done, { emoji: '🙌' })]),
+      primaryButton(t('act.tprDone'), done, { emoji: '🙌' }),
     );
+
+    petReact.dancing();
 
     (async () => {
       for (let i = 0; i < CALLS && !finished; i += 1) {
         petSay(word.en, 1500);
-        await ctx.say(word);
+        await ctx.sayText(i === 0 ? sentence : word.en);
         // The picture performs the verb, so the command and its meaning arrive
         // together rather than the child having to guess from a static image.
         if (canEnact(word.id)) await enact(picture, word, { repeat: 2 });
@@ -83,13 +92,13 @@ function doPhase(ctx, word) {
 }
 
 /**
- * Phase 2: hear a command, pick the action that matches.
+ * Phase 2: hear a command, pick who is doing it.
  *
  * This is the scored half. The child has just performed the verb, so the
  * question is asked at the moment the meaning is most physically available.
  */
 function choosePhase(ctx, word) {
-  const { profile, progress } = ctx;
+  const { profile, progress, scene } = ctx;
   const actions = tprWords(profile.ageBand);
   const choices = Math.min(CHOICE_COUNT[profile.ageBand] ?? 3, actions.length);
 
@@ -100,6 +109,7 @@ function choosePhase(ctx, word) {
   if (!distractors.length) return Promise.resolve();
 
   const options = [word, ...distractors].sort(() => Math.random() - 0.5);
+  const sentence = `Who is ${gerund(word.en)}?`;
 
   return new Promise((resolve) => {
     let attempts = 0;
@@ -108,8 +118,11 @@ function choosePhase(ctx, word) {
     let hint = { cancel() {} };
     let done = false;
 
-    const grid = choiceGrid(options, {
-      ageBand: profile.ageBand,
+    scene.clearCast();
+    scene.clearExtra();
+    scene.say(sentence, t('say.whoIsDoing'));
+
+    const props = scene.setProps(options, {
       showText: profile.ageBand === 5,
       onPick: (picked) => onPick(picked),
     });
@@ -117,20 +130,20 @@ function choosePhase(ctx, word) {
     // Every option acts out its own verb continuously, so the child is
     // choosing between meanings rather than between static pictures.
     for (const option of options) {
-      const node = grid.root.querySelector(`[data-id="${CSS.escape(option.id)}"] .picture`);
+      const node = props.pictureOf(option.id);
       if (node && canEnact(option.id)) enact(node, option, { repeat: 999 });
     }
 
     const ask = async () => {
       hint.cancel();
       petReact.asking();
-      await ctx.say(word);
+      await ctx.sayText(sentence);
       petReact.idle();
       askedAt = performance.now();
       hint = idleHint(profile, () => {
         aided = true;
-        petReact.hint(grid.directionOf(word.id));
-        grid.hint(word.id);
+        petReact.hint(props.directionOf(word.id));
+        props.hint(word.id);
       });
     };
 
@@ -142,10 +155,10 @@ function choosePhase(ctx, word) {
       if (picked.id !== word.id) {
         play('wrong');
         petReact.wrong();
-        await grid.markWrong(picked.id);
+        await props.markWrong(picked.id);
         if (attempts >= TEACH_AFTER_MISSES) {
           aided = true;
-          await teachAnswer(ctx, word, grid);
+          await teachAnswer(ctx, word, props);
         } else {
           await ask();
         }
@@ -153,11 +166,19 @@ function choosePhase(ctx, word) {
       }
 
       done = true;
-      grid.lock();
+      props.lock();
       play('correct');
       petReact.correct();
-      ctx.say(word);
-      await grid.markCorrect(word.id);
+
+      const yes = chatter('yes', { mood: scene.mood });
+      if (yes) {
+        petSay(yes.en, 1600);
+        scene.say(`${yes.en} ${capitalise(gerund(word.en))}!`, yes.lv);
+        ctx.sayText(`${yes.en} ${capitalise(gerund(word.en))}!`);
+      } else {
+        ctx.say(word);
+      }
+      await props.markCorrect(word.id);
 
       const clean = attempts === 1 && !aided;
       ctx.result(word.id, clean, Math.round(performance.now() - askedAt), {
@@ -167,13 +188,19 @@ function choosePhase(ctx, word) {
       resolve();
     }
 
-    setPetPlacement('corner');
-    stageWith(
-      ctx,
-      prompt(t('act.actionWhich'), { onReplay: () => ctx.say(word) }),
-      grid.root,
-    );
-
     ask();
   });
 }
+
+/**
+ * "jump" → "jumping". Only the three English spelling rules that the action
+ * words in this curriculum actually need — this is not a general conjugator,
+ * and it must never invent a form a child would then hear wrong.
+ */
+function gerund(verb) {
+  if (/[^aeiou]e$/.test(verb)) return `${verb.slice(0, -1)}ing`;      // dance → dancing
+  if (/^[^aeiou]*[aeiou][^aeiouwxy]$/.test(verb)) return `${verb}${verb.slice(-1)}ing`; // run → running
+  return `${verb}ing`;
+}
+
+const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);

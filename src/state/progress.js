@@ -90,6 +90,9 @@ export function commitSession(profileId, summary) {
   data.totals.sessions += 1;
   data.totals.playedMs += entry.ms;
   data.stickers = [...data.stickers, entry.ts].slice(-MAX_SESSIONS);
+  // Remember where this visit happened so the next one picks somewhere else.
+  // A child who plays daily should not open the same picture every day.
+  if (summary.mood) data.lastMood = summary.mood;
   save(profileId, data);
   return entry;
 }

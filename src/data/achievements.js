@@ -83,7 +83,9 @@ export const CARDS = [
   },
 
   // --- Unit completion ---------------------------------------------------
-  { id: 'unit_greetings', tier: 'silver', emoji: '👋', title: 'Sasveicināšanās meistars', hint: 'Apgūsti visu tēmu “Sasveicināšanās”', test: (s) => !!s.units.greetings?.done },
+  // No card for greetings: they are no longer a unit the child can finish.
+  // A card whose condition can never be met would sit in the trophy book
+  // forever, teaching the child that some rewards are simply out of reach.
   { id: 'unit_animals',   tier: 'silver', emoji: '🐶', title: 'Dzīvnieku draugs',        hint: 'Apgūsti visu tēmu “Dzīvnieki”',        test: (s) => !!s.units.animals?.done },
   { id: 'unit_food',      tier: 'silver', emoji: '🍎', title: 'Garšu pazinējs',          hint: 'Apgūsti visu tēmu “Ēdiens”',           test: (s) => !!s.units.food?.done },
   { id: 'unit_colors',    tier: 'silver', emoji: '🎨', title: 'Krāsu mākslinieks',       hint: 'Apgūsti visu tēmu “Krāsas”',           test: (s) => !!s.units.colors?.done },

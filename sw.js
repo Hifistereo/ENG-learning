@@ -5,7 +5,7 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the
@@ -33,6 +33,7 @@ const ASSETS = [
   './src/activities/chant.js',
   './src/activities/coplay.js',
   './src/activities/doAction.js',
+  './src/activities/farewell.js',
   './src/activities/index.js',
   './src/activities/intro.js',
   './src/activities/listenTap.js',
@@ -51,6 +52,7 @@ const ASSETS = [
   './src/core/storyBuilder.js',
   './src/core/time.js',
   './src/data/achievements.js',
+  './src/data/chatter.js',
   './src/data/pets.js',
   './src/data/phrases.js',
   './src/data/stories.js',
@@ -74,6 +76,7 @@ const ASSETS = [
   './src/ui/achievementCard.js',
   './src/ui/components.js',
   './src/ui/dom.js',
+  './src/ui/sceneStage.js',
   './src/ui/screens/charts.js',
   './src/ui/screens/home.js',
   './src/ui/screens/onboarding.js',

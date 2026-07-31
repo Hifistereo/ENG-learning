@@ -15,6 +15,10 @@ import { MOODS } from '../data/stories.js';
 export const hasScene = (mood) => hasArt(`scene:${mood}`);
 export const hasHero = (heroId) => hasArt(`hero:${heroId}`);
 
+// Characters are drawn by ui/sceneStage.castEl, which puts heroes, the alien
+// and the pet on one shared ground line inside the scene. Only the backdrop
+// belongs here.
+
 /**
  * The backdrop for a scene.
  * @param {string} mood - key into MOODS
@@ -42,20 +46,3 @@ export function sceneEl(mood) {
   ]);
 }
 
-/** The story's character. */
-export function heroEl(hero, { size = 'clamp(3.5rem, 15vw, 6rem)' } = {}) {
-  if (hasHero(hero.id)) {
-    return el('img', {
-      class: 'hero hero--art',
-      src: artUrl(`hero:${hero.id}`),
-      alt: '',
-      decoding: 'async',
-      style: { width: size, height: size },
-    });
-  }
-  return el('span.hero', {
-    'aria-hidden': 'true',
-    style: { fontSize: size },
-    text: hero.emoji,
-  });
-}

@@ -5,26 +5,24 @@
 // the difference shows immediately. Colours are the sharpest case: a child who
 // only ever meets 🔴 may have learned "red means the circle".
 //
-// It looks almost identical to listen-and-tap on purpose. The child should not
-// experience this as a test — from their side it is just another question,
+// It is indistinguishable from an ordinary question on purpose — same scene,
+// same phrasing, same pet. The child should never experience this as a test,
 // which is exactly why the answer is trustworthy.
 //
 // Runs only on words that already have plain recognition (see
 // knowledge.readyForTransfer): showing an unfamiliar picture of a word the
 // child has not yet pinned down teaches confusion, not transfer.
 
-import { el } from '../ui/dom.js';
-import { prompt, choiceGrid } from '../ui/components.js';
 import { pictureOf } from '../data/words.js';
-import { pickDistractors } from '../core/selector.js';
-import { CHOICE_COUNT } from '../core/selector.js';
-import { petReact, setPetPlacement } from '../pet/pet.js';
+import { pickDistractors, CHOICE_COUNT } from '../core/selector.js';
+import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
+import { chatter } from '../data/chatter.js';
 import { t } from '../i18n/lv.js';
-import { stageWith, idleHint } from './base.js';
+import { idleHint } from './base.js';
 
 export function run(ctx) {
-  const { round, profile, pool } = ctx;
+  const { round, profile, pool, scene } = ctx;
   const word = round.word;
 
   // No second picture means no transfer question to ask.
@@ -42,6 +40,7 @@ export function run(ctx) {
   // than a question about this word.
   const options = [pictureOf(word, true), ...distractors].sort(() => Math.random() - 0.5);
   const answerId = `${word.id}__alt`;
+  const sentence = `Where is the ${word.en}?`;
 
   return new Promise((resolve) => {
     let attempts = 0;
@@ -50,8 +49,8 @@ export function run(ctx) {
     let hint = { cancel() {} };
     let done = false;
 
-    const grid = choiceGrid(options, {
-      ageBand: profile.ageBand,
+    scene.say(sentence, t('say.whereIs', { word: word.lv }));
+    const props = scene.setProps(options, {
       showText: false,      // the written word would give it away outright
       onPick: (picked) => onPick(picked),
     });
@@ -59,13 +58,13 @@ export function run(ctx) {
     const ask = async () => {
       hint.cancel();
       petReact.asking();
-      await ctx.say(word);
+      await ctx.sayText(sentence);
       petReact.idle();
       askedAt = performance.now();
       hint = idleHint(profile, () => {
         aided = true;                  // from here on, nothing is proved
-        petReact.hint(grid.directionOf(answerId));
-        grid.hint(answerId);
+        petReact.hint(props.directionOf(answerId));
+        props.hint(answerId);
       });
     };
 
@@ -77,17 +76,25 @@ export function run(ctx) {
       if (picked.id !== answerId) {
         play('wrong');
         petReact.wrong();
-        await grid.markWrong(picked.id);
+        await props.markWrong(picked.id);
         await ask();
         return;
       }
 
       done = true;
-      grid.lock();
+      props.lock();
       play('correct');
       petReact.correct();
-      ctx.say(word);
-      await grid.markCorrect(answerId);
+
+      const yes = chatter('yes', { mood: scene.mood });
+      if (yes) {
+        petSay(yes.en, 1600);
+        scene.say(`${yes.en} The ${word.en}.`, yes.lv);
+        ctx.sayText(`${yes.en} The ${word.en}.`);
+      } else {
+        ctx.say(word);
+      }
+      await props.markCorrect(answerId);
 
       // Only a first-time, unaided success counts as transfer. Everything else
       // is ordinary recognition practice, and is recorded as such.
@@ -99,14 +106,7 @@ export function run(ctx) {
       resolve();
     }
 
-    setPetPlacement('corner');
-    stageWith(
-      ctx,
-      prompt(t('act.whichIs'), { onReplay: () => ctx.say(word) }),
-      grid.root,
-      el('p.stage__hint', { text: t('act.transferHint') }),
-    );
-
+    scene.clearExtra();
     ask();
   });
 }

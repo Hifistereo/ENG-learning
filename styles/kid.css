@@ -15,7 +15,9 @@
     var(--bg);
 }
 
-/* --- Top bar + progress ------------------------------------------------- */
+/* --- Top bar -------------------------------------------------------------
+   No progress bar. It read as a countdown to a small child, and it made the
+   top of every screen look like a form. See ui/components.js. */
 
 .topbar {
   display: flex;
@@ -23,21 +25,6 @@
   gap: var(--s-3);
   padding: var(--s-3) var(--s-4);
   flex: 0 0 auto;
-}
-
-.progress {
-  flex: 1;
-  height: 14px;
-  border-radius: var(--r-pill);
-  background: var(--c-line);
-  overflow: hidden;
-}
-.progress__fill {
-  height: 100%;
-  width: 0;
-  border-radius: var(--r-pill);
-  background: linear-gradient(90deg, var(--c-sun), var(--c-leaf));
-  transition: width var(--dur-slow) var(--ease-out);
 }
 
 .iconbtn {
@@ -78,123 +65,10 @@
   margin-inline: auto;
 }
 
-/* Reserve the strip the pet occupies during chant and TPR. Because the stage
-   centres its content, top padding shifts that centre down and keeps the pet
-   clear of the cards — which matters most in landscape, where vertical space
-   is tight. */
-.stage--petabove { padding-top: clamp(7rem, 17vh, 10rem); }
-
-.stage__footer { margin-top: var(--s-2); }
 .stage__hint {
   color: var(--fg-soft);
   font-size: var(--t-sm);
   text-align: center;
-}
-
-.prompt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-3);
-  text-align: center;
-}
-.prompt__text {
-  font-size: var(--t-lg);
-  font-weight: 700;
-}
-.prompt__text--new { color: var(--c-sun-deep); }
-
-/* --- Choice grid -------------------------------------------------------- */
-
-.choices {
-  display: grid;
-  gap: var(--choice-gap);
-  width: 100%;
-  max-width: 46rem;
-  place-content: center;
-}
-.choices[data-count="2"] { grid-template-columns: repeat(2, 1fr); }
-.choices[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
-.choices[data-count="4"] { grid-template-columns: repeat(2, 1fr); }
-
-@media (min-width: 720px) and (orientation: landscape) {
-  .choices[data-count="4"] { grid-template-columns: repeat(4, 1fr); }
-}
-
-.choice {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  min-height: var(--tap-min);
-  padding: var(--s-4);
-  border-radius: var(--r-xl);
-  background: var(--bg-raised);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-1), var(--edge);
-  transition: transform var(--dur-fast) var(--ease-out),
-              box-shadow var(--dur-fast), border-color var(--dur-fast), opacity var(--dur);
-}
-.choice:active { transform: translateY(4px) scale(0.97); box-shadow: var(--shadow-1); }
-
-.choice__word {
-  font-size: var(--t-lg);
-  font-weight: 700;
-  letter-spacing: 0.01em;
-}
-
-/* Right: green, a lift, and a pop. */
-.choice.is-correct {
-  border-color: var(--c-leaf);
-  background: var(--c-leaf-pale);
-  animation: choice-pop 0.5s var(--ease-bounce);
-}
-/* Wrong: the card shrinks back and fades. No red, no cross, no shake that
-   reads as anger — it simply steps aside and the question stays open. */
-.choice.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
-.choice.is-out { opacity: 0.32; transform: scale(0.94); }
-.choice.is-dimmed { opacity: 0.45; }
-.choice.is-hinted { animation: choice-hint 1.2s var(--ease-out) infinite; border-color: var(--c-sun); }
-
-@keyframes choice-pop {
-  0%   { transform: scale(1); }
-  45%  { transform: scale(1.09); }
-  100% { transform: scale(1); }
-}
-@keyframes choice-nudge {
-  0%, 100% { transform: translateX(0); }
-  30%      { transform: translateX(-7px) rotate(-1.5deg); }
-  65%      { transform: translateX(5px) rotate(1deg); }
-}
-@keyframes choice-hint {
-  0%, 100% { box-shadow: var(--shadow-1), var(--edge); }
-  50%      { box-shadow: 0 0 0 8px rgba(255, 183, 3, 0.35), var(--edge); }
-}
-
-/* --- Big single card (intro, say-it) ------------------------------------ */
-
-.bigcard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-3);
-  padding: var(--s-5) var(--s-6);
-  border-radius: var(--r-xl);
-  background: var(--bg-raised);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-2);
-}
-.bigcard__word {
-  font-size: var(--t-xl);
-  font-weight: 800;
-}
-.bigcard--intro { border-color: var(--c-sun); }
-.bigcard.is-pulsing { animation: bigcard-pulse 0.85s var(--ease-out); }
-
-@keyframes bigcard-pulse {
-  0%, 100% { transform: scale(1); }
-  40%      { transform: scale(1.06); }
 }
 
 /* --- Latvian hint ------------------------------------------------------- */
@@ -212,51 +86,6 @@
 }
 .hint__value { font-weight: 700; color: var(--fg); }
 
-/* --- Chant -------------------------------------------------------------- */
-
-.chant {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--s-3);
-}
-.chantcard {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-1);
-  padding: var(--s-3);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 3px solid var(--border);
-  opacity: 0.55;
-  transition: transform var(--dur) var(--ease-bounce), opacity var(--dur);
-}
-.chantcard.is-active {
-  opacity: 1;
-  transform: scale(1.14) translateY(-6px);
-  border-color: var(--c-sun);
-  box-shadow: var(--shadow-2);
-}
-.chantcard__word { font-weight: 700; font-size: var(--t-sm); }
-
-/* --- TPR ---------------------------------------------------------------- */
-
-.tpr {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-2);
-}
-.tpr__pic { animation: tpr-bob 0.9s var(--ease-out) infinite; }
-.tpr__word { font-size: var(--t-xl); font-weight: 800; }
-.tpr__lv { color: var(--fg-soft); font-size: var(--t-md); }
-
-@keyframes tpr-bob {
-  0%, 100% { transform: translateY(0) rotate(-4deg); }
-  50%      { transform: translateY(-14px) rotate(4deg); }
-}
-
 /* --- Phonics ------------------------------------------------------------ */
 
 .letter {
@@ -270,71 +99,6 @@
 }
 .letter__big   { font-size: var(--t-2xl); font-weight: 800; line-height: 1; color: var(--c-sky-deep); }
 .letter__small { font-size: var(--t-xl); font-weight: 700; color: var(--c-sky-deep); opacity: 0.75; }
-
-/* --- Sentence ----------------------------------------------------------- */
-
-.sentence {
-  padding: var(--s-3) var(--s-5);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 3px solid var(--border);
-  text-align: center;
-}
-.sentence__text {
-  font-size: var(--t-lg);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.sentence.is-complete {
-  border-color: var(--c-leaf);
-  background: var(--c-leaf-pale);
-  animation: choice-pop 0.5s var(--ease-bounce);
-}
-
-/* --- Memory ------------------------------------------------------------- */
-
-.memory {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-3);
-  width: 100%;
-  max-width: 34rem;
-}
-.memory[data-count="4"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-
-.memcard {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 1;
-  min-height: 84px;
-  border-radius: var(--r-lg);
-  background: var(--c-sky);
-  border: 3px solid var(--c-sky-deep);
-  box-shadow: var(--edge);
-  overflow: hidden;
-}
-.memcard__back,
-.memcard__front {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: var(--s-2);
-  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
-}
-.memcard__back { font-size: 1.75rem; color: #fff; }
-.memcard__front {
-  opacity: 0;
-  transform: rotateY(90deg);
-  background: var(--bg-raised);
-}
-.memcard__word { font-size: var(--t-md); font-weight: 800; text-align: center; word-break: break-word; }
-
-.memcard.is-open .memcard__back { opacity: 0; }
-.memcard.is-open .memcard__front { opacity: 1; transform: rotateY(0); }
-.memcard.is-done { border-color: var(--c-leaf); opacity: 0.7; }
-.memcard.is-done .memcard__front { background: var(--c-leaf-pale); }
 
 /* --- Say it ------------------------------------------------------------- */
 
@@ -556,60 +320,25 @@
   text-align: center;
 }
 
-/* --- Order fulfilment --------------------------------------------------- */
+/* --- The visit -----------------------------------------------------------
+   One illustrated place, built once and kept for the whole session. Rounds
+   change the caption and what is on the shelf; the frame, the backdrop and the
+   pet standing in it never get torn down. See ui/sceneStage.js.
 
-.request {
-  padding: var(--s-2) var(--s-5);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 3px solid var(--c-sun);
-}
-.request__text { font-size: var(--t-lg); font-weight: 700; }
+   This replaces the per-round layout the app used to have — a cream field, a
+   prompt in Latvian, white cards floating in the middle, rebuilt from scratch
+   eighteen times a session. */
 
-.basket {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 4rem;
-  font-size: clamp(2.5rem, 10vw, 4rem);
-}
-.basket__item {
-  position: absolute;
-  font-size: 0.75em;
-  animation: basket-in 0.4s var(--ease-bounce);
-}
-@keyframes basket-in {
-  from { transform: translateY(60px) scale(0.4); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-/* --- Teach the alien ---------------------------------------------------- */
-
-.alienrow {
+.visit {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--s-3);
-  max-width: 32rem;
-}
-.alien {
-  font-size: clamp(2.5rem, 11vw, 4rem);
-  line-height: 1;
-  animation: pet-breathe 3s var(--ease-out) infinite;
-}
-.alien.is-corrected { animation: pet-cheer 0.6s var(--ease-bounce) 2; }
-.alien__says {
-  flex: 1;
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 2px solid var(--border);
-  font-size: var(--t-md);
-  font-weight: 700;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: 46rem;
 }
 
-/* --- Story -------------------------------------------------------------- */
-
-.storycard, .storyscene {
+.visit__frame {
   position: relative;
   width: min(40rem, 100%);
   aspect-ratio: 16 / 9;
@@ -617,7 +346,12 @@
   overflow: hidden;
   border: 3px solid var(--border);
   box-shadow: var(--shadow-2);
+  flex: 0 0 auto;
 }
+
+/* Backdrops stack here so setMood() can crossfade one over the other: an
+   instant swap reads as a new screen, a fade reads as walking somewhere. */
+.visit__backdrop { position: absolute; inset: 0; }
 
 .scene {
   position: absolute;
@@ -626,8 +360,12 @@
   place-items: center;
   background-size: cover;
   background-position: center;
+  transition: opacity var(--dur-slow) var(--ease-out);
 }
-/* The drawn fallback only: real artwork has its own motif. */
+.scene.is-entering { opacity: 0; }
+
+/* The drawn fallback only: real artwork has its own motif. It sits low and to
+   one side so a character never lands on top of it. */
 .scene:not(.scene--art) .scene__motif {
   position: absolute;
   right: 6%;
@@ -637,24 +375,78 @@
 }
 .scene--art .scene__motif { display: none; }
 
-/* The character stands ON the ground of the scene, not floating in the middle
-   of it. Every backdrop puts its horizon at roughly 70% height, which is also
-   where the caption begins — so aligning the character's feet to the bottom of
-   this box lands them on the ground in all seven scenes. */
-.storycard__body, .storyscene__body {
+/* Characters stand ON the ground, not floating in the middle of the picture.
+   Every backdrop puts its horizon at roughly 70% height, which is also where
+   the caption panel begins — so aligning feet to the bottom of this box lands
+   them on the ground in all seven scenes. */
+.visit__cast {
   position: absolute;
   inset: 0 0 30% 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--s-2);
-  padding: var(--s-4);
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--s-4);
+  padding: var(--s-3);
+  pointer-events: none;         /* only the shelf is ever tappable */
 }
-.hero {
+.cast {
   line-height: 1;
   filter: drop-shadow(0 6px 12px rgba(29, 39, 51, 0.3));
   animation: pet-breathe 3.2s var(--ease-out) infinite;
+}
+/* Drawn characters carry their own transparent padding, so at nominal size
+   they render smaller than the emoji they replace — the same compensation the
+   pets need. */
+.cast--art { object-fit: contain; transform: scale(1.25); }
+.cast.is-pleased { animation: pet-cheer 0.6s var(--ease-bounce) 2; }
+.cast.is-corrected { animation: pet-cheer 0.6s var(--ease-bounce) 2; }
+.cast.is-pulsing { animation: cast-pulse 0.85s var(--ease-out); }
+
+/* A word's picture standing in the scene while it is introduced. */
+.cast--newword { animation: none; }
+.cast__word {
+  align-self: flex-end;
+  padding: var(--s-1) var(--s-3);
+  border-radius: var(--r-pill);
+  background: var(--bg-raised);
+  border: 2px solid var(--border);
+  font-size: var(--t-md);
+  font-weight: 800;
+}
+
+/* The pet stands in the scene rather than floating over the interface. Its
+   own element is moved in here (see pet.dockPet), so every reaction, the
+   speech bubble and the accessories keep working unchanged.
+
+   The spot shrink-wraps the pet and its bottom sits on the same ground line as
+   the rest of the cast, so the pet stands on the grass instead of hovering
+   half-behind the caption panel. */
+.visit__petspot {
+  position: absolute;
+  left: 5%;
+  bottom: 30%;
+  display: flex;
+  align-items: flex-end;
+}
+.pet[data-place="scene"] {
+  position: relative;
+  left: auto;
+  right: auto;
+  top: auto;
+  bottom: auto;
+  transform: none;
+  font-size: clamp(2.25rem, 7vw, 3.5rem);
+}
+/* Near the frame's left edge, a bubble centred on the pet hangs off the side
+   and gets clipped — the same fix the corner placement needs. */
+.pet[data-place="scene"] .pet__bubble {
+  left: 0;
+  transform: translateX(0) translateY(6px) scale(0.9);
+  transform-origin: bottom left;
+  max-width: min(50vw, 12rem);
+}
+.pet[data-place="scene"] .pet__bubble.is-visible {
+  transform: translateX(0) translateY(0) scale(1);
 }
 
 /* The caption panel.
@@ -662,238 +454,143 @@
    child has to understand — so it gets its own readable surface rather than
    sitting on whatever happens to be behind it. Without this, dark text lands
    on a sofa in one scene and on a night sky in the next. */
-.storycard__caption, .storyscene__caption {
+.visit__caption {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  padding: var(--s-3) var(--s-4) var(--s-3);
+  padding: var(--s-3) var(--s-4);
   background: linear-gradient(180deg,
     rgba(255, 253, 247, 0) 0%,
     rgba(255, 253, 247, 0.86) 22%,
     rgba(255, 253, 247, 0.96) 100%);
   text-align: center;
 }
-.storycard__title {
-  font-size: var(--t-lg);
+/* The English line is the prompt. There is no Latvian instruction above it. */
+.visit__says {
+  font-size: var(--t-md);
   font-weight: 800;
   color: var(--c-ink);
+  min-height: 1.4em;
 }
-.storycard__lv, .storyscene__lv {
+.visit__lv {
   font-size: var(--t-sm);
   color: var(--c-ink-soft);
 }
-.storyscene__says {
-  font-size: var(--t-md);
-  font-weight: 800;
-  color: var(--c-ink);
-  min-height: 1.4em;
-}
+.visit__lv[hidden] { display: none; }
 
-.storyscene__options {
-  display: flex;
+/* --- The shelf -----------------------------------------------------------
+   What the child can tap. Below the picture rather than inside it, so the
+   answers never cover the scene and the tap targets stay full size. */
+
+/* A grid rather than a wrapping row: four props flowing 3-then-1 looks like a
+   layout accident, and a child should meet the same shape every time. */
+.visit__shelf {
+  display: grid;
+  grid-auto-flow: column;
   justify-content: center;
   gap: var(--choice-gap);
-  flex-wrap: wrap;
   width: 100%;
 }
-.storyprop {
+.visit__shelf[data-count="4"] {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 26rem;
+}
+.visit__shelf:empty { display: none; }
+
+@media (min-width: 640px) {
+  .visit__shelf[data-count="4"] {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: 46rem;
+  }
+}
+
+.prop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--s-1);
+  justify-content: center;
+  gap: var(--s-2);
   min-width: var(--tap-min);
   min-height: var(--tap-min);
   padding: var(--s-3);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-1), var(--edge);
-  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur);
-}
-.storyprop:active { transform: translateY(3px) scale(0.97); }
-.storyprop__word { font-size: var(--t-sm); font-weight: 700; }
-.storyprop.is-correct { border-color: var(--c-leaf); background: var(--c-leaf-pale); }
-.storyprop.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
-.storyprop.is-out { opacity: 0.32; }
-.storyprop.is-dimmed { opacity: 0.45; }
-.storyprop.is-hinted { border-color: var(--c-sun); animation: choice-hint 1.2s var(--ease-out) infinite; }
-
-/* --- Co-play card (age 2) ----------------------------------------------- */
-
-.coplay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-4);
-  max-width: 30rem;
-  text-align: center;
-}
-.coplay__lead { font-size: var(--t-md); color: var(--fg-soft); line-height: 1.5; }
-.coplay__list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-2);
-  margin: 0;
-  padding-left: var(--s-5);
-  text-align: left;
-  font-size: var(--t-sm);
-  color: var(--fg-soft);
-}
-
-/* An in-activity nudge to the grown-up. Quiet: it is for the adult reading
-   over the child's shoulder, not for the child. */
-.coplay-nudge {
-  padding: var(--s-2) var(--s-4);
-  border-radius: var(--r-pill);
-  background: var(--c-paper-2);
-  border: 1px dashed var(--border);
-  font-size: var(--t-xs);
-  color: var(--fg-soft);
-  text-align: center;
-}
-
-/* --- Order fulfilment --------------------------------------------------- */
-
-.request {
-  padding: var(--s-2) var(--s-5);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 3px solid var(--c-sun);
-}
-.request__text { font-size: var(--t-lg); font-weight: 700; }
-
-.basket {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-height: 4rem;
-  font-size: clamp(2.5rem, 10vw, 4rem);
-}
-.basket__item {
-  position: absolute;
-  font-size: 0.75em;
-  animation: basket-in 0.4s var(--ease-bounce);
-}
-@keyframes basket-in {
-  from { transform: translateY(60px) scale(0.4); opacity: 0; }
-  to   { transform: translateY(0) scale(1); opacity: 1; }
-}
-
-/* --- Teach the alien ---------------------------------------------------- */
-
-.alienrow {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  max-width: 32rem;
-}
-.alien {
-  font-size: clamp(2.5rem, 11vw, 4rem);
-  line-height: 1;
-  animation: pet-breathe 3s var(--ease-out) infinite;
-}
-.alien.is-corrected { animation: pet-cheer 0.6s var(--ease-bounce) 2; }
-.alien__says {
-  flex: 1;
-  padding: var(--s-3) var(--s-4);
-  border-radius: var(--r-lg);
-  background: var(--bg-raised);
-  border: 2px solid var(--border);
-  font-size: var(--t-md);
-  font-weight: 700;
-}
-
-/* --- Story -------------------------------------------------------------- */
-
-.storycard, .storyscene {
-  position: relative;
-  width: min(34rem, 100%);
   border-radius: var(--r-xl);
-  overflow: hidden;
-  border: 3px solid var(--border);
-  box-shadow: var(--shadow-2);
-}
-.scene {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background-size: cover;
-  background-position: center;
-}
-/* The motif sits low and to one side so the character never lands on top of
-   it — two large emoji stacked on each other read as one muddy shape. */
-.scene__motif {
-  position: absolute;
-  right: 6%;
-  bottom: 4%;
-  font-size: clamp(3rem, 16vw, 6rem);
-  opacity: 0.22;
-}
-
-.storycard__body, .storyscene__body {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s-2);
-  padding: var(--s-5) var(--s-4);
-  /* Tall enough to read as a place rather than a box with a caption. */
-  min-height: clamp(13rem, 32vh, 18rem);
-}
-.hero {
-  line-height: 1;
-  filter: drop-shadow(0 6px 10px rgba(29, 39, 51, 0.25));
-  animation: pet-breathe 3.2s var(--ease-out) infinite;
-}
-.storycard__title { font-size: var(--t-lg); font-weight: 800; text-align: center; }
-.storycard__lv, .storyscene__lv { font-size: var(--t-sm); color: var(--fg-soft); text-align: center; }
-.storyscene__says {
-  font-size: var(--t-md);
-  font-weight: 700;
-  text-align: center;
-  min-height: 1.4em;
-}
-
-.storyscene__options {
-  display: flex;
-  justify-content: center;
-  gap: var(--choice-gap);
-  flex-wrap: wrap;
-  width: 100%;
-}
-.storyprop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--s-1);
-  min-width: var(--tap-min);
-  min-height: var(--tap-min);
-  padding: var(--s-3);
-  border-radius: var(--r-lg);
   background: var(--bg-raised);
   border: 3px solid var(--border);
   box-shadow: var(--shadow-1), var(--edge);
-  transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur);
+  transition: transform var(--dur-fast) var(--ease-out),
+              box-shadow var(--dur-fast), border-color var(--dur-fast), opacity var(--dur);
 }
-.storyprop:active { transform: translateY(3px) scale(0.97); }
-.storyprop__word { font-size: var(--t-sm); font-weight: 700; }
-.storyprop.is-correct { border-color: var(--c-leaf); background: var(--c-leaf-pale); }
-.storyprop.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
-.storyprop.is-out { opacity: 0.32; }
-.storyprop.is-dimmed { opacity: 0.45; }
-.storyprop.is-hinted { border-color: var(--c-sun); animation: choice-hint 1.2s var(--ease-out) infinite; }
+.prop:active { transform: translateY(4px) scale(0.97); box-shadow: var(--shadow-1); }
 
-/* Drawn alien artwork. Larger than the emoji's box for the same reason as the
-   pets: the character sits inside its own transparent padding. */
-.alien--art {
-  width: clamp(3.5rem, 15vw, 5.5rem);
-  height: clamp(3.5rem, 15vw, 5.5rem);
-  object-fit: contain;
-  flex: 0 0 auto;
+/* Things that are only being shown, not offered. No border and no shadow, so
+   nothing that cannot be tapped looks like it can be. */
+.prop--static {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+.prop--static.is-active { transform: translateY(-6px) scale(1.08); }
+
+.prop__word {
+  font-size: var(--t-md);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+/* The item flying out of the shelf into a character's hands. */
+.prop__pic--taken { animation: prop-taken 0.42s var(--ease-bounce); }
+
+/* Right: green, a lift, and a pop. */
+.prop.is-correct {
+  border-color: var(--c-leaf);
+  background: var(--c-leaf-pale);
+  animation: choice-pop 0.5s var(--ease-bounce);
+}
+/* Wrong: the prop steps back and fades. No red, no cross, no shake that reads
+   as anger — the question simply stays open. */
+.prop.is-wrong { animation: choice-nudge 0.45s var(--ease-out); }
+.prop.is-out { opacity: 0.32; transform: scale(0.94); }
+.prop.is-dimmed { opacity: 0.45; }
+.prop.is-hinted { animation: choice-hint 1.2s var(--ease-out) infinite; border-color: var(--c-sun); }
+
+/* Buttons and nudges a round needs below the shelf. */
+.visit__extra {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+}
+.visit__extra:empty { display: none; }
+
+@keyframes choice-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.09); }
+  100% { transform: scale(1); }
+}
+@keyframes choice-nudge {
+  0%, 100% { transform: translateX(0); }
+  30%      { transform: translateX(-7px) rotate(-1.5deg); }
+  65%      { transform: translateX(5px) rotate(1deg); }
+}
+@keyframes choice-hint {
+  0%, 100% { box-shadow: var(--shadow-1), var(--edge); }
+  50%      { box-shadow: 0 0 0 8px rgba(255, 183, 3, 0.35), var(--edge); }
+}
+@keyframes cast-pulse {
+  0%, 100% { transform: scale(1); }
+  40%      { transform: scale(1.06); }
+}
+@keyframes prop-taken {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-40px) scale(0.5); opacity: 0.2; }
 }
 
-/* Drawn hero artwork in a story scene — same padding compensation. */
-.hero--art { object-fit: contain; transform: scale(1.3); }
+/* Landscape on a phone is short. The frame gives up height first, because the
+   shelf has to stay reachable and its targets must not shrink. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .visit { gap: var(--s-3); }
+  .visit__frame { width: min(30rem, 100%); }
+  .visit__says { font-size: var(--t-sm); }
+}

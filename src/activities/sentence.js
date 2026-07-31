@@ -7,16 +7,15 @@
 // gets started without becoming a memory test.
 
 import { el } from '../ui/dom.js';
-import { prompt, choiceGrid } from '../ui/components.js';
 import { framesForWords, renderFrame } from '../data/phrases.js';
 import { buildQuestion } from '../core/selector.js';
-import { petReact, petSay, setPetPlacement } from '../pet/pet.js';
+import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { t } from '../i18n/lv.js';
-import { stageWith, idleHint } from './base.js';
+import { idleHint } from './base.js';
 
 export function run(ctx) {
-  const { round, profile, pool } = ctx;
+  const { round, profile, pool, scene } = ctx;
   const word = round.word;
 
   const frames = framesForWords([word]);
@@ -35,12 +34,12 @@ export function run(ctx) {
     let hint = { cancel() {} };
     let done = false;
 
-    const line = el('div.sentence', {}, [
-      el('span.sentence__text', { text: blanked }),
-    ]);
+    // The half-finished sentence is what the character is saying, so it goes
+    // in the caption where every other spoken line goes.
+    scene.clearCast();
+    scene.say(blanked, profile.settings.lvHints ? frame.lv.replace('___', '…') : '');
 
-    const grid = choiceGrid(question.options, {
-      ageBand: 5,
+    const grid = scene.setProps(question.options, {
       showText: true,
       onPick: (picked) => onPick(picked),
     });
@@ -77,8 +76,7 @@ export function run(ctx) {
 
       // Reveal the completed sentence and say it once more — the child sees
       // the whole thing they just built.
-      line.firstChild.textContent = sentence;
-      line.classList.add('is-complete');
+      scene.say(sentence, profile.settings.lvHints ? renderFrame(frame, word, 'lv') : '');
       petSay(sentence, 2600);
       ctx.sayText(sentence);
 
@@ -87,16 +85,11 @@ export function run(ctx) {
       resolve();
     }
 
-    setPetPlacement('corner');
-    stageWith(
-      ctx,
-      prompt(t('act.sentenceTitle'), { onReplay: () => ctx.sayText(sentence) }),
-      line,
-      profile.settings.lvHints
-        ? el('p.stage__hint', { text: frame.lv.replace('___', '…') })
-        : null,
-      grid.root,
-    );
+    scene.setExtra(el('button.iconbtn.iconbtn--round', {
+      type: 'button',
+      'aria-label': t('act.listenAgain'),
+      on: { click: () => ctx.sayText(sentence) },
+    }, '🔊'));
 
     ask();
   });

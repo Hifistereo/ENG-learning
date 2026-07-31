@@ -1,6 +1,6 @@
 # Asset brief — every picture the app can use
 
-**243 image files in total. 20 are done and installed.** Every one is optional:
+**236 image files in total. 30 are done and installed.** Every one is optional:
 the app ships working, using emoji. Each file replaces its emoji the moment it
 exists, with no code change and no rebuild.
 
@@ -10,30 +10,62 @@ exists, with no code change and no rebuild.
 | 2 | Story heroes | **4** | 512 × 512 | ✅ **done** |
 | 3 | Pet companions | **8** | 512 × 512 | ✅ **done** |
 | 4 | The alien | **1** | 512 × 512 | ✅ **done** |
-| 5 | Word pictures | **144** | 512 × 512 | ★★ next — do by unit |
-| 6 | Second pictures (transfer) | **76** | 512 × 512 | ★★ |
-| 7 | App icons | **3** | 192 / 512 / 512 | ★ |
+| 5 | Character speech pictures | **3** | 512 × 512 | ✅ **done** |
+| 6 | Word pictures | **136** | 512 × 512 | ★★ next — do by unit |
+| 7 | Second pictures (transfer) | **74** | 512 × 512 | ★★ |
+| 8 | App icons | **3** | 192 / 512 / 512 | ★ |
 
-**Remaining: 223 files**, all of them word pictures. Those are a long tail you
+**Remaining: 206 files**, all of them word pictures. Those are a long tail you
 can chip away at one unit at a time, in any order — the app keeps using emoji
 for whatever is not there yet.
 
-### Notes from installing the first 20
+### What changed in v0.3.0 — read this before drawing more
 
-The set that arrived was technically perfect and needed no rework: correct
+**Seven files came off the list and nobody needs to draw them.** Greetings are
+no longer a vocabulary unit: `hello`, `bye`, `yes`, `no`, `good night` and the
+two alternates for yes/no are gone from the word table below. They were the
+files nobody could have drawn well — a checkmark and a crossmark are interface
+symbols, not pictures a child can learn a word from — and the app now has
+characters *say* those phrases at the moment that gives them meaning instead of
+quizzing them. See `src/data/chatter.js`.
+
+**Three of them were drawn anyway, and they are being used.** `please`,
+`thankyou` and `sorry` arrived in the priority-30 set. They are not quiz
+answers, but they appear beside the character's line when it is spoken — which
+is a better home for them than a four-way choice between three near-identical
+boys. That is section 5.
+
+**Ordering changed.** Units are now sequenced by how well a thing can be
+pictured and pointed at: animals → food → home → nature → toys → clothes →
+vehicles → body → family → actions → colours → feelings → numbers. If you are
+drawing in priority order, that is the order to follow. The first four units
+are what a new child meets, so they are worth the most.
+
+**The scenes now carry the whole app**, not just four stories: every session
+happens inside one of the seven, so they are on screen constantly. They have
+held up well, but if you ever want to extend the set, `kitchen`, `bedroom`,
+`garden` and `shop` would be the useful additions, in that order. Not required.
+
+### Notes from installing the first 30
+
+Both sets that arrived were technically perfect and needed no rework: correct
 sizes, real transparency, no opaque corners, calm centres with detail at the
-edges. Two things were adjusted **in the app, not the artwork**:
+edges. Three things were adjusted **in the app, not the artwork**:
 
-- Captions now sit on their own soft panel at the foot of each scene. On flat
+- Captions sit on their own soft panel at the foot of each scene. On flat
   placeholder gradients dark text was fine; on a real illustrated room it
-  landed on a sofa. Contrast is now 11:1 or better on all seven scenes.
-- Characters render at 1.35× their box. Drawn artwork carries 13–28% of its own
-  transparent padding, so at face value it came out smaller than the emoji it
-  replaced. Scaling the element rather than the image keeps `contain` honest —
-  the tightest file has only 1% headroom at the top.
+  landed on a sofa. Contrast is now 11.9:1 or better on all seven scenes.
+- Characters render at 1.25–1.35× their box. Drawn artwork carries 13–28% of
+  its own transparent padding, so at face value it came out smaller than the
+  emoji it replaced. Scaling the element rather than the image keeps `contain`
+  honest — the tightest file has only 1% headroom at the top.
+- The word pictures in the priority-30 set needed **no** such compensation:
+  their vertical padding is 1–8%, tight enough to fill the slot on their own.
+  Full-figure characters carry 20–30% horizontal padding, which is simply what
+  a tall subject in a square frame looks like and is correct.
 
-Keep the same conventions for the word pictures and nothing further will need
-adjusting.
+Keep the same conventions for the remaining word pictures and nothing further
+will need adjusting.
 
 ---
 
@@ -60,7 +92,7 @@ missing files keep their emoji.
   on a tablet. Big simple shapes, strong silhouette, thick outlines. Fine
   detail, thin lines and small text disappear.
 - **One subject, centred, facing the viewer.** No scenes-within-objects.
-- **Warm, friendly, storybook.** The same style across all 243 files matters
+- **Warm, friendly, storybook.** The same style across all 236 files matters
   more than any individual file being beautiful.
 - **No text in any image.** The app is used by children who cannot read, and
   the interface is Latvian while the words are English.
@@ -147,7 +179,30 @@ stretched, spun and bounced by CSS animation, so:
 
 ---
 
-## 5. Word pictures — 144 files
+## 5. Character speech pictures — 3 files ✅ done
+
+**Folder:** `assets/img/` (flat) · **Size:** 512 × 512, transparent
+**Manifest:** the bare id — `please`, `thankyou`, `sorry`
+
+These are the only pictures in the app that are **not** answers to anything.
+They appear beside a character's line at the moment it is said: "please" as
+part of a request, "thank you" the instant something changes hands, "sorry"
+when the alien has been corrected and admits it.
+
+They came out of the priority-30 set, drawn while greetings were still a
+vocabulary unit. They are kept and used because a picture of someone actually
+being polite is a genuinely useful thing to show — it was only ever the *quiz*
+that was wrong. Nothing further is needed in this section.
+
+| File | Said when | Currently drawn as |
+|---|---|---|
+| `please.webp` ✅ | a character asks for something | a boy with open hands, asking |
+| `thankyou.webp` ✅ | the child hands it over | a boy with hands to his chest |
+| `sorry.webp` ✅ | the alien admits it was wrong | a boy with a hand on his chest |
+
+---
+
+## 6. Word pictures — 136 files
 
 **Folder:** `assets/img/` (flat, no subfolder) · **Size:** 512 × 512, transparent
 **Manifest:** the bare word id, e.g. `"cat"`
@@ -166,28 +221,21 @@ there is no text for a pre-literate child — so it has to be unmistakable to a
 
 ### Worth doing first
 
-These ten have the weakest emoji, where the current picture is actively
-misleading. Drawing these has more effect than any other word:
+The ten worst emoji were the priority-30 set and are now **all done**. What is
+left is best worked through in unit order, and the unit order is now the order
+of how picturable a thing is — so the earlier a unit appears in the list below,
+the more a drawing helps.
 
-| File | Word | Currently | Why it is wrong |
-|---|---|---|---|
-| `head.webp` | head | 🙂 | A smiling face, not a head |
-| `hair.webp` | hair | 💇 | Someone getting a haircut |
-| `table.webp` | table | 🍽️ | A place setting, not a table |
-| `hungry.webp` | hungry | 🤤 | Drooling, which is a different thing |
-| `thankyou.webp` | thank you | 🤗 | A hug |
-| `please.webp` | please | 🙏 | Reads as praying |
-| `sorry.webp` | sorry | 😔 | A generic sad face |
-| `jump.webp` | jump | 🦘 | A kangaroo — the animal, not the action |
-| `wind.webp` | wind | 🌬️ | A face blowing |
-| `love.webp` | love | ❤️ | Fine, but abstract for a toddler |
+The four units a new child meets are `animals`, `food`, `home` and `nature`.
+Finishing those four (51 words) would mean every child's first weeks are fully
+illustrated, which is worth more than the same effort spread thinly.
 
 For **actions** (`jump`, `run`, `eat`, `sleep`…) draw a simple figure clearly
 performing it, mid-motion. For **feelings**, a clear facial expression, big and
-readable. For **colours**, see the note in section 6 — colours are the one case
+readable. For **colours**, see the note in section 7 — colours are the one case
 where the second picture matters more than the first.
 
-### 6. Second pictures — 76 files
+### 7. Second pictures — 74 files
 
 **Same folder and size.** Filename gets `__alt` (two underscores):
 `cat__alt.webp`, manifest id `"cat__alt"`.
@@ -214,19 +262,9 @@ each alternate is meant to depict.
 
 ## Full word list
 
-
-#### 👋 Sasveicināšanās — `greetings` (8 words, 2 with a second picture)
-
-| # | file | word | latviski | now | 2nd file | 2nd now | age |
-|---|---|---|---|---|---|---|---|
-| 1 | `hello.webp` | **hello** | sveiki | 🙋 | — | — | 2+ |
-| 2 | `bye.webp` | **bye** | atā | 👋 | — | — | 2+ |
-| 3 | `please.webp` | **please** | lūdzu | 🙏 | — | — | 2+ |
-| 4 | `thankyou.webp` | **thank you** | paldies | 🤗 | — | — | 2+ |
-| 5 | `yes.webp` | **yes** | jā | ✅ | `yes__alt.webp` | 👍 | 2+ |
-| 6 | `no.webp` | **no** | nē | ❌ | `no__alt.webp` | 👎 | 2+ |
-| 7 | `sorry.webp` | **sorry** | piedod | 😔 | — | — | 5+ |
-| 8 | `goodnight.webp` | **good night** | ar labu nakti | 🌛 | — | — | 5+ |
+Ordered exactly as the app teaches them, and a ✅ marks a file that is already
+installed. The first four units are what a new child meets, so they are the
+ones worth drawing first.
 
 #### 🐶 Dzīvnieki — `animals` (15 words, 10 with a second picture)
 
@@ -267,64 +305,37 @@ each alternate is meant to depict.
 | 13 | `potato.webp` | **potato** | kartupelis | 🥔 | — | — | 5+ |
 | 14 | `strawberry.webp` | **strawberry** | zemene | 🍓 | — | — | 5+ |
 
-#### 🎨 Krāsas — `colors` (10 words, 10 with a second picture)
+#### 🏠 Mājas — `home` (11 words, 6 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
 |---|---|---|---|---|---|---|---|
-| 1 | `red.webp` | **red** | sarkans | 🔴 | `red__alt.webp` | 🌹 | 2+ |
-| 2 | `blue.webp` | **blue** | zils | 🔵 | `blue__alt.webp` | 💙 | 2+ |
-| 3 | `green.webp` | **green** | zaļš | 🟢 | `green__alt.webp` | 🥬 | 2+ |
-| 4 | `yellow.webp` | **yellow** | dzeltens | 🟡 | `yellow__alt.webp` | 🌻 | 2+ |
-| 5 | `black.webp` | **black** | melns | ⚫ | `black__alt.webp` | 🖤 | 5+ |
-| 6 | `white.webp` | **white** | balts | ⚪ | `white__alt.webp` | 🤍 | 5+ |
-| 7 | `orange.webp` | **orange** | oranžs | 🟠 | `orange__alt.webp` | 🍊 | 5+ |
-| 8 | `pink.webp` | **pink** | rozā | 🌸 | `pink__alt.webp` | 💗 | 5+ |
-| 9 | `purple.webp` | **purple** | violets | 🟣 | `purple__alt.webp` | 💜 | 5+ |
-| 10 | `brown.webp` | **brown** | brūns | 🟤 | `brown__alt.webp` | 🤎 | 5+ |
+| 1 | `house.webp` | **house** | māja | 🏠 | `house__alt.webp` | 🏡 | 2+ |
+| 2 | `door.webp` | **door** | durvis | 🚪 | — | — | 2+ |
+| 3 | `bed.webp` | **bed** | gulta | 🛏️ | `bed__alt.webp` | 🛌 | 2+ |
+| 4 | `spoon.webp` | **spoon** | karote | 🥄 | — | — | 2+ |
+| 5 | `cup.webp` | **cup** | krūze | ☕ | `cup__alt.webp` | 🍵 | 2+ |
+| 6 | `chair.webp` | **chair** | krēsls | 🪑 | — | — | 5+ |
+| 7 | `table.webp` ✅ | **table** | galds | 🍽️ | — | — | 5+ |
+| 8 | `window.webp` | **window** | logs | 🪟 | — | — | 5+ |
+| 9 | `key.webp` | **key** | atslēga | 🔑 | `key__alt.webp` | 🗝️ | 5+ |
+| 10 | `lamp.webp` | **lamp** | lampa | 💡 | `lamp__alt.webp` | 🪔 | 5+ |
+| 11 | `clock.webp` | **clock** | pulkstenis | 🕐 | `clock__alt.webp` | ⏰ | 5+ |
 
-#### 👀 Ķermenis — `body` (11 words, 4 with a second picture)
-
-| # | file | word | latviski | now | 2nd file | 2nd now | age |
-|---|---|---|---|---|---|---|---|
-| 1 | `eye.webp` | **eye** | acs | 👁️ | `eye__alt.webp` | 👀 | 2+ |
-| 2 | `nose.webp` | **nose** | deguns | 👃 | — | — | 2+ |
-| 3 | `mouth.webp` | **mouth** | mute | 👄 | — | — | 2+ |
-| 4 | `ear.webp` | **ear** | auss | 👂 | `ear__alt.webp` | 🦻 | 2+ |
-| 5 | `hand.webp` | **hand** | roka | ✋ | `hand__alt.webp` | 🤚 | 2+ |
-| 6 | `head.webp` | **head** | galva | 🙂 | — | — | 2+ |
-| 7 | `hair.webp` | **hair** | mati | 💇 | — | — | 5+ |
-| 8 | `foot.webp` | **foot** | pēda | 🦶 | — | — | 5+ |
-| 9 | `leg.webp` | **leg** | kāja | 🦵 | — | — | 5+ |
-| 10 | `tooth.webp` | **tooth** | zobs | 🦷 | — | — | 5+ |
-| 11 | `finger.webp` | **finger** | pirksts | 👆 | `finger__alt.webp` | 👉 | 5+ |
-
-#### 👨‍👩‍👧 Ģimene — `family` (8 words, 1 with a second picture)
+#### 🌳 Daba — `nature` (11 words, 9 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
 |---|---|---|---|---|---|---|---|
-| 1 | `mom.webp` | **mom** | mamma | 👩 | — | — | 2+ |
-| 2 | `dad.webp` | **dad** | tētis | 👨 | — | — | 2+ |
-| 3 | `baby.webp` | **baby** | mazulis | 👶 | — | — | 2+ |
-| 4 | `sister.webp` | **sister** | māsa | 👧 | — | — | 5+ |
-| 5 | `brother.webp` | **brother** | brālis | 👦 | — | — | 5+ |
-| 6 | `grandma.webp` | **grandma** | vecmāmiņa | 👵 | — | — | 5+ |
-| 7 | `grandpa.webp` | **grandpa** | vectētiņš | 👴 | — | — | 5+ |
-| 8 | `family.webp` | **family** | ģimene | 👨‍👩‍👧 | `family__alt.webp` | 👪 | 5+ |
-
-#### 🔢 Skaitļi — `numbers` (10 words, 0 with a second picture)
-
-| # | file | word | latviski | now | 2nd file | 2nd now | age |
-|---|---|---|---|---|---|---|---|
-| 1 | `one.webp` | **one** | viens | 1️⃣ | — | — | 5+ |
-| 2 | `two.webp` | **two** | divi | 2️⃣ | — | — | 5+ |
-| 3 | `three.webp` | **three** | trīs | 3️⃣ | — | — | 5+ |
-| 4 | `four.webp` | **four** | četri | 4️⃣ | — | — | 5+ |
-| 5 | `five.webp` | **five** | pieci | 5️⃣ | — | — | 5+ |
-| 6 | `six.webp` | **six** | seši | 6️⃣ | — | — | 5+ |
-| 7 | `seven.webp` | **seven** | septiņi | 7️⃣ | — | — | 5+ |
-| 8 | `eight.webp` | **eight** | astoņi | 8️⃣ | — | — | 5+ |
-| 9 | `nine.webp` | **nine** | deviņi | 9️⃣ | — | — | 5+ |
-| 10 | `ten.webp` | **ten** | desmit | 🔟 | — | — | 5+ |
+| 1 | `sun.webp` | **sun** | saule | ☀️ | `sun__alt.webp` | 🌞 | 2+ |
+| 2 | `moon.webp` | **moon** | mēness | 🌙 | `moon__alt.webp` | 🌝 | 2+ |
+| 3 | `star.webp` | **star** | zvaigzne | ⭐ | `star__alt.webp` | 🌟 | 2+ |
+| 4 | `tree.webp` | **tree** | koks | 🌳 | `tree__alt.webp` | 🌲 | 2+ |
+| 5 | `flower.webp` | **flower** | puķe | 🌼 | `flower__alt.webp` | 🌷 | 2+ |
+| 6 | `rain.webp` | **rain** | lietus | 🌧️ | `rain__alt.webp` | ☔ | 2+ |
+| 7 | `snow.webp` | **snow** | sniegs | ❄️ | `snow__alt.webp` | 🌨️ | 2+ |
+| 8 | `cloud.webp` | **cloud** | mākonis | ☁️ | `cloud__alt.webp` | 🌥️ | 5+ |
+| 9 | `wind.webp` ✅ | **wind** | vējš | 🌬️ | — | — | 5+ |
+| 10 | `leaf.webp` | **leaf** | lapa | 🍃 | `leaf__alt.webp` | 🍂 | 5+ |
+| 11 | `stone.webp` | **stone** | akmens | 🪨 | — | — | 5+ |
 
 #### 🧸 Rotaļlietas — `toys` (9 words, 2 with a second picture)
 
@@ -354,22 +365,6 @@ each alternate is meant to depict.
 | 8 | `scarf.webp` | **scarf** | šalle | 🧣 | — | — | 5+ |
 | 9 | `gloves.webp` | **gloves** | cimdi | 🧤 | — | — | 5+ |
 
-#### 🏠 Mājas — `home` (11 words, 6 with a second picture)
-
-| # | file | word | latviski | now | 2nd file | 2nd now | age |
-|---|---|---|---|---|---|---|---|
-| 1 | `house.webp` | **house** | māja | 🏠 | `house__alt.webp` | 🏡 | 2+ |
-| 2 | `door.webp` | **door** | durvis | 🚪 | — | — | 2+ |
-| 3 | `bed.webp` | **bed** | gulta | 🛏️ | `bed__alt.webp` | 🛌 | 2+ |
-| 4 | `spoon.webp` | **spoon** | karote | 🥄 | — | — | 2+ |
-| 5 | `cup.webp` | **cup** | krūze | ☕ | `cup__alt.webp` | 🍵 | 2+ |
-| 6 | `chair.webp` | **chair** | krēsls | 🪑 | — | — | 5+ |
-| 7 | `table.webp` | **table** | galds | 🍽️ | — | — | 5+ |
-| 8 | `window.webp` | **window** | logs | 🪟 | — | — | 5+ |
-| 9 | `key.webp` | **key** | atslēga | 🔑 | `key__alt.webp` | 🗝️ | 5+ |
-| 10 | `lamp.webp` | **lamp** | lampa | 💡 | `lamp__alt.webp` | 🪔 | 5+ |
-| 11 | `clock.webp` | **clock** | pulkstenis | 🕐 | `clock__alt.webp` | ⏰ | 5+ |
-
 #### 🚗 Transports — `vehicles` (8 words, 7 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
@@ -383,27 +378,40 @@ each alternate is meant to depict.
 | 7 | `truck.webp` | **truck** | kravas mašīna | 🚚 | `truck__alt.webp` | 🚛 | 5+ |
 | 8 | `tractor.webp` | **tractor** | traktors | 🚜 | — | — | 5+ |
 
-#### 🌳 Daba — `nature` (11 words, 9 with a second picture)
+#### 👀 Ķermenis — `body` (11 words, 4 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
 |---|---|---|---|---|---|---|---|
-| 1 | `sun.webp` | **sun** | saule | ☀️ | `sun__alt.webp` | 🌞 | 2+ |
-| 2 | `moon.webp` | **moon** | mēness | 🌙 | `moon__alt.webp` | 🌝 | 2+ |
-| 3 | `star.webp` | **star** | zvaigzne | ⭐ | `star__alt.webp` | 🌟 | 2+ |
-| 4 | `tree.webp` | **tree** | koks | 🌳 | `tree__alt.webp` | 🌲 | 2+ |
-| 5 | `flower.webp` | **flower** | puķe | 🌼 | `flower__alt.webp` | 🌷 | 2+ |
-| 6 | `rain.webp` | **rain** | lietus | 🌧️ | `rain__alt.webp` | ☔ | 2+ |
-| 7 | `snow.webp` | **snow** | sniegs | ❄️ | `snow__alt.webp` | 🌨️ | 2+ |
-| 8 | `cloud.webp` | **cloud** | mākonis | ☁️ | `cloud__alt.webp` | 🌥️ | 5+ |
-| 9 | `wind.webp` | **wind** | vējš | 🌬️ | — | — | 5+ |
-| 10 | `leaf.webp` | **leaf** | lapa | 🍃 | `leaf__alt.webp` | 🍂 | 5+ |
-| 11 | `stone.webp` | **stone** | akmens | 🪨 | — | — | 5+ |
+| 1 | `eye.webp` | **eye** | acs | 👁️ | `eye__alt.webp` | 👀 | 2+ |
+| 2 | `nose.webp` | **nose** | deguns | 👃 | — | — | 2+ |
+| 3 | `mouth.webp` | **mouth** | mute | 👄 | — | — | 2+ |
+| 4 | `ear.webp` | **ear** | auss | 👂 | `ear__alt.webp` | 🦻 | 2+ |
+| 5 | `hand.webp` | **hand** | roka | ✋ | `hand__alt.webp` | 🤚 | 2+ |
+| 6 | `head.webp` ✅ | **head** | galva | 🙂 | — | — | 2+ |
+| 7 | `hair.webp` ✅ | **hair** | mati | 💇 | — | — | 5+ |
+| 8 | `foot.webp` | **foot** | pēda | 🦶 | — | — | 5+ |
+| 9 | `leg.webp` | **leg** | kāja | 🦵 | — | — | 5+ |
+| 10 | `tooth.webp` | **tooth** | zobs | 🦷 | — | — | 5+ |
+| 11 | `finger.webp` | **finger** | pirksts | 👆 | `finger__alt.webp` | 👉 | 5+ |
+
+#### 👨‍👩‍👧 Ģimene — `family` (8 words, 1 with a second picture)
+
+| # | file | word | latviski | now | 2nd file | 2nd now | age |
+|---|---|---|---|---|---|---|---|
+| 1 | `mom.webp` | **mom** | mamma | 👩 | — | — | 2+ |
+| 2 | `dad.webp` | **dad** | tētis | 👨 | — | — | 2+ |
+| 3 | `baby.webp` | **baby** | mazulis | 👶 | — | — | 2+ |
+| 4 | `sister.webp` | **sister** | māsa | 👧 | — | — | 5+ |
+| 5 | `brother.webp` | **brother** | brālis | 👦 | — | — | 5+ |
+| 6 | `grandma.webp` | **grandma** | vecmāmiņa | 👵 | — | — | 5+ |
+| 7 | `grandpa.webp` | **grandpa** | vectētiņš | 👴 | — | — | 5+ |
+| 8 | `family.webp` | **family** | ģimene | 👨‍👩‍👧 | `family__alt.webp` | 👪 | 5+ |
 
 #### 🏃 Darbības — `actions` (12 words, 8 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
 |---|---|---|---|---|---|---|---|
-| 1 | `jump.webp` | **jump** | lēkt | 🦘 | `jump__alt.webp` | ⛹️ | 2+ |
+| 1 | `jump.webp` ✅ | **jump** | lēkt | 🦘 | `jump__alt.webp` | ⛹️ | 2+ |
 | 2 | `run.webp` | **run** | skriet | 🏃 | `run__alt.webp` | 🏃‍♀️ | 2+ |
 | 3 | `clap.webp` | **clap** | plaukšķināt | 👏 | — | — | 2+ |
 | 4 | `dance.webp` | **dance** | dejot | 💃 | `dance__alt.webp` | 🕺 | 2+ |
@@ -416,21 +424,52 @@ each alternate is meant to depict.
 | 11 | `read.webp` | **read** | lasīt | 📚 | — | — | 5+ |
 | 12 | `wash.webp` | **wash** | mazgāt | 🧼 | `wash__alt.webp` | 🚿 | 5+ |
 
+#### 🎨 Krāsas — `colors` (10 words, 10 with a second picture)
+
+| # | file | word | latviski | now | 2nd file | 2nd now | age |
+|---|---|---|---|---|---|---|---|
+| 1 | `red.webp` | **red** | sarkans | 🔴 | `red__alt.webp` | 🌹 | 2+ |
+| 2 | `blue.webp` | **blue** | zils | 🔵 | `blue__alt.webp` | 💙 | 2+ |
+| 3 | `green.webp` | **green** | zaļš | 🟢 | `green__alt.webp` | 🥬 | 2+ |
+| 4 | `yellow.webp` | **yellow** | dzeltens | 🟡 | `yellow__alt.webp` | 🌻 | 2+ |
+| 5 | `black.webp` | **black** | melns | ⚫ | `black__alt.webp` | 🖤 | 5+ |
+| 6 | `white.webp` | **white** | balts | ⚪ | `white__alt.webp` | 🤍 | 5+ |
+| 7 | `orange.webp` | **orange** | oranžs | 🟠 | `orange__alt.webp` | 🍊 | 5+ |
+| 8 | `pink.webp` | **pink** | rozā | 🌸 | `pink__alt.webp` | 💗 | 5+ |
+| 9 | `purple.webp` | **purple** | violets | 🟣 | `purple__alt.webp` | 💜 | 5+ |
+| 10 | `brown.webp` | **brown** | brūns | 🟤 | `brown__alt.webp` | 🤎 | 5+ |
+
 #### 😄 Sajūtas — `feelings` (8 words, 7 with a second picture)
 
 | # | file | word | latviski | now | 2nd file | 2nd now | age |
 |---|---|---|---|---|---|---|---|
 | 1 | `happy.webp` | **happy** | priecīgs | 😄 | `happy__alt.webp` | 😃 | 2+ |
 | 2 | `sad.webp` | **sad** | skumjš | 😢 | `sad__alt.webp` | 😭 | 2+ |
-| 3 | `love.webp` | **love** | mīlestība | ❤️ | `love__alt.webp` | 💖 | 2+ |
+| 3 | `love.webp` ✅ | **love** | mīlestība | ❤️ | `love__alt.webp` | 💖 | 2+ |
 | 4 | `angry.webp` | **angry** | dusmīgs | 😠 | `angry__alt.webp` | 😡 | 5+ |
 | 5 | `tired.webp` | **tired** | noguris | 🥱 | `tired__alt.webp` | 😪 | 5+ |
-| 6 | `hungry.webp` | **hungry** | izsalcis | 🤤 | — | — | 5+ |
+| 6 | `hungry.webp` ✅ | **hungry** | izsalcis | 🤤 | — | — | 5+ |
 | 7 | `scared.webp` | **scared** | nobijies | 😨 | `scared__alt.webp` | 😱 | 5+ |
 | 8 | `funny.webp` | **funny** | smieklīgs | 🤣 | `funny__alt.webp` | 😂 | 5+ |
+
+#### 🔢 Skaitļi — `numbers` (10 words, 0 with a second picture)
+
+| # | file | word | latviski | now | 2nd file | 2nd now | age |
+|---|---|---|---|---|---|---|---|
+| 1 | `one.webp` | **one** | viens | 1️⃣ | — | — | 5+ |
+| 2 | `two.webp` | **two** | divi | 2️⃣ | — | — | 5+ |
+| 3 | `three.webp` | **three** | trīs | 3️⃣ | — | — | 5+ |
+| 4 | `four.webp` | **four** | četri | 4️⃣ | — | — | 5+ |
+| 5 | `five.webp` | **five** | pieci | 5️⃣ | — | — | 5+ |
+| 6 | `six.webp` | **six** | seši | 6️⃣ | — | — | 5+ |
+| 7 | `seven.webp` | **seven** | septiņi | 7️⃣ | — | — | 5+ |
+| 8 | `eight.webp` | **eight** | astoņi | 8️⃣ | — | — | 5+ |
+| 9 | `nine.webp` | **nine** | deviņi | 9️⃣ | — | — | 5+ |
+| 10 | `ten.webp` | **ten** | desmit | 🔟 | — | — | 5+ |
+
 ---
 
-## 7. App icons — 3 files
+## 8. App icons — 3 files
 
 **Folder:** `assets/icons/` · **Manifest:** none — these are referenced directly
 

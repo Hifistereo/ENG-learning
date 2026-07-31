@@ -19,11 +19,11 @@
 // Age 2 runs a shortened version: meet, order, act, story. No production and no
 // phonics — a toddler is not asked to speak, and letters are not their task.
 
-import { buildSession, transferCandidates, productionCandidates } from './selector.js';
+import { buildSession, transferCandidates, productionCandidates, currentUnit } from './selector.js';
 import { buildStoryRound } from './storyBuilder.js';
 import { initialLetter, tprWords } from '../data/words.js';
 import { framesForWords } from '../data/phrases.js';
-import { canOrder } from '../data/units.js';
+import { canOrder, sceneForUnit } from '../data/units.js';
 
 /** Rounds that ask a question and produce a right/wrong result. */
 export const SCORED = new Set([
@@ -35,7 +35,8 @@ const MAX_REQUEUE = 4;
 
 /**
  * Build the round list for a session.
- * @returns {{rounds: object[], newWords: object[], chantWords: object[], targetWords: object[]}}
+ * @returns {{rounds: object[], newWords: object[], chantWords: object[],
+ *            targetWords: object[], mood: string}}
  */
 export function buildPlan(profile, progress, opts = {}) {
   const { now = Date.now(), size = 12, rng = Math.random } = opts;
@@ -45,6 +46,15 @@ export function buildPlan(profile, progress, opts = {}) {
   const targetWords = dedupe([...newWords, ...reviewWords]);
   const pool = opts.pool || [];
   const rounds = [];
+
+  // Where this visit happens. One place for the whole session: the child
+  // arrives somewhere, everything occurs there, and they leave. `avoid` is the
+  // last place they visited, so two sessions in a row do not open on the same
+  // picture.
+  const mood = sceneForUnit(currentUnit(profile, progress), {
+    avoid: progress.lastMood || null,
+    rng,
+  });
 
   // Co-play card first for toddlers: the single biggest factor for a 2-year-old
   // is whether an adult is sitting with them, so we ask for one before
@@ -71,10 +81,14 @@ export function buildPlan(profile, progress, opts = {}) {
     insertRound(rounds, { type: 'transfer', word }, 0.75);
   }
 
-  // 5. The story, near the end: the words appear one more time, in a context
+  // 5. The story. It used to sit at the very end, which meant the best part of
+  //    the app arrived at round fifteen of eighteen and everything before it
+  //    was the price of admission. It now lands around two thirds of the way
+  //    through, so the visit builds to it and still has somewhere to go
+  //    afterwards — and the words appear in it one more time, in a context
   //    that has nothing to do with how they were taught.
   const story = buildStoryRound(profile, progress, targetWords, { pool, rng });
-  if (story) rounds.push(story);
+  if (story) insertRound(rounds, story, 0.66);
 
   // 6. Production, age 5 only and only for words that already transfer.
   for (const word of productionCandidates(profile, progress).slice(0, 2)) {
@@ -87,8 +101,11 @@ export function buildPlan(profile, progress, opts = {}) {
     rounds.push({ type: 'listenTap', word, isNew: true, finalCheck: true });
   }
 
+  // 8. Leaving. With no progress bar, this is how a child learns the visit is
+  //    over: the pet waves goodbye from the place they have been all session.
+  rounds.push({ type: 'farewell' });
   rounds.push({ type: 'celebrate' });
-  return { rounds, newWords, chantWords, targetWords, story: story?.story || null };
+  return { rounds, newWords, chantWords, targetWords, mood, story: story?.story || null };
 }
 
 /** The main body of tasks, built from the word queue. */
@@ -183,7 +200,7 @@ export function insertRound(rounds, round, fraction) {
  */
 export function createSession(profile, progress, opts = {}) {
   const plan = buildPlan(profile, progress, opts);
-  const { rounds, newWords, chantWords, targetWords, story } = plan;
+  const { rounds, newWords, chantWords, targetWords, story, mood } = plan;
   const startedAt = opts.now || Date.now();
 
   let index = 0;
@@ -197,14 +214,10 @@ export function createSession(profile, progress, opts = {}) {
     chantWords,
     targetWords,
     story,
+    mood,
 
     get total() { return rounds.length; },
     get position() { return index; },
-    /** 0..1 for the progress bar. Celebration is not part of the journey. */
-    get fraction() {
-      const scored = rounds.filter((r) => r.type !== 'celebrate').length || 1;
-      return Math.min(1, index / scored);
-    },
 
     current() { return rounds[index] || null; },
     peek(offset = 1) { return rounds[index + offset] || null; },
@@ -251,6 +264,7 @@ export function createSession(profile, progress, opts = {}) {
         activities: [...activities],
         newWordIds: newWords.map((w) => w.id),
         storyId: story?.id || null,
+        mood,
       };
     },
   };

@@ -16,21 +16,32 @@ every scrap of data on the device.
 | | Age 2–4 | Age 5–7 |
 |---|---|---|
 | Session length | ~5 min, 8 items | ~12 min, 18 items |
-| Opens with | a card asking a grown-up to sit down | straight into the chant |
+| Opens with | a card asking a grown-up to sit down | arriving in the scene |
 | New words per session | 1–3 | 2–5 |
 | Answer choices | 2 | 3–4 |
 | Written English | never | always, next to the picture |
-| Tasks | chant, meet a word, listen & tap, give-me, movement, transfer check, story | + phonics, sentence frames, teach-the-alien |
+| Tasks | look around, meet a word, where-is, give-me, movement, transfer check, story | + phonics, sentence frames, teach-the-alien |
 | Asked to speak | never | yes, once a word already transfers |
 | Review intervals | 1, 2, 4, 7, 14 days | 1, 3, 7, 14, 30 days |
 
 Both tracks share the pet companion, the achievement cards, the sticker book,
 and the scheduler.
 
-A session is one themed adventure, not a list of mini-games. The same handful
-of words passes through every phase — meet it, fetch it for someone, act it
-out, use it to rescue a character, then say it — so each encounter is the same
-vocabulary in a different task.
+**A session is a visit to one place.** The child arrives in an illustrated
+scene with their pet standing in it, everything happens there, and the pet
+waves goodbye at the end. The same handful of words passes through every phase
+— meet it, fetch it for someone, act it out, use it to rescue a character, then
+say it — so each encounter is the same vocabulary in a different task, and the
+screen never blanks between them.
+
+There is no progress bar and no Latvian instruction anywhere the child can see
+it. What a child meets is a character saying something in English; the Latvian,
+if a parent leaves hints on, is a subtitle underneath.
+
+Greetings — hello, bye, please, thank you, yes, no, sorry, good night — are
+**not** in the word list and are never quizzed. You cannot draw "please", and
+nobody learns "thank you" from a flashcard. The characters say them constantly
+instead, at the moment that gives each one its meaning (`src/data/chatter.js`).
 
 ## What "knowing a word" means here
 
@@ -143,6 +154,7 @@ src/
   media/       speech, pictures, scenes, meaning-matched animation, sfx, mic
   pet/         the companion state machine
   activities/  one module per task, each `run(ctx) => Promise`
+  ui/          sceneStage (the visit), shared components, screens/
   ui/screens/  onboarding, home, play, trophies, parent
 tests/         node --test, covering everything in core/ and state/
 assets/        BRIEF.md plus the drop-in slots for audio and artwork
@@ -152,6 +164,27 @@ Two modules are deliberately kept apart: `core/knowledge.js` decides what an
 answer *proves*, `core/srs.js` decides *when the word comes back*. They are
 different questions — a word can be scheduled far out while still being weakly
 known — and merging them is how mastery inflation creeps back in.
+
+### The visit
+
+A session is one illustrated place. `ui/sceneStage.js` builds it once and every
+activity renders into it — the backdrop, the pet standing in the scene, the
+caption and the prop shelf all persist, and a round changes only what is being
+said and what is on the shelf. Nothing is torn down between rounds.
+
+Two rules follow from that and are easy to break by accident:
+
+- **Activities never clear the stage.** `stageWith()` still exists but is only
+  for the co-play card, which is addressed to the adult before the visit
+  starts. Inside the visit, call `ctx.scene`.
+- **The English sentence is the prompt.** No Latvian imperative is ever shown
+  to the child. `scene.say(en, lv)` puts the character's line in the caption
+  and the translation, if hints are on, underneath it.
+
+The pet is *moved* into the scene rather than redrawn there (`pet.dockPet`), so
+there is only ever one pet element and its whole state machine keeps working.
+Anything that replaces the stage must call `scene.release()` first, or the pet
+gets removed from the document along with it.
 
 `core/` and `state/` are pure and fully tested. `ui/` and `activities/` are
 verified by hand against the checklist below.

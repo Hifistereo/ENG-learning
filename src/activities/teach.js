@@ -15,33 +15,29 @@
 // on something the child said perfectly well is the single most discouraging
 // thing this app could do. A grown-up confirms, or the child confirms by
 // picking the right picture.
+//
+// The alien now lands in the scene the child has spent the whole visit in,
+// rather than appearing on a blank page. It is also where two more retired
+// greeting words live: the child's "No! Look again." and the alien's "Sorry!
+// You are right." Both are said at the only moment either phrase means
+// anything, and neither is ever quizzed. See data/chatter.js.
 
 import { el, wait } from '../ui/dom.js';
 import { pictureEl } from '../media/picture.js';
 import { primaryButton } from '../ui/components.js';
+import { castEl } from '../ui/sceneStage.js';
 import { pickDistractors } from '../core/selector.js';
-import { petReact, petSay, setPetPlacement } from '../pet/pet.js';
+import { petReact, petSay } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { enact, canEnact } from '../media/enact.js';
+import { chatter } from '../data/chatter.js';
 import { t } from '../i18n/lv.js';
 import * as mic from '../media/mic.js';
-import { hasArt, artUrl } from '../media/art.js';
-import { stageWith } from './base.js';
 
-const ALIEN = '👽';
-
-/** The alien: drawn artwork if installed (manifest id "char:alien"), else emoji. */
-function alienEl() {
-  if (hasArt('char:alien')) {
-    return el('img.alien.alien--art', {
-      src: artUrl('char:alien'), alt: '', decoding: 'async',
-    });
-  }
-  return el('span.alien', { 'aria-hidden': 'true', text: ALIEN });
-}
+const ALIEN = { id: 'alien', emoji: '👽' };
 
 export function run(ctx) {
-  const { round, profile, pool, progress } = ctx;
+  const { round, profile, pool, progress, scene } = ctx;
   const word = round.word;
 
   // What the alien wrongly calls it — a real word from the same unit, so the
@@ -60,10 +56,15 @@ export function run(ctx) {
     let clip = null;
     let recording = false;
 
-    const picture = pictureEl(word, { size: 'clamp(6rem, 26vw, 11rem)' });
-    const alien = alienEl();
-    const speech = el('div.alien__says', { text: claim });
-    const controls = el('div.sayit__controls');
+    const picture = pictureEl(word, {
+      size: 'clamp(4.5rem, 20vw, 7.5rem)',
+      className: 'cast cast--newword',
+    });
+    const alien = castEl(ALIEN, { kind: 'char', size: 'clamp(3.5rem, 15vw, 6rem)' });
+    alien.classList.add('cast--alien');
+
+    scene.clearProps();
+    scene.setCast(alien, picture);
 
     /**
      * The child has corrected the alien.
@@ -77,8 +78,13 @@ export function run(ctx) {
       play('correct');
       petReact.correct();
       alien.classList.add('is-corrected');
-      speech.textContent = `${t('act.teachThanks')} ${word.en}!`;
-      await ctx.say(word);
+
+      // "Sorry! You are right." — an apology for having been wrong, which is
+      // exactly what sorry is for, and the child is the one owed it.
+      const sorry = chatter('sorry', { mood: scene.mood });
+      const line = sorry ? `${sorry.en} ${capitalise(article(word))}!` : `${capitalise(article(word))}!`;
+      scene.say(line, sorry ? sorry.lv : word.lv);
+      await ctx.sayText(line);
       if (canEnact(word.id)) await enact(picture, word);
       await wait(500);
 
@@ -89,6 +95,8 @@ export function run(ctx) {
         activity: spoke ? 'teach' : 'listenTap',
         aided: false,
       });
+      scene.clearCast();
+      scene.clearExtra();
       resolve();
     };
 
@@ -106,7 +114,7 @@ export function run(ctx) {
           // alien is delighted to be told, then corrected anyway.
           play('wrong');
           petReact.wrong();
-          speech.textContent = t('act.teachReally');
+          scene.say('Really? Let us look again…', t('act.teachReally'));
           await wait(900);
           step2();
         },
@@ -114,23 +122,20 @@ export function run(ctx) {
     }, `🙆 ${t('act.teachYes')}`);
 
     function step1() {
-      setPetPlacement('corner');
       petReact.asking();
-      stageWith(
-        ctx,
-        el('div.prompt', {}, [el('span.prompt__text', { text: t('act.teachTitle') })]),
-        el('div.alienrow', {}, [alien, speech]),
-        el('div.bigcard', {}, [picture]),
-        el('div.home__actions', {}, [noBtn, yesBtn]),
-      );
+      scene.say(claim, `Šis ir ${wrong.lv}!`);
+      scene.setExtra(el('div.home__actions', {}, [noBtn, yesBtn]));
       ctx.sayText(claim);
       petSay('❓', 1600);
     }
 
     // --- Step 2: tell the alien the right word ---
     function step2() {
-      speech.textContent = t('act.teachWhat');
-      ctx.sayText('What is it?');
+      // The pet says "no" on the child's behalf, out loud, in the one place
+      // where contradicting someone is the correct and useful thing to do.
+      const no = chatter('no', { mood: scene.mood });
+      scene.say(no ? no.en : 'What is it?', no ? no.lv : 'Kas tas ir?');
+      ctx.sayText(no ? `${no.en} What is it?` : 'What is it?');
 
       const sayBtn = primaryButton(t('act.teachSaid'), () => settle(true), { emoji: '🗣️' });
 
@@ -141,18 +146,13 @@ export function run(ctx) {
         : t('act.teachSaid');
       sayBtn.querySelector('span:last-child').textContent = confirmLabel;
 
-      clearChildren(controls);
-      if (micAllowed) controls.append(recordButton());
+      if (profile.ageBand === 5) {
+        picture.insertAdjacentElement('afterend',
+          el('span.cast__word', { text: word.en }));
+      }
 
-      stageWith(
-        ctx,
-        el('div.prompt', {}, [el('span.prompt__text', { text: t('act.teachTitle') })]),
-        el('div.alienrow', {}, [alien, speech]),
-        el('div.bigcard', {}, [
-          picture,
-          profile.ageBand === 5 ? el('span.bigcard__word', { text: word.en }) : null,
-        ]),
-        controls,
+      scene.setExtra(
+        micAllowed ? el('div.sayit__controls', {}, [recordButton()]) : null,
         el('div.home__actions', {}, [
           sayBtn,
           el('button.btn', {
@@ -205,7 +205,4 @@ export function run(ctx) {
 }
 
 const article = (word) => (word.art ? `${word.art} ${word.en}` : word.en);
-
-function clearChildren(node) {
-  while (node.firstChild) node.removeChild(node.firstChild);
-}
+const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);

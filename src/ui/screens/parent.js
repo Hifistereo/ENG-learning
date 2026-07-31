@@ -24,6 +24,7 @@ import { englishVoices } from '../../media/speech.js';
 import { isSupported as micSupported } from '../../media/mic.js';
 import { PETS, getPet } from '../../data/pets.js';
 import { UNITS } from '../../data/units.js';
+import { CHATTER_IDS } from '../../data/chatter.js';
 import { unlockedUnits } from '../../core/selector.js';
 import { APP_VERSION, RELEASE_NAME } from '../../version.js';
 import { t, relativeDay } from '../../i18n/lv.js';
@@ -307,6 +308,12 @@ function wordsView(profile, progress) {
         ]),
         tbody,
       ]),
+    ]),
+    // Greetings are not in this table and their absence would otherwise read
+    // as missing progress. They are heard, not tested — see data/chatter.js.
+    el('p.muted', {}, [
+      el('strong', { text: `${CHATTER_IDS.length} ` }),
+      el('span', { text: t('par.chatterNote') }),
     ]),
   ]);
 }

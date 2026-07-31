@@ -11,12 +11,11 @@
 // lie we'd have to unteach later.
 
 import { el } from '../ui/dom.js';
-import { prompt, choiceGrid } from '../ui/components.js';
 import { initialLetter } from '../data/words.js';
-import { petReact, setPetPlacement } from '../pet/pet.js';
+import { petReact } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { t } from '../i18n/lv.js';
-import { stageWith, idleHint } from './base.js';
+import { idleHint } from './base.js';
 
 const CHOICES = 3;
 
@@ -33,7 +32,7 @@ function distractors(target, pool, progress, count) {
 }
 
 export function run(ctx) {
-  const { round, profile, pool, progress } = ctx;
+  const { round, profile, pool, progress, scene } = ctx;
   const word = round.word;
   const letter = initialLetter(word);
 
@@ -49,8 +48,19 @@ export function run(ctx) {
     let hint = { cancel() {} };
     let done = false;
 
-    const grid = choiceGrid(options, {
-      ageBand: 5,
+    // The letter itself joins the scene, and the question is asked in English
+    // like everything else the child hears here.
+    scene.setCast(el('div.letter', {}, [
+      el('span.letter__big', { text: letter.toUpperCase() }),
+      el('span.letter__small', { text: letter }),
+    ]));
+    scene.clearExtra();
+    scene.say(
+      `Which one starts with ${letter.toUpperCase()}?`,
+      t('say.startsWith', { letter: letter.toUpperCase() }),
+    );
+
+    const grid = scene.setProps(options, {
       showText: false,          // showing the words would give the answer away
       onPick: (picked) => onPick(picked),
     });
@@ -87,22 +97,21 @@ export function run(ctx) {
       play('correct');
       petReact.correct();
       ctx.say(word);            // now that it is solved, name it
+      scene.say(`${capitalise(word.en)}!`, word.lv);
       await grid.markCorrect(word.id);
       ctx.result(word.id, attempts === 1, Math.round(performance.now() - askedAt));
+      scene.clearCast();
       resolve();
     }
 
-    setPetPlacement('corner');
-    stageWith(
-      ctx,
-      prompt(t('act.phonicsPick', { letter: letter.toUpperCase() }), { onReplay: sayLetter }),
-      el('div.letter', {}, [
-        el('span.letter__big', { text: letter.toUpperCase() }),
-        el('span.letter__small', { text: letter }),
-      ]),
-      grid.root,
-    );
+    scene.setExtra(el('button.iconbtn.iconbtn--round', {
+      type: 'button',
+      'aria-label': t('act.listenAgain'),
+      on: { click: sayLetter },
+    }, '🔊'));
 
     ask();
   });
 }
+
+const capitalise = (s) => s.charAt(0).toUpperCase() + s.slice(1);
