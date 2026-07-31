@@ -80,21 +80,32 @@
   /* --- Age scaling ------------------------------------------------------
      Set on <body> as data-age="2" | "5". Toddlers get bigger everything and
      a higher floor on tap targets; the same components read these vars so we
-     never fork a component per age. */
+     never fork a component per age.
+
+     --prop-size is the picture on a prop in the visit's shelf, and it is the
+     single most-looked-at measurement in the app: for a pre-literate child the
+     picture IS the answer, so it has to be readable at arm's length on a
+     tablet held by someone else. Sized from the viewport rather than fixed,
+     because the shelf is a 2x2 grid on a phone and a single row on a tablet. */
   --tap-min: 88px;
   --pic-size: clamp(7rem, 26vw, 12rem);
+  --prop-size: clamp(4.5rem, 15vw, 6.5rem);
   --choice-gap: var(--s-4);
 }
 
 body[data-age="2"] {
   --tap-min: 112px;
   --pic-size: clamp(9rem, 38vw, 17rem);
+  /* Two answers, so each gets half the width and can afford to be large. */
+  --prop-size: clamp(6.5rem, 26vw, 10rem);
   --choice-gap: var(--s-5);
 }
 
 body[data-age="5"] {
   --tap-min: 88px;
   --pic-size: clamp(6.5rem, 22vw, 10rem);
+  /* Four answers, and a written word underneath each one. */
+  --prop-size: clamp(4.5rem, 16vw, 7rem);
   --choice-gap: var(--s-4);
 }
 

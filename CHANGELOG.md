@@ -15,6 +15,21 @@ Iecerēts nākamajām versijām:
 - Izdrukājamas kartītes vecākiem
 - Progresa sinhronizācija starp ierīcēm
 
+## [0.3.1] – 2026-07-31
+
+### Labots
+
+- **Atbilžu attēli bija par mazu.** Jaunajā ainā attēlu izmērs tika norādīts ar
+  `var(--prop-size)`, bet tāds mainīgais nekad nebija definēts. CSS par to
+  neko nepasaka — tas vienkārši izmet noteikumu — tāpēc emoji tika zīmēti
+  pamatteksta izmērā: **17 px** uz jebkura ekrāna un abos vecumos. Tagad
+  mazajiem tie ir **104–167 px**, lielākajiem **72–117 px**, atkarībā no
+  ekrāna. Bērnam, kurš neprot lasīt, attēls ir viss jautājums.
+- Pievienoti testi, kas to noķer: katrs `var(--…)`, ko lieto stili vai kods,
+  ir jābūt kaut kur definētam, un atbilžu attēla apakšējā robeža nedrīkst
+  nokrist zem 4rem. Bez tiem šo kļūdu nevarēja redzēt neviens tests, jo
+  neviens tests nelasīja CSS.
+
 ## [0.3.0] – 2026-07-31
 
 “Viena vieta”. Pārstrādāta spēles sajūta. Mācību pieeja nemainās ne par
@@ -212,7 +227,8 @@ Pirmā versija. "Pirmais solis".
 - Dati glabājas tikai `localStorage`. Lietotne neveic nevienu tīkla pieprasījumu
   pēc ielādes.
 
-[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Hifistereo/ENG-learning/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.1
 [0.3.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.3.0
 [0.2.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.2.0
 [0.1.0]: https://github.com/Hifistereo/ENG-learning/releases/tag/v0.1.0
