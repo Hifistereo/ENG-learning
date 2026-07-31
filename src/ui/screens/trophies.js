@@ -10,7 +10,7 @@ import { title } from '../components.js';
 import { achievementGrid, achievementProgress } from '../achievementCard.js';
 import { collection } from '../../core/achievements.js';
 import { getActiveProfile } from '../../state/profiles.js';
-import { getProgress, masteredCount } from '../../state/progress.js';
+import { getProgress, knownCount } from '../../state/progress.js';
 import { petPreviewEl, showPet } from '../../pet/pet.js';
 import { petLevel, nextPetLevel } from '../../data/pets.js';
 import { play } from '../../media/sfx.js';
@@ -29,7 +29,7 @@ export function render(root) {
 
   const progress = getProgress(profile.id);
   const entries = collection(progress);
-  const mastered = masteredCount(profile.id);
+  const mastered = knownCount(profile.id, profile.ageBand);
   const level = petLevel(mastered);
   const next = nextPetLevel(mastered);
 

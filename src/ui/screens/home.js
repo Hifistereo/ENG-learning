@@ -9,7 +9,7 @@ import { el, mount } from '../dom.js';
 import { title, primaryButton } from '../components.js';
 import { showPet, petPreviewEl, setProfile as setPetProfile } from '../../pet/pet.js';
 import { getActiveProfile, listProfiles, setActiveProfileId } from '../../state/profiles.js';
-import { getProgress, masteredCount } from '../../state/progress.js';
+import { getProgress, knownCount } from '../../state/progress.js';
 import { dayKey } from '../../core/stats.js';
 import { unlockAudio } from '../../media/speech.js';
 import { unlockSfx, play, setSfxEnabled } from '../../media/sfx.js';
@@ -26,7 +26,7 @@ export function render(root) {
   setSfxEnabled(profile.settings.sound);
 
   const progress = getProgress(profile.id);
-  const known = masteredCount(profile.id);
+  const known = knownCount(profile.id, profile.ageBand);
   const playedToday = (progress.sessions || []).some((s) => dayKey(s.ts) === dayKey(Date.now()));
 
   setPetProfile(profile);

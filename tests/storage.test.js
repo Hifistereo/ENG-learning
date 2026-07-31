@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { _setBackend, read, write, remove, allKeys, exportAll, importAll, clearAll }
   from '../src/state/storage.js';
 import { SCHEMA_VERSION } from '../src/version.js';
+import { isKnown, knowledgeLevel } from '../src/core/knowledge.js';
 
 /** A localStorage-shaped fake we can make fail on demand. */
 function fakeStorage({ quotaAfter = Infinity } = {}) {
@@ -126,4 +127,79 @@ test('remove deletes a single key', () => {
   remove('a');
   assert.equal(read('a'), null);
   assert.equal(read('b'), 2);
+});
+
+// --- Schema migration v1 -> v2 -------------------------------------------
+
+test('v0.1 progress survives the move to evidence-based knowledge', () => {
+  // v0.1 measured mastery by counting correct taps on a same-picture question.
+  // That evidence does not survive the new definition of knowing a word, so
+  // the migration carries across only what the old data honestly supports.
+  const legacy = {
+    kind: 'eng-learning-backup',
+    schemaVersion: 1,
+    appVersion: '0.1.0',
+    data: {
+      profiles: [{ id: 'kid', name: 'Anna', ageBand: 5 }],
+      'progress.kid': {
+        words: {
+          cat: { id: 'cat', box: 5, streak: 4, seen: 9, correct: 8, wrong: 1,
+            lastSeen: 1000, nextDue: 2000, firstSeen: 500 },
+          dog: { id: 'dog', box: 1, streak: 0, seen: 3, correct: 0, wrong: 3,
+            lastSeen: 900, nextDue: 1500, firstSeen: 400 },
+        },
+        sessions: [{ ts: 1000, ms: 300000, n: 9, ok: 8 }],
+        achievements: { first_session: 900 },
+        totals: { sessions: 1, items: 9, correct: 8, playedMs: 300000 },
+      },
+    },
+  };
+
+  assert.equal(importAll(legacy).ok, true);
+  const words = read('progress.kid').words;
+
+  // A word answered correctly is credited with recognition, and nothing else.
+  assert.ok(words.cat.ev.recognise > 0, 'a correct answer really did happen');
+  assert.equal(words.cat.ev.transfer, 0, 'transfer was never tested in v0.1');
+  assert.equal(words.cat.ev.produce, 0, 'production was never tested in v0.1');
+  assert.equal(words.cat.ev.delay1, 0);
+  assert.equal(words.cat.ev.delay7, 0);
+
+  // A word never answered correctly gets nothing at all.
+  assert.equal(words.dog.ev.recognise, 0);
+
+  // Scheduling carries over untouched: those answers did happen, and
+  // re-teaching known words from scratch would be the worse error.
+  assert.equal(words.cat.box, 5);
+  assert.equal(words.cat.nextDue, 2000);
+  assert.equal(words.cat.help, 0, 'the new hint counter is initialised');
+
+  // Everything else is left alone.
+  assert.deepEqual(read('progress.kid').achievements, { first_session: 900 });
+  assert.equal(read('profiles')[0].name, 'Anna');
+});
+
+test('a migrated word is not treated as known', () => {
+  // The whole point: five correct taps under the old rules must not silently
+  // become "mastered" under the new ones.
+  const legacy = {
+    kind: 'eng-learning-backup', schemaVersion: 1, appVersion: '0.1.0',
+    data: { 'progress.kid': { words: { cat: { id: 'cat', box: 5, streak: 5, seen: 5, correct: 5, wrong: 0, lastSeen: 1, firstSeen: 1 } } } },
+  };
+  importAll(legacy);
+  const rec = read('progress.kid').words.cat;
+  assert.equal(isKnown(rec, 5), false, 'it still has to earn transfer and delayed recall');
+  assert.equal(knowledgeLevel(rec), 2, 'recognises it, nothing more');
+});
+
+test('migration is idempotent', () => {
+  const legacy = {
+    kind: 'eng-learning-backup', schemaVersion: 1, appVersion: '0.1.0',
+    data: { 'progress.kid': { words: { cat: { id: 'cat', box: 3, seen: 4, correct: 3, wrong: 1, lastSeen: 77, firstSeen: 10 } } } },
+  };
+  importAll(legacy);
+  const once = read('progress.kid').words.cat.ev.recognise;
+  importAll(exportAll());          // re-import an already-migrated dump
+  assert.equal(read('progress.kid').words.cat.ev.recognise, once,
+    'running it again must not move the evidence timestamps');
 });

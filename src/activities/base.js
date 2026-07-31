@@ -13,8 +13,9 @@
 //   quit(),
 // }
 
-import { clear } from '../ui/dom.js';
+import { clear, wait } from '../ui/dom.js';
 import { petReact } from '../pet/pet.js';
+import { enact, canEnact } from '../media/enact.js';
 
 /** Seconds of no answer before the pet offers a hint. */
 export const HINT_AFTER_MS = { 2: 6000, 5: 9000 };
@@ -40,3 +41,32 @@ export function stageWith(ctx, ...nodes) {
 export function restPet() {
   petReact.idle();
 }
+
+/**
+ * Teach the answer after repeated misses.
+ *
+ * The rule this implements: a wrong answer must never end in a cross and a
+ * shrug. Say the right word, show what it means, then hand the child an easy
+ * success. From here on the round is aided, so nothing it produces counts as
+ * evidence — but the child still finishes on a win, which is what keeps them
+ * tapping tomorrow.
+ *
+ * @param {object} ctx
+ * @param {object} word
+ * @param {object} grid - the choiceGrid handle
+ * @param {string} [answerId] - defaults to the word's id
+ */
+export async function teachAnswer(ctx, word, grid, answerId = word.id) {
+  petReact.hint(grid.directionOf(answerId));
+  grid.hint(answerId);
+  await ctx.say(word);
+
+  const node = grid.root.querySelector(`[data-id="${CSS.escape(answerId)}"] .picture`);
+  if (node && canEnact(word.id)) await enact(node, word);
+  else await wait(500);
+
+  petReact.idle();
+}
+
+/** How many misses before we stop asking and start teaching. */
+export const TEACH_AFTER_MISSES = 2;

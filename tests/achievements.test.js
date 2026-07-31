@@ -6,23 +6,16 @@ import { qualifyingCards, newlyEarned, rewardsFor, collection, unlockedCount }
   from '../src/core/achievements.js';
 import { snapshot, currentStreak, bestStreak, dailyActivity, windowTotals, weakWords }
   from '../src/core/stats.js';
-import { newRecord, answer, DAY_MS, MAX_BOX } from '../src/core/srs.js';
+import { DAY_MS, newRecord, answer } from '../src/core/srs.js';
+import { emptyProgress, makeKnown } from './helpers.js';
 import { WORDS, wordsInUnit } from '../src/data/words.js';
 
 const T0 = new Date(2026, 5, 15, 12, 0, 0).getTime();   // local noon
 const profile = (ageBand = 5) => ({ id: 'kid', name: 'Test', ageBand, settings: {} });
 
-function emptyProgress() {
-  return {
-    words: {}, achievements: {}, stickers: [], sessions: [], unlockedUnits: [],
-    totals: { sessions: 0, items: 0, correct: 0, playedMs: 0 },
-  };
-}
-
+/** A word the child genuinely knows: transfer, delayed recall and production. */
 function master(progress, wordId, ageBand = 5) {
-  let rec = newRecord(wordId);
-  for (let i = 0; i < MAX_BOX + 1; i += 1) rec = answer(rec, true, { ageBand, now: T0 });
-  progress.words[wordId] = rec;
+  makeKnown(progress, wordId, { ageBand, firstSeen: T0 - 30 * DAY_MS });
 }
 
 /** Add `count` sessions on consecutive days ending `endingDaysAgo` days ago. */
@@ -223,17 +216,26 @@ test('window totals only count the trailing window', () => {
 
 test('weak words surface the ones being forgotten, worst first', () => {
   const progress = emptyProgress();
+
   let bad = newRecord('cat');
-  [false, false, false, true, false].forEach(() => { bad = answer(bad, false, { now: T0 }); });
+  for (let i = 0; i < 5; i += 1) bad = answer(bad, false, { now: T0, activity: 'listenTap' });
   progress.words.cat = bad;
 
-  let ok = newRecord('dog');
-  [true, true, true].forEach(() => { ok = answer(ok, true, { now: T0 }); });
-  progress.words.dog = ok;
+  let solid = newRecord('dog');
+  for (let i = 0; i < 3; i += 1) solid = answer(solid, true, { now: T0, activity: 'listenTap' });
+  progress.words.dog = solid;
 
-  const weak = weakWords(progress, 5);
-  assert.equal(weak[0].word.id, 'cat');
-  assert.equal(weak.some((w) => w.word.id === 'dog'), false, 'a solid word is not a problem');
+  // Right every time, but only ever after the pet pointed at the answer.
+  let propped = newRecord('cow');
+  for (let i = 0; i < 4; i += 1) {
+    propped = answer(propped, true, { now: T0, activity: 'listenTap', aided: true });
+  }
+  progress.words.cow = propped;
+
+  const weak = weakWords(progress, 5).map((w) => w.word.id);
+  assert.equal(weak[0], 'cat', 'the one being forgotten comes first');
+  assert.ok(weak.includes('cow'), 'a word that only works with help is worth mentioning too');
+  assert.equal(weak.includes('dog'), false, 'a solid word is not a problem');
 });
 
 test('the snapshot exposes what cards need without throwing on sparse data', () => {

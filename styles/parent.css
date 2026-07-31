@@ -261,3 +261,45 @@
 
 .tips { display: flex; flex-direction: column; gap: var(--s-3); padding-left: var(--s-5); }
 .tips li { font-size: var(--t-sm); line-height: 1.5; }
+
+/* --- Evidence dots ------------------------------------------------------ */
+
+.evdots { display: inline-flex; gap: 3px; }
+.evdot {
+  font-size: 0.95rem;
+  filter: grayscale(1);
+  opacity: 0.28;
+  transition: opacity var(--dur), filter var(--dur);
+}
+.evdot.is-on { filter: none; opacity: 1; }
+.evdot.is-na { opacity: 0.1; }
+
+/* --- Knowledge ladder --------------------------------------------------- */
+
+.ladder { display: flex; flex-direction: column; gap: var(--s-2); }
+.ladder__row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 14rem) 1fr auto;
+  align-items: center;
+  gap: var(--s-3);
+  font-size: var(--t-xs);
+}
+.ladder__label { color: var(--fg-soft); }
+.ladder__track {
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: var(--c-line);
+  overflow: hidden;
+}
+.ladder__fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--c-leaf);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.ladder__count { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+@media (max-width: 560px) {
+  .ladder__row { grid-template-columns: 1fr auto; }
+  .ladder__track { grid-column: 1 / -1; }
+}

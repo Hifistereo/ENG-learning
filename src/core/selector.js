@@ -12,7 +12,8 @@
 
 import { WORDS, getWord, wordsInUnit } from '../data/words.js';
 import { UNIT_IDS, UNLOCK_THRESHOLD } from '../data/units.js';
-import { isDue, isMastered, overdueDays } from './srs.js';
+import { isDue, overdueDays } from './srs.js';
+import { isKnown, readyForTransfer, readyForProduction } from './knowledge.js';
 
 /** Ceiling on new words per session, by age band. */
 export const NEW_WORD_CAP = { 2: 3, 5: 5 };
@@ -74,11 +75,17 @@ export function unlockedUnits(profile, progress) {
   return [...new Set(open)];
 }
 
-/** Fraction of a unit's age-appropriate words that are mastered, 0..1. */
+/**
+ * Fraction of a unit's age-appropriate words the child actually knows, 0..1.
+ *
+ * Measured against the evidence bar (transfer + delayed recall), not tap
+ * counts — so a unit does not unlock the next one on the strength of a good
+ * afternoon.
+ */
 export function unitMastery(unitId, profile, progress) {
   const words = wordsInUnit(unitId).filter((w) => w.level <= profile.ageBand);
   if (!words.length) return 1;
-  const done = words.filter((w) => isMastered(progress.words[w.id])).length;
+  const done = words.filter((w) => isKnown(progress.words[w.id], profile.ageBand)).length;
   return done / words.length;
 }
 
@@ -133,12 +140,31 @@ function fillerWords(profile, progress, exclude) {
     .sort((a, b) => {
       const A = progress.words[a.id];
       const B = progress.words[b.id];
-      // Unmastered words first, then whatever was practised longest ago.
-      const mA = isMastered(A) ? 1 : 0;
-      const mB = isMastered(B) ? 1 : 0;
-      if (mA !== mB) return mA - mB;
+      // Not-yet-known words first, then whatever was practised longest ago.
+      const kA = isKnown(A, profile.ageBand) ? 1 : 0;
+      const kB = isKnown(B, profile.ageBand) ? 1 : 0;
+      if (kA !== kB) return kA - kB;
       return A.lastSeen - B.lastSeen;
     });
+}
+
+/**
+ * Words due for a transfer check: recognised reliably, but never yet seen
+ * from their alternate picture. Only words that have one, obviously.
+ */
+export function transferCandidates(profile, progress) {
+  return availableWords(profile, progress)
+    .filter((w) => w.alt && readyForTransfer(progress.words[w.id]));
+}
+
+/**
+ * Words ready to be said out loud: understood, including from a second
+ * picture. Age 5 and up — production is not asked of toddlers.
+ */
+export function productionCandidates(profile, progress) {
+  if (profile.ageBand === 2) return [];
+  return availableWords(profile, progress)
+    .filter((w) => readyForProduction(progress.words[w.id]));
 }
 
 // --- Session queue -------------------------------------------------------

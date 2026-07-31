@@ -4,7 +4,8 @@
 // render; writes go straight through so a closed tab never loses a session.
 
 import { read, write, remove } from './storage.js';
-import { newRecord, answer as srsAnswer, isMastered, isLearning } from '../core/srs.js';
+import { newRecord, answer as srsAnswer } from '../core/srs.js';
+import { isKnown, isLearning, isRetained, hasEvidence } from '../core/knowledge.js';
 
 /** Keep the last N sessions. ~500 sessions is over a year of daily play and
  *  still well inside a sane localStorage budget. */
@@ -46,16 +47,27 @@ export function getRecord(profileId, wordId) {
 }
 
 /**
- * Record one answer and reschedule the word.
+ * Record one answer: reschedule the word and credit whatever the answer proves.
+ *
+ * @param {string} profileId
+ * @param {string} wordId
+ * @param {boolean} correct
+ * @param {object} opts
+ * @param {number} opts.ageBand
+ * @param {string} opts.activity - which activity produced this, so the
+ *   evidence model can decide what it demonstrates (see core/knowledge.js)
+ * @param {boolean} [opts.aided] - a hint was shown, so it counts for nothing
  * @returns {object} the updated record
  */
-export function recordAnswer(profileId, wordId, correct, ageBand, now = Date.now()) {
+export function recordAnswer(profileId, wordId, correct, opts = {}) {
+  const { ageBand = 5, activity = 'listenTap', aided = false, now = Date.now() } = opts;
   const data = getProgress(profileId);
   const before = data.words[wordId] || newRecord(wordId);
-  const after = srsAnswer(before, correct, { ageBand, now });
+  const after = srsAnswer(before, correct, { ageBand, now, activity, aided });
   data.words[wordId] = after;
   data.totals.items += 1;
   if (correct) data.totals.correct += 1;
+  if (aided) data.totals.help = (data.totals.help || 0) + 1;
   save(profileId, data);
   return after;
 }
@@ -106,19 +118,42 @@ export function resetProgress(profileId) {
 }
 
 // --- Derived counts (cheap, used all over the UI) ------------------------
+//
+// "Known" here means the evidence bar in core/knowledge.js — transfer plus
+// delayed recall — not a box number. These counts are what the pet's level,
+// the unit unlocks and the parent headline are all built on, so they must not
+// drift back to counting taps.
 
-export function masteredIds(profileId) {
+export function knownIds(profileId, ageBand = 5) {
   const { words } = getProgress(profileId);
-  return Object.values(words).filter(isMastered).map((r) => r.id);
+  return Object.values(words).filter((r) => isKnown(r, ageBand)).map((r) => r.id);
 }
 
-export function learningIds(profileId) {
+export function learningIds(profileId, ageBand = 5) {
   const { words } = getProgress(profileId);
-  return Object.values(words).filter(isLearning).map((r) => r.id);
+  return Object.values(words).filter((r) => isLearning(r, ageBand)).map((r) => r.id);
 }
 
-export function masteredCount(profileId) {
-  return masteredIds(profileId).length;
+export function knownCount(profileId, ageBand = 5) {
+  return knownIds(profileId, ageBand).length;
+}
+
+/** Words still there a week after first meeting them. The headline measure. */
+export function retainedCount(profileId) {
+  const { words } = getProgress(profileId);
+  return Object.values(words).filter(isRetained).length;
+}
+
+/** Words recognised from a picture they were not taught with. */
+export function transferCount(profileId) {
+  const { words } = getProgress(profileId);
+  return Object.values(words).filter((r) => hasEvidence(r, 'transfer')).length;
+}
+
+/** Words the child has said out loud, confirmed by a grown-up. */
+export function spokenCount(profileId) {
+  const { words } = getProgress(profileId);
+  return Object.values(words).filter((r) => hasEvidence(r, 'produce')).length;
 }
 
 /** Drop the read cache — used after an import replaces everything. */

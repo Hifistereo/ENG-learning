@@ -70,7 +70,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(6px) scale(0.9);
   min-width: max-content;
-  max-width: 60vw;
+  max-width: min(60vw, 18rem);
   padding: var(--s-2) var(--s-4);
   border-radius: var(--r-lg);
   background: var(--bg-raised);
@@ -84,6 +84,18 @@
   transition: opacity var(--dur), transform var(--dur) var(--ease-bounce);
 }
 .pet__bubble.is-visible { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+
+/* In the corner the pet sits against the screen edge, so a bubble centred on
+   it hangs off the side and gets clipped. Anchor it to the pet's inner edge
+   instead. */
+.pet[data-place="corner"] .pet__bubble {
+  left: 0;
+  transform: translateX(0) translateY(6px) scale(0.9);
+  transform-origin: bottom left;
+}
+.pet[data-place="corner"] .pet__bubble.is-visible {
+  transform: translateX(0) translateY(0) scale(1);
+}
 
 /* --- States ------------------------------------------------------------ */
 

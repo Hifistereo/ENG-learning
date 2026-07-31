@@ -27,6 +27,20 @@ export const UNITS = [
 /** Fraction of a unit that must be mastered before the next one unlocks. */
 export const UNLOCK_THRESHOLD = 0.7;
 
+/**
+ * Units whose words name a thing you could physically hand to someone.
+ *
+ * The order-fulfilment game builds real sentences from these: "Give me the
+ * apple." Everything else would produce English no speaker would ever say —
+ * "Give me hello", "Give me red", "Give me jump", "Give me the rain" — and
+ * teaching a child a sentence that does not exist is worse than teaching them
+ * nothing.
+ */
+export const ORDERABLE_UNITS = new Set(['food', 'toys', 'clothes', 'home', 'vehicles', 'animals']);
+
+/** @param {object} word */
+export const canOrder = (word) => ORDERABLE_UNITS.has(word?.unit);
+
 export const UNIT_IDS = UNITS.map((u) => u.id);
 
 const byId = new Map(UNITS.map((u) => [u.id, u]));

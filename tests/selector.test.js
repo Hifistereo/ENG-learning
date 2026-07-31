@@ -8,28 +8,25 @@ import {
 } from '../src/core/selector.js';
 import { UNIT_IDS } from '../src/data/units.js';
 import { WORDS, wordsInUnit, getWord } from '../src/data/words.js';
-import { newRecord, answer, MAX_BOX, DAY_MS } from '../src/core/srs.js';
+import { newRecord, answer, DAY_MS } from '../src/core/srs.js';
+import { emptyProgress, makeKnown, dueRecord } from './helpers.js';
 
 const T0 = Date.UTC(2026, 0, 15);
 
 const profile = (ageBand = 5) => ({ id: 'kid', name: 'Test', ageBand, settings: {} });
 
-function emptyProgress() {
-  return { words: {}, achievements: {}, stickers: [], sessions: [], unlockedUnits: [], totals: {} };
-}
-
-/** Give a word a mastered record. */
+/**
+ * Give a word a record that clears the knowledge bar. Under the old model
+ * this was "answer it five times"; now it takes transfer, delayed recall and
+ * production, which is the whole point of the change.
+ */
 function master(progress, wordId, ageBand = 5) {
-  let rec = newRecord(wordId);
-  for (let i = 0; i < MAX_BOX + 1; i += 1) rec = answer(rec, true, { ageBand, now: T0 });
-  progress.words[wordId] = rec;
-  return progress;
+  return makeKnown(progress, wordId, { ageBand, firstSeen: T0 - 30 * DAY_MS });
 }
 
 /** Give a word a record that is due for review. */
 function makeDue(progress, wordId, daysOverdue = 1) {
-  const rec = answer(newRecord(wordId), true, { ageBand: 5, now: T0 - (daysOverdue + 1) * DAY_MS });
-  progress.words[wordId] = rec;
+  progress.words[wordId] = dueRecord(wordId, { daysOverdue, now: T0 });
   return progress;
 }
 

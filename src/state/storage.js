@@ -111,8 +111,37 @@ function trimLogs() {
 // dump and returns it upgraded by exactly one version. Add one entry per
 // schema change; never edit a released migration.
 const MIGRATIONS = {
-  // 1 -> 2: example shape
-  // 1: (dump) => { ...; return dump; },
+  /**
+   * 1 -> 2 (v0.2.0): word records gain an evidence object.
+   *
+   * v0.1 measured mastery by counting correct taps on a same-picture question.
+   * That evidence does not survive the new definition of knowing a word, so we
+   * carry across only what the old data can honestly support: a word that had
+   * been answered correctly at least once is credited with `recognise`, and
+   * nothing else. Transfer and production were never tested, so they start
+   * empty and the child earns them normally.
+   *
+   * Scheduling (box, streak, nextDue) carries over untouched — those answers
+   * really did happen, and re-teaching known words from scratch would be a
+   * worse error than starting the evidence ledger empty.
+   */
+  1: (dump) => {
+    for (const [key, value] of Object.entries(dump.data || {})) {
+      if (!key.startsWith('progress.') || !value?.words) continue;
+      for (const rec of Object.values(value.words)) {
+        if (rec.ev) continue;
+        rec.help = rec.help || 0;
+        rec.ev = {
+          recognise: rec.correct > 0 ? (rec.lastSeen || rec.firstSeen || 0) : 0,
+          transfer: 0,
+          produce: 0,
+          delay1: 0,
+          delay7: 0,
+        };
+      }
+    }
+    return dump;
+  },
 };
 
 export function migrate(dump) {
@@ -162,5 +191,33 @@ export function clearAll() {
   for (const key of allKeys()) remove(key);
 }
 
-// Stamp the schema version on first run so future migrations have a floor.
-if (read('meta') === null) write('meta', { schemaVersion: SCHEMA_VERSION, createdAt: Date.now() });
+/**
+ * Upgrade whatever is already in storage to the current schema.
+ *
+ * Runs once at module load. Without this, migrations would only ever apply to
+ * imported backups and a returning child's existing progress would silently
+ * stay on the old shape.
+ */
+export function migrateStored() {
+  const meta = read('meta');
+  const from = Number(meta?.schemaVersion) || (meta === null ? SCHEMA_VERSION : 1);
+
+  if (meta === null) {
+    // First run on this device: nothing to migrate, just set the floor.
+    write('meta', { schemaVersion: SCHEMA_VERSION, createdAt: Date.now() });
+    return { migrated: false, from: SCHEMA_VERSION };
+  }
+  if (from >= SCHEMA_VERSION) return { migrated: false, from };
+
+  const data = {};
+  for (const key of allKeys()) data[key] = read(key);
+
+  const upgraded = migrate({ schemaVersion: from, data });
+  for (const [key, value] of Object.entries(upgraded.data)) write(key, value);
+  write('meta', { ...meta, schemaVersion: SCHEMA_VERSION, migratedAt: Date.now() });
+
+  console.info(`[storage] migrated schema v${from} -> v${SCHEMA_VERSION}`);
+  return { migrated: true, from };
+}
+
+migrateStored();

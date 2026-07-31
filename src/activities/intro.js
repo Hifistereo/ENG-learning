@@ -9,6 +9,7 @@ import { el, wait } from '../ui/dom.js';
 import { bigCard, lvHintButton } from '../ui/components.js';
 import { petReact, petSay, setPetPlacement } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
+import { enact, canEnact } from '../media/enact.js';
 import { t } from '../i18n/lv.js';
 import { stageWith } from './base.js';
 
@@ -37,11 +38,23 @@ export async function run(ctx) {
   petSay(word.en, 2600);
   play('pop');
 
+  const picture = card.querySelector('.picture');
+
   for (let i = 0; i < REPEATS; i += 1) {
     card.classList.add('is-pulsing');
     await ctx.say(word);
     card.classList.remove('is-pulsing');
-    await wait(500);
+    // Show what the word means, not just that something happened: "jump" hops,
+    // "eat" vanishes into a mouth. Words with no honest enactment stay still
+    // rather than getting decorative motion that competes for attention.
+    if (canEnact(word.id)) await enact(picture, word);
+    await wait(450);
+  }
+
+  // Co-play: for toddlers the adult saying the word matters more than anything
+  // on the screen, so we ask for it directly at the moment it counts.
+  if (profile.ageBand === 2 && profile.settings.coPlay !== false) {
+    ctx.stage.append(el('p.coplay-nudge', { text: t('act.grownupSay', { word: word.en }) }));
   }
 
   petReact.idle();

@@ -14,7 +14,7 @@ import { newlyEarned, rewardsFor } from '../../core/achievements.js';
 import { getActiveProfile, grantAccessory, getProfile } from '../../state/profiles.js';
 import {
   getProgress, recordAnswer, commitSession, unlockAchievements,
-  unlockUnit, masteredCount,
+  unlockUnit, knownCount,
 } from '../../state/progress.js';
 import { unlockedUnits } from '../../core/selector.js';
 import { sessionSize } from '../../state/profiles.js';
@@ -66,9 +66,21 @@ export function render(root) {
     round: null,
     say: (word) => sayWord(word, voiceOpts),
     sayText: (text) => say(text, voiceOpts),
-    result: (wordId, ok, ms) => {
+    /**
+     * Log an answer.
+     *
+     * `activity` and `aided` are what stop mastery inflating: the evidence
+     * model uses them to decide what this answer actually demonstrates, so a
+     * word found only after the pet pointed at it earns nothing, and no
+     * amount of same-picture tapping ever counts as transfer or production.
+     */
+    result: (wordId, ok, ms, meta = {}) => {
       session.record(wordId, ok, ms);
-      recordAnswer(profile.id, wordId, ok, profile.ageBand);
+      recordAnswer(profile.id, wordId, ok, {
+        ageBand: profile.ageBand,
+        activity: meta.activity || ctx.round?.type || 'listenTap',
+        aided: !!meta.aided,
+      });
     },
     quit,
   };
@@ -195,7 +207,7 @@ export function render(root) {
 
     // A pet level-up is worth its own line — it is the long-term thread that
     // ties months of short sessions together.
-    const level = currentPetLevel(masteredCount(profile.id));
+    const level = currentPetLevel(knownCount(profile.id, profile.ageBand));
     if (level.level > 1) {
       cardSlot.append(el('p.stage__hint', {
         text: t('end.petLevel', { pet: profile.pet.name, level: level.level }),

@@ -4,19 +4,16 @@
 // the achievement engine (every card's condition is written against the
 // snapshot this module produces).
 
-import { isMastered, isLearning, isLeech, accuracy, DAY_MS } from './srs.js';
+import { accuracy } from './srs.js';
+import {
+  isKnown, isLearning, isRetained, hasEvidence, knowledgeLevel,
+  needsSupport, wordEvidence,
+} from './knowledge.js';
+import { DAY_MS, startOfDay, dayKey } from './time.js';
 import { WORDS, getWord } from '../data/words.js';
 import { UNITS } from '../data/units.js';
 
-const startOfDay = (ts) => new Date(ts).setHours(0, 0, 0, 0);
-
-/** Local YYYY-MM-DD. Local, not UTC — "today" must mean the child's today. */
-export function dayKey(ts) {
-  const d = new Date(ts);
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${d.getFullYear()}-${month}-${day}`;
-}
+export { dayKey };
 
 /**
  * Consecutive days up to and including today on which the child played.
@@ -91,7 +88,7 @@ export function windowTotals(sessions, days = 7, now = Date.now()) {
   };
 }
 
-/** Mastery breakdown per unit, for the parent page. */
+/** Knowledge breakdown per unit, for the parent page. */
 export function unitBreakdown(progress, ageBand) {
   return UNITS.map((unit) => {
     const words = WORDS.filter((w) => w.unit === unit.id && w.level <= ageBand);
@@ -99,40 +96,73 @@ export function unitBreakdown(progress, ageBand) {
     return {
       ...unit,
       total: words.length,
-      mastered: records.filter(isMastered).length,
-      learning: records.filter(isLearning).length,
+      mastered: records.filter((r) => isKnown(r, ageBand)).length,
+      learning: records.filter((r) => isLearning(r, ageBand)).length,
       untouched: words.length - records.length,
     };
   });
 }
 
 /**
- * Words worth mentioning to a parent: the ones being forgotten repeatedly.
- * Sorted worst first.
+ * Words worth mentioning to a parent: the ones being forgotten, or that only
+ * come out with help. Sorted worst first.
+ *
+ * These are the words to use out loud at breakfast and in the bath. That is
+ * the whole reason this list exists — the app cannot follow the child into
+ * real situations, and real situations are where the words stick.
  */
 export function weakWords(progress, ageBand, limit = 8) {
   return Object.values(progress.words || {})
-    .filter((rec) => isLeech(rec) || (rec.seen >= 3 && accuracy(rec) < 0.6))
+    .filter(needsSupport)
     .map((rec) => ({ rec, word: getWord(rec.id) }))
     .filter((entry) => entry.word && entry.word.level <= ageBand)
     .sort((a, b) => (accuracy(a.rec) - accuracy(b.rec)) || (b.rec.wrong - a.rec.wrong))
     .slice(0, limit);
 }
 
-/** Every word with its record, for the parent's sortable table. */
+/** Every word with its evidence, for the parent's table. */
 export function wordTable(progress, ageBand) {
   return WORDS
     .filter((w) => w.level <= ageBand)
     .map((word) => {
       const rec = progress.words[word.id] || null;
+      const ev = wordEvidence(rec, ageBand);
       return {
         word,
         rec,
-        state: !rec ? 'new' : isMastered(rec) ? 'mastered' : 'learning',
-        accuracy: rec ? accuracy(rec) : null,
+        ev,
+        state: !rec ? 'new' : ev.known ? 'mastered' : 'learning',
+        accuracy: ev.accuracy,
         lastSeen: rec?.lastSeen || 0,
       };
     });
+}
+
+/**
+ * The measures that actually indicate learning, as opposed to activity.
+ *
+ * Deliberately separated from the time-and-sessions numbers: minutes played
+ * says how willing a child was, not what they took away. Retention and
+ * transfer are the headline; everything else on the parent page is context.
+ */
+export function learningMeasures(progress, ageBand) {
+  const words = Object.values(progress.words || {});
+  const eligible = WORDS.filter((w) => w.level <= ageBand).length;
+
+  return {
+    met: words.length,
+    eligible,
+    recognises: words.filter((r) => hasEvidence(r, 'recognise')).length,
+    transfers: words.filter((r) => hasEvidence(r, 'transfer')).length,
+    speaks: words.filter((r) => hasEvidence(r, 'produce')).length,
+    nextDay: words.filter((r) => hasEvidence(r, 'delay1')).length,
+    retained: words.filter(isRetained).length,
+    known: words.filter((r) => isKnown(r, ageBand)).length,
+    needingHelp: words.filter(needsSupport).length,
+    // How many words sit at each level 0-5, for a distribution bar.
+    levels: [0, 1, 2, 3, 4, 5].map((level) =>
+      words.filter((r) => knowledgeLevel(r) === level).length),
+  };
 }
 
 /**
@@ -145,9 +175,10 @@ export function snapshot(progress, profile, now = Date.now()) {
   const words = Object.values(progress.words || {});
   const sessions = progress.sessions || [];
   const ageBand = profile?.ageBand ?? 5;
-  const mastered = words.filter(isMastered);
+  const mastered = words.filter((r) => isKnown(r, ageBand));
   const totals = progress.totals || {};
   const week = windowTotals(sessions, 7, now);
+  const measures = learningMeasures(progress, ageBand);
 
   const byUnit = {};
   for (const unit of unitBreakdown(progress, ageBand)) {
@@ -159,8 +190,16 @@ export function snapshot(progress, profile, now = Date.now()) {
     ageBand,
     wordsSeen: words.length,
     wordsMastered: mastered.length,
-    wordsLearning: words.filter(isLearning).length,
+    wordsLearning: words.filter((r) => isLearning(r, ageBand)).length,
     masteredIds: mastered.map((r) => r.id),
+
+    // The evidence-based measures, available to achievement conditions so
+    // cards can reward real retention rather than time served.
+    wordsRecognised: measures.recognises,
+    wordsTransferred: measures.transfers,
+    wordsSpoken: measures.speaks,
+    wordsRetained: measures.retained,
+    wordsNextDay: measures.nextDay,
 
     sessions: sessions.length,
     totalItems: totals.items || 0,

@@ -9,10 +9,11 @@ import { activityChart, accuracyChart, unitBars } from './charts.js';
 import { achievementGrid, achievementProgress } from '../achievementCard.js';
 import { collection } from '../../core/achievements.js';
 import {
-  snapshot, dailyActivity, windowTotals, unitBreakdown, weakWords, wordTable,
-  currentStreak, bestStreak,
+  dailyActivity, windowTotals, unitBreakdown, weakWords, wordTable,
+  currentStreak, bestStreak, learningMeasures,
 } from '../../core/stats.js';
-import { masteryProgress, accuracy as recAccuracy } from '../../core/srs.js';
+import { accuracy as recAccuracy } from '../../core/srs.js';
+import { knowledgeProgress } from '../../core/knowledge.js';
 import {
   listProfiles, getProfile, updateProfile, updateSettings, deleteProfile,
   setActiveProfileId, getActiveProfile, SESSION_LENGTHS,
@@ -178,36 +179,28 @@ function statTile(label, value, sub = null) {
 }
 
 function overviewView(profile, progress) {
-  const snap = snapshot(progress, profile);
   const week = windowTotals(progress.sessions, 7);
   const days = dailyActivity(progress.sessions, 14);
   const units = unitBreakdown(progress, profile.ageBand);
   const weak = weakWords(progress, profile.ageBand);
+  const m = learningMeasures(progress, profile.ageBand);
 
   return el('div.stack', {}, [
-    el('div.stats', {}, [
-      statTile(t('par.statMastered'), snap.wordsMastered),
-      statTile(t('par.statLearning'), snap.wordsLearning),
-      statTile(t('par.statNew'), Math.max(0, unitsTotal(units) - snap.wordsSeen)),
-      statTile(t('par.statMinutes'), Math.round(week.minutes)),
-      statTile(t('par.statSessions'), week.sessions),
-      statTile(
-        t('par.statStreak'),
-        currentStreak(progress.sessions),
-        t('par.statBestStreak', { n: bestStreak(progress.sessions) }),
-      ),
-      statTile(
-        t('par.statAccuracy'),
-        snap.accuracy === null ? '—' : `${Math.round(snap.accuracy * 100)}%`,
-      ),
-    ]),
+    // The headline is retention and transfer. Minutes and session counts are
+    // measures of willingness, not of learning, so they sit lower down under
+    // their own heading rather than leading the page.
+    section(t('par.learningTitle'), el('div.stack', {}, [
+      el('p.muted', { text: t('par.learningHint') }),
+      el('div.stats', {}, [
+        statTile(t('par.statKnown'), m.known, t('par.statKnownSub')),
+        statTile(t('par.statRetained'), m.retained, t('par.statRetainedSub')),
+        statTile(t('par.statTransfer'), m.transfers, t('par.statTransferSub')),
+        statTile(t('par.statSpeaks'), m.speaks, t('par.statSpeaksSub')),
+      ]),
+      knowledgeLadder(m, profile),
+    ])),
 
-    section(t('par.chartWeek'), activityChart(days)),
-    section(t('par.chartAccuracy'), accuracyChart(days)),
-    section(t('par.words'), unitBars(units)),
-
-    section(
-      t('par.weakTitle'),
+    section(t('par.weakTitle'),
       weak.length
         ? el('div.stack', {}, [
             el('p.muted', { text: t('par.weakHint') }),
@@ -217,16 +210,34 @@ function overviewView(profile, progress) {
                 el('span.weak__en', { text: word.en }),
                 el('span.weak__lv', { text: word.lv }),
                 el('span.weak__acc', {
-                  text: `${Math.round((recAccuracy(rec) || 0) * 100)}%`,
+                  text: rec.help > 0 && (rec.help / rec.seen) > 0.4
+                    ? t('par.weakHelp')
+                    : `${Math.round((recAccuracy(rec) || 0) * 100)}%`,
                 }),
               ]))),
           ])
-        : el('p.muted', { text: t('par.weakNone') }),
-    ),
+        : el('p.muted', { text: t('par.weakNone') })),
+
+    section(t('par.words'), unitBars(units)),
+
+    // Activity: honest, but explicitly framed as context rather than outcome.
+    section(t('par.activityTitle'), el('div.stack', {}, [
+      el('p.muted', { text: t('par.activityHint') }),
+      el('div.stats', {}, [
+        statTile(t('par.statMinutes'), Math.round(week.minutes)),
+        statTile(t('par.statSessions'), week.sessions),
+        statTile(
+          t('par.statStreak'),
+          currentStreak(progress.sessions),
+          t('par.statBestStreak', { n: bestStreak(progress.sessions) }),
+        ),
+        statTile(t('par.statMet'), m.met, `no ${m.eligible}`),
+      ]),
+      activityChart(days),
+      accuracyChart(days),
+    ])),
   ]);
 }
-
-const unitsTotal = (units) => units.reduce((sum, u) => sum + u.total, 0);
 
 function section(heading, ...content) {
   return el('section.panel', {}, [
@@ -253,8 +264,8 @@ function wordsView(profile, progress) {
       ]),
       el('td', { text: row.word.lv }),
       el('td.hide-sm', { text: unitName(row.word.unit) }),
-      el('td', {}, [boxBar(row.rec)]),
-      el('td', { text: row.accuracy === null ? '—' : `${Math.round(row.accuracy * 100)}%` }),
+      el('td', {}, [evidenceDots(row.ev, row.word)]),
+      el('td', {}, [boxBar(row.rec, profile.ageBand)]),
       el('td.hide-sm', { text: relativeDay(row.lastSeen) }),
     ])));
   };
@@ -289,8 +300,8 @@ function wordsView(profile, progress) {
             el('th', { text: t('par.tableWord') }),
             el('th', { text: t('par.tableLv') }),
             el('th.hide-sm', { text: t('par.tableUnit') }),
+            el('th', { text: t('par.tableEvidence') }),
             el('th', { text: t('par.tableBox') }),
-            el('th', { text: t('par.tableAcc') }),
             el('th.hide-sm', { text: t('par.tableSeen') }),
           ]),
         ]),
@@ -302,11 +313,53 @@ function wordsView(profile, progress) {
 
 const unitName = (id) => UNITS.find((u) => u.id === id)?.lv || id;
 
-function boxBar(rec) {
-  const pct = Math.round(masteryProgress(rec) * 100);
+function boxBar(rec, ageBand) {
+  const pct = Math.round(knowledgeProgress(rec, ageBand) * 100);
   return el('div.boxbar', { title: `${pct}%` }, [
     el('div.boxbar__fill', { style: { width: `${pct}%` } }),
   ]);
+}
+
+/**
+ * What the child has actually shown for this word, as four filled or hollow
+ * dots. A single percentage hides the distinction that matters: a word at 100%
+ * on one picture and a word that survived a week are not the same thing.
+ */
+function evidenceDots(ev, word) {
+  const dots = [
+    { on: ev.recognise, label: t('par.evRecognise'), icon: '👂' },
+    { on: ev.transfer, label: word.alt ? t('par.evTransfer') : t('par.evNoAlt'), icon: '🔄', n: !word.alt },
+    { on: ev.delay1 || ev.delay7, label: ev.delay7 ? t('par.evWeek') : t('par.evDay'), icon: '📅' },
+    { on: ev.produce, label: t('par.evSpeaks'), icon: '🗣️' },
+  ];
+  return el('span.evdots', {}, dots.map((d) => el('span', {
+    class: `evdot ${d.on ? 'is-on' : ''} ${d.n ? 'is-na' : ''}`,
+    title: d.label,
+    text: d.icon,
+  })));
+}
+
+/**
+ * How the child's vocabulary is spread across the levels of knowing.
+ * Deliberately not a single number — the shape is the interesting part.
+ */
+function knowledgeLadder(m, profile) {
+  const labels = [
+    t('par.lvl0'), t('par.lvl1'), t('par.lvl2'), t('par.lvl3'), t('par.lvl4'), t('par.lvl5'),
+  ];
+  const max = Math.max(...m.levels.slice(1), 1);
+  return el('div.ladder', {}, m.levels.map((count, level) => {
+    if (level === 0) return null;      // "never met" is not a stage of knowing
+    return el('div.ladder__row', {}, [
+      el('span.ladder__label', { text: labels[level] }),
+      el('div.ladder__track', {}, [
+        el('div.ladder__fill', {
+          style: { width: `${(count / max) * 100}%`, opacity: String(0.45 + level * 0.11) },
+        }),
+      ]),
+      el('span.ladder__count', { text: String(count) }),
+    ]);
+  }).filter(Boolean));
 }
 
 // --- Achievements --------------------------------------------------------
@@ -364,6 +417,8 @@ function settingsView(profile, refresh, root) {
         t('par.setPetHintsHint')),
       toggle(t('par.setLvHints'), profile.settings.lvHints, (v) => set({ lvHints: v }),
         t('par.setLvHintsHint')),
+      toggle(t('par.setCoPlay'), profile.settings.coPlay !== false, (v) => set({ coPlay: v }),
+        t('par.setCoPlayHint')),
     ])),
 
     section(t('par.setVoice'), voiceSettings(profile, set)),
@@ -499,7 +554,7 @@ function importButton(refresh, root) {
 
 function tipsView() {
   return section(t('par.tipsTitle'), el('ul.tips', {},
-    ['par.tip1', 'par.tip2', 'par.tip3', 'par.tip4', 'par.tip5', 'par.tip6']
+    ['par.tip7', 'par.tip1', 'par.tip2', 'par.tip8', 'par.tip3', 'par.tip4', 'par.tip5', 'par.tip6']
       .map((key) => el('li', { text: t(key) }))));
 }
 

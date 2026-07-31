@@ -5,74 +5,81 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the
 // app is served from a repository subpath on GitHub Pages.
 const ASSETS = [
+  // Shell
   './',
   './index.html',
   './manifest.webmanifest',
   './favicon.svg',
+  './assets/audio/en/manifest.json',
+  './assets/img/manifest.json',
 
-  './styles/tokens.css',
+  // Styles
   './styles/base.css',
-  './styles/kid.css',
-  './styles/pet.css',
   './styles/cards.css',
+  './styles/enact.css',
+  './styles/kid.css',
   './styles/parent.css',
+  './styles/pet.css',
+  './styles/tokens.css',
 
-  './src/main.js',
-  './src/router.js',
-  './src/version.js',
-
-  './src/data/words.js',
-  './src/data/units.js',
-  './src/data/phrases.js',
-  './src/data/pets.js',
-  './src/data/achievements.js',
-
-  './src/core/srs.js',
-  './src/core/selector.js',
-  './src/core/session.js',
-  './src/core/stats.js',
-  './src/core/achievements.js',
-
-  './src/state/storage.js',
-  './src/state/profiles.js',
-  './src/state/progress.js',
-
-  './src/media/speech.js',
-  './src/media/picture.js',
-  './src/media/sfx.js',
-  './src/media/mic.js',
-  './src/media/manifest.js',
-
-  './src/pet/pet.js',
-
-  './src/ui/dom.js',
-  './src/ui/components.js',
-  './src/ui/achievementCard.js',
-  './src/ui/screens/home.js',
-  './src/ui/screens/onboarding.js',
-  './src/ui/screens/play.js',
-  './src/ui/screens/trophies.js',
-  './src/ui/screens/parent.js',
-  './src/ui/screens/charts.js',
-
-  './src/activities/index.js',
+  // Modules
   './src/activities/base.js',
-  './src/activities/listenTap.js',
-  './src/activities/intro.js',
   './src/activities/chant.js',
-  './src/activities/tpr.js',
+  './src/activities/coplay.js',
+  './src/activities/doAction.js',
+  './src/activities/index.js',
+  './src/activities/intro.js',
+  './src/activities/listenTap.js',
+  './src/activities/order.js',
   './src/activities/phonics.js',
   './src/activities/sentence.js',
-  './src/activities/memory.js',
-  './src/activities/sayIt.js',
-
+  './src/activities/story.js',
+  './src/activities/teach.js',
+  './src/activities/transfer.js',
+  './src/core/achievements.js',
+  './src/core/knowledge.js',
+  './src/core/selector.js',
+  './src/core/session.js',
+  './src/core/srs.js',
+  './src/core/stats.js',
+  './src/core/storyBuilder.js',
+  './src/core/time.js',
+  './src/data/achievements.js',
+  './src/data/pets.js',
+  './src/data/phrases.js',
+  './src/data/stories.js',
+  './src/data/units.js',
+  './src/data/words.js',
   './src/i18n/lv.js',
+  './src/main.js',
+  './src/media/enact.js',
+  './src/media/manifest.js',
+  './src/media/mic.js',
+  './src/media/picture.js',
+  './src/media/scene.js',
+  './src/media/sfx.js',
+  './src/media/speech.js',
+  './src/pet/pet.js',
+  './src/router.js',
+  './src/state/profiles.js',
+  './src/state/progress.js',
+  './src/state/storage.js',
+  './src/ui/achievementCard.js',
+  './src/ui/components.js',
+  './src/ui/dom.js',
+  './src/ui/screens/charts.js',
+  './src/ui/screens/home.js',
+  './src/ui/screens/onboarding.js',
+  './src/ui/screens/parent.js',
+  './src/ui/screens/play.js',
+  './src/ui/screens/trophies.js',
+  './src/version.js',
 ];
 
 self.addEventListener('install', (event) => {

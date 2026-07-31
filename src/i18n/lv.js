@@ -59,19 +59,47 @@ export const LV = {
   'act.tprDone': 'Es izdarīju!',
   'act.phonicsTitle': 'Ar kādu burtu sākas?',
   'act.phonicsPick': 'Kurš vārds sākas ar {letter}?',
-  'act.memoryTitle': 'Atrodi pārīti!',
   'act.sentenceTitle': 'Pabeidz teikumu!',
-  'act.sayItTitle': 'Saki tu!',
-  'act.sayItHint': 'Klausies un atkārto skaļi.',
   'act.sayItRecord': 'Ierakstīt sevi',
   'act.sayItStop': 'Apturēt',
   'act.sayItPlayback': 'Noklausīties',
-  'act.sayItRate': 'Kā sanāca?',
+
+  // Order fulfilment
+  'act.orderTitle': 'Ko viņš lūdz?',
+
+  // Movement, now with a retrieval
+  'act.actionWhich': 'Kura bilde to dara?',
+  'act.grownupDo': 'Pieaugušais: izdari to kopā ar bērnu!',
+  'act.grownupSay': 'Pieaugušais: pasaki “{word}” skaļi!',
+
+  // Transfer check
+  'act.transferHint': 'Cita bilde — tas pats vārds!',
+
+  // Teach the alien
+  'act.teachTitle': 'Iemāci citplanētietim!',
+  'act.teachNo': 'Nepareizi!',
+  'act.teachYes': 'Pareizi!',
+  'act.teachReally': 'Tiešām? Paskatīsimies vēlreiz…',
+  'act.teachWhat': 'Ups! Kas tas ir?',
+  'act.teachSaid': 'Es pateicu!',
+  'act.teachGrownupConfirm': 'Bērns to pateica',
+  'act.teachThanks': 'Paldies! Tas ir',
+
+  // Story
+  'act.storyNext': 'Tālāk',
   'act.hintLv': 'Latviski',
   'act.newWord': 'Jauns vārds!',
   'act.great': 'Lieliski!',
   'act.tryAgain': 'Gandrīz! Pamēģini vēlreiz.',
   'act.wellDone': 'Malacis!',
+
+  // --- co-play (age 2) ---
+  'coplay.title': 'Spēlēsim kopā!',
+  'coplay.lead': 'Mazajiem bērniem ekrāns viens pats māca maz. Apsēdieties blakus {name} — tieši jūs esat tas, kas māca.',
+  'coplay.tip1': 'Sakiet katru angļu vārdu skaļi arī paši.',
+  'coplay.tip2': 'Reaģējiet uz to, ko bērns izvēlas: “Jā! Cat!”',
+  'coplay.tip3': 'Lietojiet šos vārdus arī pēc spēles — pusdienās, vannā, pastaigā.',
+  'coplay.ready': 'Esam gatavi!',
 
   // --- session end ---
   'end.title': 'Nospēlēts!',
@@ -115,6 +143,37 @@ export const LV = {
   'par.statStreak': 'Dienas pēc kārtas',
   'par.statBestStreak': 'Labākā sērija: {n}',
   'par.statAccuracy': 'Precizitāte',
+  'par.statMet': 'Vārdi, ko bērns saticis',
+
+  // --- what actually indicates learning ---
+  'par.learningTitle': 'Ko bērns tiešām ir apguvis',
+  'par.learningHint': 'Svarīgākais nav nospēlēto spēļu skaits, bet gan tas, vai vārds paliek atmiņā pēc laika un vai bērns to atpazīst arī citā attēlā.',
+  'par.statKnown': 'Apgūti',
+  'par.statKnownSub': 'saprot, atpazīst citā attēlā un atceras vēlāk',
+  'par.statRetained': 'Atceras pēc nedēļas',
+  'par.statRetainedSub': 'spēcīgākais rādītājs',
+  'par.statTransfer': 'Atpazīst citā attēlā',
+  'par.statTransferSub': 'zina vārdu, ne tikai bildi',
+  'par.statSpeaks': 'Pasaka pats',
+  'par.statSpeaksSub': 'apstiprinājis pieaugušais',
+
+  'par.lvl1': 'Saticis, bet vēl nesaprot',
+  'par.lvl2': 'Saprot dzirdētu vārdu',
+  'par.lvl3': 'Viens solis tālāk',
+  'par.lvl4': 'Saprot arī citā attēlā un pēc laika',
+  'par.lvl5': 'Pilnībā apguvis',
+
+  'par.activityTitle': 'Aktivitāte',
+  'par.activityHint': 'Šie skaitļi rāda, cik daudz bērns spēlējis — nevis cik daudz iemācījies. Noderīgi paradumu izsekošanai, bet ne mācīšanās mērīšanai.',
+
+  'par.evRecognise': 'Saprot dzirdētu vārdu',
+  'par.evTransfer': 'Atpazina arī citā attēlā',
+  'par.evNoAlt': 'Šim vārdam nav otra attēla',
+  'par.evDay': 'Atcerējās nākamajā dienā',
+  'par.evWeek': 'Atcerējās pēc nedēļas',
+  'par.evSpeaks': 'Pateica pats',
+  'par.tableEvidence': 'Ko parādījis',
+  'par.weakHelp': 'ar palīdzību',
 
   'par.chartWeek': 'Pēdējās 14 dienas',
   'par.chartAccuracy': 'Precizitāte laika gaitā',
@@ -131,7 +190,7 @@ export const LV = {
   'par.filterLearning': 'Mācās',
   'par.filterNew': 'Nesākti',
   'par.weakTitle': 'Vārdi, kam pievērst uzmanību',
-  'par.weakHint': 'Šie vārdi vēl neveicas. Parunājiet par tiem arī ikdienā.',
+  'par.weakHint': 'Šie vārdi vēl neveicas vai sanāk tikai ar palīdzību. Lietojiet tos ikdienā — brokastīs, vannā, pastaigā. Tieši tur vārdi nostiprinās, un tur lietotne netiek.',
   'par.weakNone': 'Nav vārdu, kas sagādā grūtības. Lieliski!',
 
   'par.setProfiles': 'Spēlētāji',
@@ -174,6 +233,11 @@ export const LV = {
   'par.tip4': 'Lietojiet apgūtos vārdus arī ārpus lietotnes — veikalā, pastaigā, vannā.',
   'par.tip5': 'Nelabojiet izrunu uzreiz. Vienkārši atkārtojiet vārdu pareizi — bērns pielāgojas pats.',
   'par.tip6': 'Mazākajiem pietiek ar atpazīšanu. Runāt viņi sāks vēlāk — tas ir normāli.',
+  'par.tip7': 'Bērniem līdz aptuveni trim gadiem mācīšanās no ekrāna ir daudz vājāka nekā no dzīvas sarunas. Šī lietotne mazajiem ir kopīga rotaļa, nevis nodarbība, ko atstāt vienatnē.',
+  'par.tip8': 'Ja bērns kļūdās, nesakiet “nepareizi”. Nosauciet pareizo vārdu, parādiet, ko tas nozīmē, un dodiet vēl vienu mēģinājumu — lietotne dara tieši to.',
+
+  'par.setCoPlay': 'Kopīgas spēles atgādinājumi',
+  'par.setCoPlayHint': 'Spēles sākumā parāda kartīti pieaugušajam un lūdz apstiprināt, kad bērns vārdu pasaka. Ieteicams bērniem līdz 4 gadiem.',
 
   // --- misc ---
   'err.generic': 'Kaut kas nogāja greizi.',

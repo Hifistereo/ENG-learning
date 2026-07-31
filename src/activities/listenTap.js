@@ -14,7 +14,7 @@ import { buildQuestion } from '../core/selector.js';
 import { petReact, setPetPlacement } from '../pet/pet.js';
 import { play } from '../media/sfx.js';
 import { t } from '../i18n/lv.js';
-import { stageWith, idleHint } from './base.js';
+import { stageWith, idleHint, teachAnswer, TEACH_AFTER_MISSES } from './base.js';
 
 export function run(ctx) {
   const { round, profile, pool } = ctx;
@@ -23,6 +23,7 @@ export function run(ctx) {
 
   return new Promise((resolve) => {
     let attempts = 0;
+    let aided = false;        // once true, this answer proves nothing
     let askedAt = 0;
     let hint = { cancel() {} };
     let done = false;
@@ -42,6 +43,7 @@ export function run(ctx) {
       petReact.idle();
       askedAt = performance.now();
       hint = idleHint(profile, () => {
+        aided = true;               // a pointed-at answer is not knowledge
         petReact.hint(grid.directionOf(word.id));
         grid.hint(word.id);
       });
@@ -56,7 +58,16 @@ export function run(ctx) {
         play('wrong');
         petReact.wrong();
         await grid.markWrong(picked.id);
-        await ask();                       // re-ask; the right answer is still there
+
+        // Two misses means the child does not have this word yet. Asking a
+        // third time just repeats the failure — so stop testing and teach:
+        // say it, show what it means, then let them succeed.
+        if (attempts >= TEACH_AFTER_MISSES) {
+          aided = true;
+          await teachAnswer(ctx, word, grid);
+        } else {
+          await ask();                     // re-ask; the right answer is still there
+        }
         return;
       }
 
@@ -68,7 +79,12 @@ export function run(ctx) {
       // which is the moment the label sticks.
       ctx.say(word);
       await grid.markCorrect(word.id);
-      ctx.result(word.id, attempts === 1, Math.round(performance.now() - askedAt));
+
+      const clean = attempts === 1 && !aided;
+      ctx.result(word.id, clean, Math.round(performance.now() - askedAt), {
+        activity: 'listenTap',
+        aided,
+      });
       resolve();
     }
 

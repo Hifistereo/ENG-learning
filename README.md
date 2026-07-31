@@ -16,40 +16,85 @@ every scrap of data on the device.
 | | Age 2–4 | Age 5–7 |
 |---|---|---|
 | Session length | ~5 min, 8 items | ~12 min, 18 items |
+| Opens with | a card asking a grown-up to sit down | straight into the chant |
 | New words per session | 1–3 | 2–5 |
-| Answer choices | 2 | 4 |
+| Answer choices | 2 | 3–4 |
 | Written English | never | always, next to the picture |
-| Activities | chant, listen & tap, movement break | + phonics, sentence frames, memory board, say-it |
-| Review intervals | 1, 1, 2, 3, 5 days | 1, 2, 4, 8, 16 days |
+| Tasks | chant, meet a word, listen & tap, give-me, movement, transfer check, story | + phonics, sentence frames, teach-the-alien |
+| Asked to speak | never | yes, once a word already transfers |
+| Review intervals | 1, 2, 4, 7, 14 days | 1, 3, 7, 14, 30 days |
 
 Both tracks share the pet companion, the achievement cards, the sticker book,
-and the spaced-repetition scheduler.
+and the scheduler.
 
-## The design rules it follows
+A session is one themed adventure, not a list of mini-games. The same handful
+of words passes through every phase — meet it, fetch it for someone, act it
+out, use it to rescue a character, then say it — so each encounter is the same
+vocabulary in a different task.
 
-These are the decisions everything else falls out of. They are worth knowing
-before changing anything.
+## What "knowing a word" means here
 
-- **Receptive before productive.** Recognising comes first; a 2-year-old is
-  never asked to speak. Production (say-it) is age 5 only and is never scored,
-  because a self-report must not be allowed to drive the review schedule.
-- **Comprehensible input, dual-coded.** Picture and English audio always
-  together. Latvian appears in the interface and behind an opt-in 🇱🇻 hint —
-  never as the route to meaning.
-- **Errorless.** No buzzer, no red X, no timer, no lives, no losing screen. A
-  wrong tap dims that option, the pet re-asks, and the right answer stays there.
-  Every question ends in success, and every missed word comes back later in the
-  same session.
-- **Gains only.** Streaks count up and stop counting when a day is missed. There
-  is no "streak lost" screen and nothing is ever taken away. Loss-aversion
-  mechanics work on adults; on a five-year-old they read as punishment, and a
-  2-year-old has no say in whether the tablet comes out today.
+This is the most important thing in the codebase, so it is worth stating
+plainly. **Correct answers are not the measure.** A child can tap the right
+picture out of two twenty times in a row by remembering which side it was on,
+and that knowledge evaporates the moment the picture changes.
+
+So each word accumulates independent evidence, and each kind can only be earned
+by a task that actually demonstrates it (`src/core/knowledge.js`):
+
+| Evidence | Earned by |
+|---|---|
+| **recognises** | heard the word, picked the right picture, unaided |
+| **transfers** | did that again with a *different picture of the same thing* |
+| **says it** | said it out loud, confirmed by a grown-up |
+| **next day** | got it right at least a day after first meeting it |
+| **after a week** | got it right at least a week after first meeting it |
+
+A word counts as known only with transfer **and** delayed recall — plus
+production for the older track. Tapping a picture never counts as speech; no
+amount of same-picture repetition ever counts as transfer; and an answer given
+after the pet pointed at it counts for nothing at all.
+
+Retention and transfer are what the parent page leads with. Minutes played and
+session counts are still shown, but under a heading that says outright they
+measure willingness, not learning.
+
+## The other design rules
+
+- **Receptive before productive.** A 2-year-old is never asked to speak.
+  Production is age 5 only and only for words that already transfer.
+- **Under three, it is co-play.** Learning from a screen transfers to real life
+  much more weakly than learning from a person at that age, so toddler sessions
+  open by asking for a grown-up and tell them what to do. The screen is the
+  prop; the adult is the teacher.
+- **Language has to be worth understanding.** Somebody wants the apple; the fox
+  is cold; the alien got it wrong. Understanding gets the thing, moves the
+  story, fixes the mistake — it does not score a point.
+- **Animate the meaning, nothing else.** "jump" hops, "eat" vanishes into a
+  mouth, "sleep" fades with a 💤. Words with no honest enactment get no
+  animation, because decorative motion competes with the word for the same
+  attention.
+- **Errorless, and then it teaches.** After two misses the app stops testing:
+  it names the word, shows what it means, and hands the child an easy success.
+  No buzzer, no red X, no timer, no losing screen.
+- **Gains only.** Streaks count up and stop when a day is missed. Nothing is
+  ever taken away, and no reward is allowed to be more interesting than the
+  adventure.
 - **New words never crowd out review.** At most half a session goes on new
-  vocabulary. Meeting five words today and forgetting four by tomorrow is the
-  exact failure spaced repetition exists to prevent.
-- **Ritual over variety, for toddlers.** Same chant, same movement break, same
-  ending, every time. Predictability is what lets a small child spend attention
-  on the English instead of on working out what the app wants.
+  vocabulary.
+- **Ritual over variety, for toddlers.** Predictability is what lets a small
+  child spend attention on the English instead of on working out what the app
+  wants.
+
+### What it deliberately does not do
+
+- No memory-pairs game — it can be won by tracking card positions without
+  processing a word of English.
+- No automatic pronunciation scoring — speech recognition on a five-year-old
+  with a Latvian accent is unreliable, and a false "wrong" is the most
+  discouraging thing this app could do.
+- No background music, no clickable surprises, no reward art. See the bottom of
+  `assets/BRIEF.md`.
 
 ## Running it
 
@@ -91,15 +136,22 @@ retires the old cache and every device picks the update up on next load.
 
 ```
 src/
-  data/        the curriculum: words, units, sentence frames, pets, achievements
-  core/        pure logic: srs, selector, session, stats, achievements
-  state/       localStorage: profiles, per-child progress, backup
-  media/       speech, pictures, sound effects, microphone
+  data/        the curriculum: words, units, sentence frames, stories, pets, cards
+  core/        pure logic — knowledge (what "known" means), srs (when a word
+               comes back), selector, session, storyBuilder, stats, achievements
+  state/       localStorage: profiles, per-child progress, backup, migrations
+  media/       speech, pictures, scenes, meaning-matched animation, sfx, mic
   pet/         the companion state machine
-  activities/  one module per activity, each `run(ctx) => Promise`
+  activities/  one module per task, each `run(ctx) => Promise`
   ui/screens/  onboarding, home, play, trophies, parent
 tests/         node --test, covering everything in core/ and state/
+assets/        BRIEF.md plus the drop-in slots for audio and artwork
 ```
+
+Two modules are deliberately kept apart: `core/knowledge.js` decides what an
+answer *proves*, `core/srs.js` decides *when the word comes back*. They are
+different questions — a word can be scheduled far out while still being weakly
+known — and merging them is how mastery inflation creeps back in.
 
 `core/` and `state/` are pure and fully tested. `ui/` and `activities/` are
 verified by hand against the checklist below.
@@ -112,9 +164,14 @@ Append to `src/data/words.js`. `level: 2` also teaches it to toddlers; keep
 those short, concrete and easy to picture.
 
 ```js
-{ id: 'owl', en: 'owl', lv: 'pūce', emoji: '🦉', unit: 'animals',
+{ id: 'owl', en: 'owl', lv: 'pūce', emoji: '🦉', alt: '🦅', unit: 'animals',
   level: 5, syl: 1, art: 'an' },
 ```
+
+`alt` is a **second, visibly different picture of the same thing**, and it is
+worth adding wherever an honest one exists — it is what the transfer check
+uses. For colours the alternate should be the same colour on a completely
+different object (🔴 → 🌹), which is the sharpest transfer test in the set.
 
 Never change an existing `id` — that is the storage key, and changing one
 orphans that word's history. Adding is always safe.
@@ -177,8 +234,12 @@ browser clearing its data.
 Run through this before a release, on the actual tablet:
 
 - [ ] Both age profiles complete a full session start to finish
-- [ ] Age 2: two choices, no written words, tap targets comfortably big
+- [ ] Age 2: co-play card first, two choices, no written words, big targets
 - [ ] Age 5: four choices, written words, phonics and a sentence frame appear
+- [ ] The story runs and a right answer visibly changes what happens
+- [ ] "Give me the ___" only ever asks for things you could hand over
+- [ ] A transfer round shows a picture the child has not been taught with
+- [ ] Two wrong taps make the app teach the answer rather than ask again
 - [ ] A wrong tap never blocks progress, and that word returns later
 - [ ] Audio speaks on the first tap (this is the one iOS regularly breaks)
 - [ ] Pet reacts: asks, cheers, encourages, dances at the movement break,

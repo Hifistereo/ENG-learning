@@ -20,12 +20,16 @@ export function defaultSettings(ageBand) {
   return {
     sessionLength: ageBand === 2 ? 'short' : 'normal',
     lvHints: true,        // helpful at the start, worth switching off later
-    mic: false,           // opt-in only — see the plan's privacy note
+    mic: false,           // opt-in only — see media/mic.js
     petHints: true,
     sound: true,
     voiceURI: null,       // null = pick the best en-US voice automatically
     rate: ageBand === 2 ? 0.75 : 0.85,
     unlockedUnits: [],    // parent overrides on top of earned unlocks
+    // On by default for the toddler track. Under about three, learning from a
+    // screen transfers to real life much more weakly than learning from a
+    // person, so the app asks for an adult rather than pretending otherwise.
+    coPlay: ageBand === 2,
   };
 }
 

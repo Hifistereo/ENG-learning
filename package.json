@@ -1,6 +1,6 @@
 {
   "name": "eng-learning",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Angļu valodas mācību spēle latviešu bērniem (2-7 g.)",
   "type": "module",
