@@ -54,7 +54,7 @@
   line-height: 1;
 }
 .card__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.card__title { font-weight: 800; font-size: var(--t-sm); }
+.card__title { font-weight: 700; font-size: var(--t-sm); }
 .card__sub {
   font-size: var(--t-xs);
   color: var(--fg-soft);
@@ -131,5 +131,5 @@
   width: 100%;
 }
 .petpanel__info { display: flex; flex-direction: column; gap: 2px; }
-.petpanel__name { font-size: var(--t-lg); font-weight: 800; }
+.petpanel__name { font-size: var(--t-lg); font-weight: 700; }
 .petpanel__level { font-size: var(--t-sm); color: var(--fg-soft); }

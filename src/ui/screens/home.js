@@ -92,6 +92,16 @@ export function render(root) {
         }, `⚙️ ${t('home.parents')}`),
       ]),
     ]),
+    // Back to the other KidMindPath games. Home screen only — a control that
+    // leaves the app has no business sitting next to a running activity.
+    // The URL is absolute because the app is also served from
+    // hifistereo.github.io/ENG-learning/, where "/" is a different site.
+    el('div.home__hub', {}, [
+      el('a.kmp-home', { href: 'https://www.kidmindpath.com/' }, [
+        el('span', { text: '←', 'aria-hidden': 'true' }),
+        'KidMindPath',
+      ]),
+    ]),
     el('div.footer-version', { text: t('app.version', { v: APP_VERSION }) }),
   ]));
 

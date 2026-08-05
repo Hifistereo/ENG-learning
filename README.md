@@ -167,7 +167,37 @@ src/
   ui/screens/  onboarding, home, play, trophies, parent
 tests/         node --test, covering everything in core/ and state/
 assets/        BRIEF.md plus the drop-in slots for audio and artwork
+shared/        the KidMindPath design system — a synced copy, see below
+styles/        this app's own CSS, built on top of shared/
 ```
+
+### `shared/` — the KidMindPath design system
+
+`shared/` is **a copy, not this repo's own code.** It holds the Fredoka and
+Nunito webfonts plus the colour, type, spacing, radius, shadow and motion
+tokens that all six KidMindPath sites share, so this app looks like it belongs
+next to the other games on kidmindpath.com rather than like a separate product.
+
+The source of truth is `Hifistereo/Hifistereo.github.io` under `shared/`, whose
+`shared/README.md` documents how to sync a change. Edit it there, not here — a
+local edit is silently overwritten on the next sync.
+
+`styles/tokens.css` maps this app's own variable names onto the shared ones
+(`--font: var(--kmp-font-body)`, `--c-ink: var(--kmp-ink)`, …). The app-side
+names are unchanged, so no component CSS had to move. Two things follow:
+
+- **Link order matters.** `shared/` must be linked before `styles/` in
+  `index.html`, or every `var(--kmp-*)` resolves to nothing and the app renders
+  with no colour, spacing or fonts at all.
+- **Everything in `shared/` is in the service-worker precache,** including all
+  eighteen `.woff2` files individually — `@font-face` URLs are fetched lazily,
+  so caching the CSS alone leaves an offline tablet with no fonts.
+  `tests/styles.test.js` catches a sync that drops a *token*, but not one that
+  drops a font file.
+
+Fredoka ships 400/500/600/700 and nothing heavier. Every display-font selector
+is capped at 700; raising one to 800 gets a browser-synthesised face that looks
+subtly wrong and differs per browser.
 
 Two modules are deliberately kept apart: `core/knowledge.js` decides what an
 answer *proves*, `core/srs.js` decides *when the word comes back*. They are

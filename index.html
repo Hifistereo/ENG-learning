@@ -9,9 +9,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="mobile-web-app-capable" content="yes">
+<!-- Nothing here is fetched from anywhere else: no CDN, no fonts from Google,
+     no analytics. The policy says so rather than leaving the door open.
+     frame-ancestors is deliberately absent — browsers ignore it in a <meta>
+     policy and log an error for it, and GitHub Pages cannot set headers. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+<!-- KidMindPath design system. Must come before the app's own stylesheets:
+     styles/tokens.css resolves var(--kmp-*) out of these. -->
+<link rel="stylesheet" href="./shared/kidmindpath-fonts.css">
+<link rel="stylesheet" href="./shared/kidmindpath-tokens.css">
+<link rel="stylesheet" href="./shared/kidmindpath-ui.css">
 <link rel="stylesheet" href="./styles/tokens.css">
 <link rel="stylesheet" href="./styles/base.css">
 <link rel="stylesheet" href="./styles/kid.css">

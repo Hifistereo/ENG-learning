@@ -5,7 +5,7 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.3.2';
+const VERSION = '0.4.0';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the
@@ -18,6 +18,32 @@ const ASSETS = [
   './favicon.svg',
   './assets/audio/en/manifest.json',
   './assets/img/manifest.json',
+
+  // KidMindPath design system (see shared/README.md in Hifistereo.github.io).
+  // The woff2 files are listed individually: @font-face URLs are only fetched
+  // lazily by the browser, so caching the CSS alone would leave a tablet
+  // offline with no fonts.
+  './shared/kidmindpath-fonts.css',
+  './shared/kidmindpath-tokens.css',
+  './shared/kidmindpath-ui.css',
+  './shared/fonts/fredoka-400-normal-latin-ext.woff2',
+  './shared/fonts/fredoka-400-normal-latin.woff2',
+  './shared/fonts/fredoka-500-normal-latin-ext.woff2',
+  './shared/fonts/fredoka-500-normal-latin.woff2',
+  './shared/fonts/fredoka-600-normal-latin-ext.woff2',
+  './shared/fonts/fredoka-600-normal-latin.woff2',
+  './shared/fonts/fredoka-700-normal-latin-ext.woff2',
+  './shared/fonts/fredoka-700-normal-latin.woff2',
+  './shared/fonts/nunito-400-normal-latin-ext.woff2',
+  './shared/fonts/nunito-400-normal-latin.woff2',
+  './shared/fonts/nunito-600-normal-latin-ext.woff2',
+  './shared/fonts/nunito-600-normal-latin.woff2',
+  './shared/fonts/nunito-700-italic-latin-ext.woff2',
+  './shared/fonts/nunito-700-italic-latin.woff2',
+  './shared/fonts/nunito-700-normal-latin-ext.woff2',
+  './shared/fonts/nunito-700-normal-latin.woff2',
+  './shared/fonts/nunito-800-normal-latin-ext.woff2',
+  './shared/fonts/nunito-800-normal-latin.woff2',
 
   // Styles
   './styles/base.css',
