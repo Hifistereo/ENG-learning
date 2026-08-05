@@ -1,6 +1,18 @@
 /* Design tokens.
    One place for colour, spacing, type and motion so the kid screens and the
-   parent screens stay visually related without sharing components. */
+   parent screens stay visually related without sharing components.
+
+   Since v0.4.0 the neutrals, type, spacing, radii, shadow and motion scales
+   come from the KidMindPath design system in ./shared/, so this app looks
+   like it belongs with the other games on kidmindpath.com.
+
+   The names below are deliberately unchanged: every `var(--c-*)`, `var(--s-*)`
+   and `var(--t-*)` call site across styles/ and src/ui/ keeps working, and
+   only the values behind them moved. What stays defined here is the app's own
+   character — the sun, the leaf, the berry, the age scaling.
+
+   To change a shared value, edit it in Hifistereo.github.io/shared/ and
+   re-sync into every app; see shared/README.md there. */
 
 :root {
   /* --- Palette -------------------------------------------------------- */
@@ -8,20 +20,22 @@
      clears WCAG AA at the sizes we render them. */
   --c-sun:        #ffb703;
   --c-sun-deep:   #fb8500;
-  --c-sky:        #219ebc;
-  --c-sky-deep:   #126782;
+  /* The sky pair is this app's KidMindPath accent — the same blue its card
+     carries on the hub page. */
+  --c-sky:        var(--kmp-eng-hue);
+  --c-sky-deep:   var(--kmp-eng-ink);
   --c-sky-pale:   #8ecae6;
   --c-leaf:       #2a9d5c;
   --c-leaf-pale:  #b7e4c7;
   --c-berry:      #d1495b;
   --c-grape:      #7048a8;
 
-  --c-ink:        #1d2733;
-  --c-ink-soft:   #4a5a6a;
+  --c-ink:        var(--kmp-ink);
+  --c-ink-soft:   var(--kmp-ink-soft);
   --c-ink-faint:  #8697a8;
-  --c-paper:      #fffdf7;
+  --c-paper:      var(--kmp-paper);
   --c-paper-2:    #fff6e2;
-  --c-line:       #e6dcc8;
+  --c-line:       var(--kmp-line);
 
   /* Semantic aliases. Prefer these in components. */
   --bg:           var(--c-paper);
@@ -39,43 +53,47 @@
   --tier-rainbow: #7048a8;
 
   /* --- Spacing (8px base) --------------------------------------------- */
-  --s-1: 0.25rem;
-  --s-2: 0.5rem;
-  --s-3: 0.75rem;
-  --s-4: 1rem;
-  --s-5: 1.5rem;
-  --s-6: 2rem;
-  --s-7: 3rem;
-  --s-8: 4rem;
+  --s-1: var(--kmp-s-1);
+  --s-2: var(--kmp-s-2);
+  --s-3: var(--kmp-s-3);
+  --s-4: var(--kmp-s-4);
+  --s-5: var(--kmp-s-5);
+  --s-6: var(--kmp-s-6);
+  --s-7: var(--kmp-s-7);
+  --s-8: var(--kmp-s-8);
 
   /* --- Radii & shadow -------------------------------------------------- */
-  --r-sm: 0.5rem;
-  --r-md: 1rem;
-  --r-lg: 1.5rem;
-  --r-xl: 2rem;
-  --r-pill: 999px;
+  --r-sm:   var(--kmp-r-sm);
+  --r-md:   var(--kmp-r-md);
+  --r-lg:   var(--kmp-r-lg);
+  --r-xl:   var(--kmp-r-xl);
+  --r-pill: var(--kmp-r-pill);
 
-  --shadow-1: 0 2px 6px rgba(29, 39, 51, 0.08);
-  --shadow-2: 0 6px 18px rgba(29, 39, 51, 0.12);
-  --shadow-3: 0 14px 34px rgba(29, 39, 51, 0.18);
+  --shadow-1: var(--kmp-shadow-1);
+  --shadow-2: var(--kmp-shadow-2);
+  --shadow-3: var(--kmp-shadow-3);
   /* Chunky bottom edge that makes buttons look pressable to a small child. */
-  --edge: 0 6px 0 rgba(0, 0, 0, 0.14);
+  --edge: var(--kmp-edge);
 
-  /* --- Type ------------------------------------------------------------ */
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --t-xs:  0.8125rem;
-  --t-sm:  0.9375rem;
-  --t-md:  1.0625rem;
-  --t-lg:  clamp(1.25rem, 3.2vw, 1.75rem);
-  --t-xl:  clamp(1.75rem, 5vw, 2.75rem);
-  --t-2xl: clamp(2.25rem, 8vw, 4rem);
+  /* --- Type ------------------------------------------------------------
+     Nunito for prose, Fredoka for anything a child reads as a label. Both are
+     self-hosted in shared/fonts. --font-display is new in v0.4.0; --font
+     keeps its old name so nothing else has to change. */
+  --font:         var(--kmp-font-body);
+  --font-display: var(--kmp-font-display);
+  --t-xs:  var(--kmp-t-xs);
+  --t-sm:  var(--kmp-t-sm);
+  --t-md:  var(--kmp-t-md);
+  --t-lg:  var(--kmp-t-lg);
+  --t-xl:  var(--kmp-t-xl);
+  --t-2xl: var(--kmp-t-2xl);
 
   /* --- Motion ---------------------------------------------------------- */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --dur-fast: 150ms;
-  --dur: 280ms;
-  --dur-slow: 600ms;
+  --ease-out:    var(--kmp-ease-out);
+  --ease-bounce: var(--kmp-ease-bounce);
+  --dur-fast: var(--kmp-dur-fast);
+  --dur:      var(--kmp-dur);
+  --dur-slow: var(--kmp-dur-slow);
 
   /* --- Age scaling ------------------------------------------------------
      Set on <body> as data-age="2" | "5". Toddlers get bigger everything and

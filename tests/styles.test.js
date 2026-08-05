@@ -18,6 +18,20 @@ const read = (folder, file) => readFileSync(new URL(file, dir(folder)), 'utf8');
 const cssFiles = readdirSync(dir('styles')).filter((f) => f.endsWith('.css'));
 const css = cssFiles.map((f) => read('styles', f)).join('\n');
 
+// The KidMindPath design system declares every --kmp-* token that styles/
+// now reads. It is a synced copy of Hifistereo.github.io/shared/ rather than
+// this app's own CSS, so it counts towards "defined" but is not itself
+// checked here — the hub owns it.
+//
+// This is load-bearing for the same reason the whole file is: if a sync ever
+// drops a token that styles/tokens.css points at, CSS silently discards the
+// declaration and the app renders with no colour, no spacing, no fonts. That
+// failure is invisible until someone looks at a screen.
+const sharedCss = readdirSync(dir('shared'))
+  .filter((f) => f.endsWith('.css'))
+  .map((f) => read('shared', f))
+  .join('\n');
+
 /** Every .js file under src/, recursively. */
 function sourceFiles(folder = 'src') {
   const out = [];
@@ -48,7 +62,11 @@ function usedProperties(text) {
 
 test('every custom property the styles read is defined somewhere', () => {
   const js = sourceFiles().join('\n');
-  const defined = new Set([...declaredProperties(css), ...declaredProperties(js)]);
+  const defined = new Set([
+    ...declaredProperties(css),
+    ...declaredProperties(sharedCss),
+    ...declaredProperties(js),
+  ]);
 
   const missing = [...usedProperties(css)].filter((name) => !defined.has(name));
   assert.deepEqual(missing, [],
@@ -61,7 +79,11 @@ test('every custom property the app sets from JS is defined too', () => {
   // a picture a pre-literate child has to read is the difference between the
   // app working and not.
   const js = sourceFiles().join('\n');
-  const defined = new Set([...declaredProperties(css), ...declaredProperties(js)]);
+  const defined = new Set([
+    ...declaredProperties(css),
+    ...declaredProperties(sharedCss),
+    ...declaredProperties(js),
+  ]);
 
   const missing = [...usedProperties(js)].filter((name) => !defined.has(name));
   assert.deepEqual(missing, [],

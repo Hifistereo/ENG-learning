@@ -16,6 +16,7 @@ import { unlockSfx, play, setSfxEnabled } from '../../media/sfx.js';
 import { APP_VERSION } from '../../version.js';
 import { t } from '../../i18n/lv.js';
 import { navigate } from '../../router.js';
+import { hubPrefs } from '../../state/kmp.js';
 
 export function render(root) {
   const profile = getActiveProfile();
@@ -23,7 +24,9 @@ export function render(root) {
 
   document.body.dataset.surface = 'kid';
   document.body.dataset.age = String(profile.ageBand);
-  setSfxEnabled(profile.settings.sound);
+  // A parent who turned sound off on kidmindpath.com meant it for all five
+  // games, so the shared setting wins over this app's own when it exists.
+  setSfxEnabled(hubPrefs()?.sound ?? profile.settings.sound);
 
   const progress = getProgress(profile.id);
   const known = knownCount(profile.id, profile.ageBand);

@@ -4,6 +4,7 @@
 // its own screen because it is the part the child should be involved in —
 // naming the companion is what makes them care about it later.
 
+import { hubChild, hubAgeBand } from '../../state/kmp.js';
 import { el, mount } from '../dom.js';
 import { title, primaryButton } from '../components.js';
 import { petPreviewEl, setProfile as setPetProfile, showPet } from '../../pet/pet.js';
@@ -19,8 +20,19 @@ export function render(root) {
   document.body.dataset.age = '5';
   showPet(false);
 
-  const draft = { name: '', ageBand: null, petId: PETS[0].id, petName: '' };
-  let step = 0;
+  // Anything the hub already asked, we do not ask again. A child named on
+  // kidmindpath.com lands straight on the pet chooser — which is the one
+  // question the hub deliberately does not ask, because picking a companion is
+  // part of the game rather than a form field.
+  const fromHub = hubChild();
+  const hubBand = hubAgeBand();
+  const draft = {
+    name: fromHub?.name || '',
+    ageBand: hubBand,
+    petId: PETS[0].id,
+    petName: '',
+  };
+  let step = draft.name ? (draft.ageBand ? 2 : 1) : 0;
 
   const stage = el('div.stage');
   const screen = el('div.screen.screen--kid', {}, [stage]);
@@ -141,6 +153,11 @@ export function render(root) {
     // iOS stays silent for the whole first session.
     unlockAudio();
     const profile = createProfile({
+      // Take the hub's child id when there is one, so this profile and the
+      // shared one are the same child. Without it the collection page on
+      // kidmindpath.com would look for progress under an id this app never
+      // used, and show an empty album for a child who has been playing.
+      id: fromHub?.id,
       name: draft.name || '?',
       ageBand: draft.ageBand || 5,
       petId: draft.petId,

@@ -15,7 +15,7 @@
   gap: var(--s-3);
   flex-wrap: wrap;
 }
-.parent__title { font-size: var(--t-lg); font-weight: 800; }
+.parent__title { font-size: var(--t-lg); font-weight: 700; }
 .parent__body { display: flex; flex-direction: column; gap: var(--s-4); }
 .parent__empty { color: var(--fg-soft); }
 
@@ -43,7 +43,7 @@
   width: min(22rem, 100%);
   text-align: center;
 }
-.gate__title { font-size: var(--t-lg); font-weight: 800; }
+.gate__title { font-size: var(--t-lg); font-weight: 700; }
 .gate__hint { color: var(--fg-soft); font-size: var(--t-sm); }
 .gate__sum { font-size: var(--t-xl); font-weight: 800; letter-spacing: 0.05em; }
 .gate__error { color: var(--c-berry); font-size: var(--t-sm); min-height: 1.2em; }
@@ -95,7 +95,7 @@
   background: var(--bg-raised);
   border: 1px solid var(--border);
 }
-.panel__title { font-size: var(--t-md); font-weight: 800; }
+.panel__title { font-size: var(--t-md); font-weight: 700; }
 .muted { color: var(--fg-soft); font-size: var(--t-sm); }
 
 /* --- Stat tiles --------------------------------------------------------- */

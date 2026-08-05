@@ -164,6 +164,11 @@
 
 .home__actions { display: flex; flex-direction: column; gap: var(--s-3); width: min(22rem, 100%); }
 .home__actions .btn { width: 100%; }
+
+/* Way back to the other KidMindPath games. Deliberately set apart from
+   .home__actions so it never reads as one of the play buttons. */
+.home__hub { display: flex; justify-content: center; margin-top: var(--s-5); }
+
 .home__stat {
   display: inline-flex;
   align-items: center;
@@ -181,7 +186,7 @@
   justify-content: center;
   gap: var(--s-3);
   font-size: var(--t-xl);
-  font-weight: 800;
+  font-weight: 700;
 }
 .title__emoji { font-size: 1.1em; }
 
@@ -248,7 +253,7 @@
   text-align: left;
 }
 .agecard.is-selected { border-color: var(--c-sun-deep); background: var(--c-paper-2); }
-.agecard__title { font-size: var(--t-lg); font-weight: 800; }
+.agecard__title { font-size: var(--t-lg); font-weight: 700; }
 .agecard__hint { font-size: var(--t-sm); color: var(--fg-soft); }
 
 /* --- Celebration -------------------------------------------------------- */

@@ -3,7 +3,7 @@
 // A profile is per-child rather than per-device because the two children share
 // one tablet and their progress, pace, and pet must not mix.
 
-import { read, write } from './storage.js';
+import { read, write, remove } from './storage.js';
 import { PETS, getPet } from '../data/pets.js';
 
 const KEY_PROFILES = 'profiles';
@@ -66,6 +66,10 @@ function normalize(profile) {
     id: profile.id,
     name: profile.name || '?',
     ageBand,
+    // True once this profile's id is the KidMindPath child id. Kept through
+    // normalize() on purpose: it is what stops a second child adopting the
+    // first child's progress. See syncWithHub().
+    linkedToHub: profile.linkedToHub === true,
     createdAt: profile.createdAt || Date.now(),
     pet: {
       id: petDef.id,
@@ -95,11 +99,14 @@ function makeId(name) {
   return `${slug}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-export function createProfile({ name, ageBand, petId, petName }) {
+export function createProfile({ id, name, ageBand, petId, petName }) {
   const profiles = listProfiles();
   const petDef = getPet(petId || PETS[0].id);
   const profile = normalize({
-    id: makeId(name),
+    // An explicit id comes from the KidMindPath hub, so this profile and the
+    // shared child are one and the same. Otherwise generate one as before.
+    id: id || makeId(name),
+    linkedToHub: Boolean(id),
     name,
     ageBand,
     createdAt: Date.now(),
@@ -108,6 +115,77 @@ export function createProfile({ name, ageBand, petId, petName }) {
   saveProfiles([...profiles, profile]);
   setActiveProfileId(profile.id);
   return profile;
+}
+
+/**
+ * Follow the child chosen on kidmindpath.com.
+ *
+ * This app has always had its own profiles, so what it needs from the hub is
+ * identity, not storage: the profile whose id IS the shared child id.
+ *
+ *  1. That profile already exists — select it, and take the hub's name if it
+ *     changed. The steady state, and the only branch that runs on most loads.
+ *  2. No hub, or a guest — do nothing at all. Onboarding and the profile list
+ *     behave exactly as they did before any of this existed, which is what
+ *     happens at hifistereo.github.io/ENG-learning/.
+ *  3. First link on a device that has already been played on — ADOPT the
+ *     active profile by re-identifying it, so a child keeps every word they
+ *     have learned instead of appearing to start from nothing.
+ *
+ * Adoption has to move the learning record too. Progress lives under
+ * `progress.<profileId>` (state/progress.js), so changing an id without moving
+ * that key would orphan months of history behind a name nobody reads again.
+ * That is the whole reason this function is here rather than a one-liner in
+ * main.js.
+ *
+ * @param {{id: string, name: string}|null} child
+ * @param {2|5|null} ageBand
+ * @returns {'none'|'selected'|'adopted'}
+ */
+export function syncWithHub(child, ageBand) {
+  if (!child || !child.id) return 'none';
+
+  const profiles = listProfiles();
+  const mine = profiles.find((p) => p.id === child.id);
+
+  if (mine) {
+    const name = String(child.name || '').trim().slice(0, 16);
+    if (name && name !== mine.name) updateProfile(mine.id, { name });
+    setActiveProfileId(mine.id);
+    return 'selected';
+  }
+
+  // Has any profile already been claimed by a hub child? If so this is a
+  // different child, and must not inherit the first one's progress.
+  const linked = profiles.some((p) => p.linkedToHub);
+  const adoptable = profiles.find((p) => p.id === getActiveProfileId()) || profiles[0];
+
+  if (adoptable && !linked) {
+    const oldId = adoptable.id;
+    const moved = normalize({
+      ...adoptable,
+      id: child.id,
+      linkedToHub: true,
+      name: String(child.name || '').trim().slice(0, 16) || adoptable.name,
+      ageBand: ageBand ?? adoptable.ageBand,
+    });
+    // Move the learning record first: a failure halfway then leaves the old
+    // profile intact rather than a new one pointing at nothing.
+    const record = read(`progress.${oldId}`, null);
+    if (record) {
+      write(`progress.${child.id}`, record);
+      remove(`progress.${oldId}`);
+    }
+    saveProfiles(profiles.map((p) => (p.id === oldId ? moved : p)));
+    setActiveProfileId(child.id);
+    return 'adopted';
+  }
+
+  // Nothing to select and nothing safe to adopt: let onboarding run. It reads
+  // the hub child itself and skips straight past the questions the hub has
+  // already answered, so the child still gets to choose a pet — which is the
+  // one thing the hub does not ask and should not.
+  return 'none';
 }
 
 export function updateProfile(id, patch) {

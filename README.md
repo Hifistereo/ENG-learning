@@ -167,7 +167,61 @@ src/
   ui/screens/  onboarding, home, play, trophies, parent
 tests/         node --test, covering everything in core/ and state/
 assets/        BRIEF.md plus the drop-in slots for audio and artwork
+shared/        the KidMindPath design system — a synced copy, see below
+styles/        this app's own CSS, built on top of shared/
 ```
+
+### `shared/` — the KidMindPath design system
+
+`shared/` is **a copy, not this repo's own code.** It holds the Fredoka and
+Nunito webfonts plus the colour, type, spacing, radius, shadow and motion
+tokens that all six KidMindPath sites share, so this app looks like it belongs
+next to the other games on kidmindpath.com rather than like a separate product.
+
+The source of truth is `Hifistereo/Hifistereo.github.io` under `shared/`, whose
+`shared/README.md` documents how to sync a change. Edit it there, not here — a
+local edit is silently overwritten on the next sync.
+
+`styles/tokens.css` maps this app's own variable names onto the shared ones
+(`--font: var(--kmp-font-body)`, `--c-ink: var(--kmp-ink)`, …). The app-side
+names are unchanged, so no component CSS had to move. Two things follow:
+
+- **Link order matters.** `shared/` must be linked before `styles/` in
+  `index.html`, or every `var(--kmp-*)` resolves to nothing and the app renders
+  with no colour, spacing or fonts at all.
+- **Everything in `shared/` is in the service-worker precache,** including all
+  eighteen `.woff2` files individually — `@font-face` URLs are fetched lazily,
+  so caching the CSS alone leaves an offline tablet with no fonts.
+  `tests/styles.test.js` catches a sync that drops a *token*, but not one that
+  drops a font file.
+
+Fredoka ships 400/500/600/700 and nothing heavier. Every display-font selector
+is capped at 700; raising one to 800 gets a browser-synthesised face that looks
+subtly wrong and differs per browser.
+
+### Following the child chosen on the hub
+
+`src/state/kmp.js` is the only place that touches `window.KMP`. When the app is
+opened from kidmindpath.com, `syncWithHub()` (`src/state/profiles.js`) selects
+the profile whose id **is** the shared child id, so nobody types the same name
+twice.
+
+On the first link on a device that has already been played on, the active
+profile is **adopted** — re-identified and flagged `linkedToHub` — rather than
+replaced. That has to move the learning record too, because progress lives
+under `progress.<profileId>`; changing an id without moving it would orphan
+months of history behind a name nobody reads again. It happens once, and only
+while no profile is linked, so a second child can never inherit the first
+one's words.
+
+Onboarding then **skips the questions the hub already answered** and lands on
+the pet chooser — the one thing the hub deliberately does not ask, because
+choosing a companion is part of the game rather than a form field.
+
+Without a hub — `hifistereo.github.io/ENG-learning/`, or a plain file server —
+every function in `state/kmp.js` returns a safe default and the app behaves
+exactly as it did before. That is the case to keep working; it is easy to break
+by accident.
 
 Two modules are deliberately kept apart: `core/knowledge.js` decides what an
 answer *proves*, `core/srs.js` decides *when the word comes back*. They are
