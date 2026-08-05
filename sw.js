@@ -5,7 +5,7 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the
@@ -23,6 +23,7 @@ const ASSETS = [
   // The woff2 files are listed individually: @font-face URLs are only fetched
   // lazily by the browser, so caching the CSS alone would leave a tablet
   // offline with no fonts.
+  './shared/kmp.js',
   './shared/kidmindpath-fonts.css',
   './shared/kidmindpath-tokens.css',
   './shared/kidmindpath-ui.css',
@@ -96,6 +97,7 @@ const ASSETS = [
   './src/media/speech.js',
   './src/pet/pet.js',
   './src/router.js',
+  './src/state/kmp.js',
   './src/state/profiles.js',
   './src/state/progress.js',
   './src/state/storage.js',

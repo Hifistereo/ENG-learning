@@ -40,8 +40,18 @@ body[data-surface="parent"] {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+  /* The KidMindPath bar is fixed over the top of the viewport, so the app has
+     to start below it. It goes here rather than on .screen because .screen is
+     a static flex child — `top` would do nothing on it.
+
+     --kmp-bar-h is published by shared/kmp.js and is 0px when there is no bar
+     (no hub, or hifistereo.github.io), so this is a no-op there. It already
+     includes the safe-area inset, which is why the top inset drops out of the
+     padding below: adding both would double-count the notch. */
+  padding: var(--kmp-bar-h, env(safe-area-inset-top)) env(safe-area-inset-right)
            env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* dvh minus the bar, so a full-height screen still fits without scrolling */
+  min-height: calc(100dvh - var(--kmp-bar-h, 0px));
 }
 
 img, svg { max-width: 100%; display: block; }

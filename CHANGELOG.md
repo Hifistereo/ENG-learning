@@ -15,6 +15,40 @@ Iecerēts nākamajām versijām:
 - Izdrukājamas kartītes vecākiem
 - Progresa sinhronizācija starp ierīcēm
 
+## [0.5.0] – 2026-08-05
+
+“Viens bērns”. Vārds tiek prasīts vienreiz — sākumlapā, nevis šeit.
+
+### Mainīts — profils
+
+- **Lietotne seko bērnam, kurš izvēlēts kidmindpath.com sākumlapā.**
+  `syncWithHub()` (`src/state/profiles.js`) atrod profilu, kura `id` sakrīt ar
+  kopīgo bērna id, un izvēlas to. Vārds un vecums vairs nav jāievada atkārtoti.
+- **Pirmajā reizē uz ierīces, kur jau ir spēlēts, esošais profils tiek
+  pārņemts**, nevis izveidots no jauna — kopā ar mācīšanās vēsturi, kas glabājas
+  atsevišķi (`progress.<profileId>`). Bez tam bērns zaudētu visus apgūtos
+  vārdus. Tas notiek vienu reizi un tikai tad, ja neviens profils vēl nav
+  piesaistīts, tāpēc otrs bērns nekad nepārņem pirmā progresu.
+- **Iepazīšanās ekrāns izlaiž to, ko sākumlapa jau ir pajautājusi.** Ja vārds un
+  vecums ir zināmi, bērns uzreiz nonāk pie mājdzīvnieka izvēles — vienīgais
+  jautājums, ko sākumlapa apzināti neuzdod, jo drauga izvēle ir daļa no spēles,
+  nevis anketas lauks.
+
+### Pievienots
+
+- **Josla atpakaļ uz kidmindpath.com** katrā ekrānā, lai starp spēlēm varētu
+  pārslēgties bez pārlūka pogas “atpakaļ”.
+- Skaņas un kustību iestatījumi, ja tie ir uzstādīti sākumlapā, attiecas arī uz
+  šo lietotni.
+
+### Iekšēji
+
+- `src/state/kmp.js` — vienīgā vieta, kas pieskaras `window.KMP`. Ja kopīgā
+  profila nav (piemēram, atverot no `hifistereo.github.io/ENG-learning/`), viss
+  atgriež drošu noklusējumu un lietotne darbojas tieši tāpat kā agrāk.
+- `sw.js` kešo `shared/kmp.js` un `src/state/kmp.js`. To pamanīja pats tests
+  (“every source module is precached”), nevis pārbaude ar acīm.
+
 ## [0.4.0] – 2026-08-05
 
 “Viena ģimene”. Lietotne tagad izskatās pēc daļas no kidmindpath.com, nevis

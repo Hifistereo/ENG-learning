@@ -199,6 +199,30 @@ Fredoka ships 400/500/600/700 and nothing heavier. Every display-font selector
 is capped at 700; raising one to 800 gets a browser-synthesised face that looks
 subtly wrong and differs per browser.
 
+### Following the child chosen on the hub
+
+`src/state/kmp.js` is the only place that touches `window.KMP`. When the app is
+opened from kidmindpath.com, `syncWithHub()` (`src/state/profiles.js`) selects
+the profile whose id **is** the shared child id, so nobody types the same name
+twice.
+
+On the first link on a device that has already been played on, the active
+profile is **adopted** — re-identified and flagged `linkedToHub` — rather than
+replaced. That has to move the learning record too, because progress lives
+under `progress.<profileId>`; changing an id without moving it would orphan
+months of history behind a name nobody reads again. It happens once, and only
+while no profile is linked, so a second child can never inherit the first
+one's words.
+
+Onboarding then **skips the questions the hub already answered** and lands on
+the pet chooser — the one thing the hub deliberately does not ask, because
+choosing a companion is part of the game rather than a form field.
+
+Without a hub — `hifistereo.github.io/ENG-learning/`, or a plain file server —
+every function in `state/kmp.js` returns a safe default and the app behaves
+exactly as it did before. That is the case to keep working; it is easy to break
+by accident.
+
 Two modules are deliberately kept apart: `core/knowledge.js` decides what an
 answer *proves*, `core/srs.js` decides *when the word comes back*. They are
 different questions — a word can be scheduled far out while still being weakly

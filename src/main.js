@@ -1,7 +1,8 @@
 // Entry point: wire routes, mount the pet, start the router.
 
 import { route, setNotFound, startRouter, navigate } from './router.js';
-import { getActiveProfile, listProfiles } from './state/profiles.js';
+import { getActiveProfile, listProfiles, syncWithHub } from './state/profiles.js';
+import { hubChild, hubAgeBand, mountHomeBar } from './state/kmp.js';
 import { mountPet, showPet } from './pet/pet.js';
 import { preloadArt } from './media/art.js';
 import { unlockAudio } from './media/speech.js';
@@ -41,6 +42,15 @@ function registerServiceWorker() {
 
 function boot() {
   console.info(`Mācāmies angliski v${APP_VERSION}`);
+
+  // Follow the child named on kidmindpath.com, BEFORE anything reads a
+  // profile — the pet mounts against the active one on the next line, and the
+  // '/' route decides between home and onboarding on whether any exist.
+  const linked = syncWithHub(hubChild(), hubAgeBand());
+  if (linked !== 'none') console.info(`KidMindPath profile: ${linked}`);
+
+  // The bar back to the hub, on every screen.
+  mountHomeBar();
 
   mountPet(document.getElementById('pet-layer'), getActiveProfile());
   preloadArt();

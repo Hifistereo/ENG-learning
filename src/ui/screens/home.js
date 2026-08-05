@@ -16,6 +16,7 @@ import { unlockSfx, play, setSfxEnabled } from '../../media/sfx.js';
 import { APP_VERSION } from '../../version.js';
 import { t } from '../../i18n/lv.js';
 import { navigate } from '../../router.js';
+import { hubPrefs } from '../../state/kmp.js';
 
 export function render(root) {
   const profile = getActiveProfile();
@@ -23,7 +24,9 @@ export function render(root) {
 
   document.body.dataset.surface = 'kid';
   document.body.dataset.age = String(profile.ageBand);
-  setSfxEnabled(profile.settings.sound);
+  // A parent who turned sound off on kidmindpath.com meant it for all five
+  // games, so the shared setting wins over this app's own when it exists.
+  setSfxEnabled(hubPrefs()?.sound ?? profile.settings.sound);
 
   const progress = getProgress(profile.id);
   const known = knownCount(profile.id, profile.ageBand);
@@ -90,16 +93,6 @@ export function render(root) {
           type: 'button',
           on: { click: () => navigate('/parent') },
         }, `⚙️ ${t('home.parents')}`),
-      ]),
-    ]),
-    // Back to the other KidMindPath games. Home screen only — a control that
-    // leaves the app has no business sitting next to a running activity.
-    // The URL is absolute because the app is also served from
-    // hifistereo.github.io/ENG-learning/, where "/" is a different site.
-    el('div.home__hub', {}, [
-      el('a.kmp-home', { href: 'https://www.kidmindpath.com/' }, [
-        el('span', { text: '←', 'aria-hidden': 'true' }),
-        'KidMindPath',
       ]),
     ]),
     el('div.footer-version', { text: t('app.version', { v: APP_VERSION }) }),
