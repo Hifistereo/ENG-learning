@@ -5,7 +5,7 @@
 // Keep the version here in step with src/version.js — a service worker cannot
 // import an ES module, so this is the one place the number is duplicated.
 
-const VERSION = '0.5.0';
+const VERSION = '0.5.1';
 const CACHE = `engl-v${VERSION}`;
 
 // Everything needed for a full session offline. All paths are relative: the
@@ -27,14 +27,14 @@ const ASSETS = [
   './shared/kidmindpath-fonts.css',
   './shared/kidmindpath-tokens.css',
   './shared/kidmindpath-ui.css',
-  './shared/fonts/fredoka-400-normal-latin-ext.woff2',
-  './shared/fonts/fredoka-400-normal-latin.woff2',
-  './shared/fonts/fredoka-500-normal-latin-ext.woff2',
-  './shared/fonts/fredoka-500-normal-latin.woff2',
-  './shared/fonts/fredoka-600-normal-latin-ext.woff2',
-  './shared/fonts/fredoka-600-normal-latin.woff2',
-  './shared/fonts/fredoka-700-normal-latin-ext.woff2',
-  './shared/fonts/fredoka-700-normal-latin.woff2',
+  './shared/fonts/quicksand-400-normal-latin-ext.woff2',
+  './shared/fonts/quicksand-400-normal-latin.woff2',
+  './shared/fonts/quicksand-500-normal-latin-ext.woff2',
+  './shared/fonts/quicksand-500-normal-latin.woff2',
+  './shared/fonts/quicksand-600-normal-latin-ext.woff2',
+  './shared/fonts/quicksand-600-normal-latin.woff2',
+  './shared/fonts/quicksand-700-normal-latin-ext.woff2',
+  './shared/fonts/quicksand-700-normal-latin.woff2',
   './shared/fonts/nunito-400-normal-latin-ext.woff2',
   './shared/fonts/nunito-400-normal-latin.woff2',
   './shared/fonts/nunito-600-normal-latin-ext.woff2',

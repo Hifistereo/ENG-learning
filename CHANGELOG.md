@@ -15,6 +15,19 @@ Iecerēts nākamajām versijām:
 - Izdrukājamas kartītes vecākiem
 - Progresa sinhronizācija starp ierīcēm
 
+## [0.5.1] – 2026-08-07
+
+### Mainīts — fonts
+
+- **Virsrakstu fonts nomainīts no Fredoka uz Quicksand.** Fredoka `latin-ext`
+  apakškopā trūkst gandrīz visu latviešu garumzīmju. Baloo 2 tika izmēģināts
+  citur ģimenē, bet tam garumzīmes (ā/ē/ī/ū) ir vizuāli nesavietotas ar burtu.
+  Quicksand ir vienīgais no trim ar pilnīgu un pareizi novietotu latviešu
+  diakritiku, un tagad ir aktīvs galvenajā lapā un visās piecās spēlēs.
+- Nomainīti arī Nunito faili uz koriģētu versiju — iepriekšējie faili bija
+  identiski visiem četriem deklarētajiem svariem, tāpēc pamatteksts nekad
+  reāli nemainījās pēc svara.
+
 ## [0.5.0] – 2026-08-05
 
 “Viens bērns”. Vārds tiek prasīts vienreiz — sākumlapā, nevis šeit.

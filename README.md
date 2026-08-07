@@ -173,7 +173,7 @@ styles/        this app's own CSS, built on top of shared/
 
 ### `shared/` — the KidMindPath design system
 
-`shared/` is **a copy, not this repo's own code.** It holds the Fredoka and
+`shared/` is **a copy, not this repo's own code.** It holds the Quicksand and
 Nunito webfonts plus the colour, type, spacing, radius, shadow and motion
 tokens that all six KidMindPath sites share, so this app looks like it belongs
 next to the other games on kidmindpath.com rather than like a separate product.
@@ -195,9 +195,12 @@ names are unchanged, so no component CSS had to move. Two things follow:
   `tests/styles.test.js` catches a sync that drops a *token*, but not one that
   drops a font file.
 
-Fredoka ships 400/500/600/700 and nothing heavier. Every display-font selector
-is capped at 700; raising one to 800 gets a browser-synthesised face that looks
-subtly wrong and differs per browser.
+Quicksand replaced Fredoka: Fredoka's `latin-ext` subset is missing most
+Latvian diacritics, and Baloo 2 — tried as a fix elsewhere in the family —
+positions combining macrons (ā/ē/ī/ū) off the base letter. Quicksand has full,
+correctly-positioned Latvian coverage. It ships 400/500/600/700 and nothing
+heavier. Every display-font selector is capped at 700; raising one to 800 gets
+a browser-synthesised face that looks subtly wrong and differs per browser.
 
 ### Following the child chosen on the hub
 
