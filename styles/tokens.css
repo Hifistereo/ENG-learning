@@ -76,8 +76,8 @@
   --edge: var(--kmp-edge);
 
   /* --- Type ------------------------------------------------------------
-     Nunito for prose, Fredoka for anything a child reads as a label. Both are
-     self-hosted in shared/fonts. --font-display is new in v0.4.0; --font
+     Nunito for prose, Quicksand for anything a child reads as a label. Both
+     are self-hosted in shared/fonts. --font-display is new in v0.4.0; --font
      keeps its old name so nothing else has to change. */
   --font:         var(--kmp-font-body);
   --font-display: var(--kmp-font-display);

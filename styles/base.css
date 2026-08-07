@@ -98,13 +98,17 @@ h1, h2, h3, p { margin: 0; }
 }
 .btn:active { transform: translateY(2px) scale(0.98); }
 
-/* Fredoka on anything a child reads as a label or a heading; Nunito for
+/* Quicksand on anything a child reads as a label or a heading; Nunito for
    everything else. Only font-family is set here — the weights live with each
    selector — so nothing later in the cascade needs to know about this rule.
 
-   Fredoka ships 400/500/600/700 and nothing heavier. Every selector listed
-   here is capped at 700 in its own file; raising one back to 800 gets a
-   browser-synthesised face that looks subtly wrong and differs per browser. */
+   Quicksand replaced Fredoka: Fredoka's latin-ext subset is missing most
+   Latvian diacritics, and Baloo 2 — tried as a fix elsewhere in the family —
+   positions combining macrons (ā/ē/ī/ū) off the base letter. Quicksand has
+   full, correctly-positioned Latvian coverage. It ships 400/500/600/700 and
+   nothing heavier. Every selector listed here is capped at 700 in its own
+   file; raising one back to 800 gets a browser-synthesised face that looks
+   subtly wrong and differs per browser. */
 .title,
 .btn,
 .card__title,
